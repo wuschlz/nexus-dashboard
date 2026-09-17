@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>NEXUS Office Dashboard v4</title>
-  <link rel="stylesheet" href="./styles.css?v=8" />
+  <title>NEXUS Office Dashboard v5</title>
+  <link rel="stylesheet" href="./styles.css?v=9" />
 </head>
 <body>
   <div id="app">
@@ -34,7 +34,7 @@
 
       <main class="stage-wrap">
         <div class="stage-toolbar">
-          <div><strong id="viewTitle">Office v4</strong><span class="muted"> · schärfer · A* Pathfinding · 8 Plätze</span></div>
+          <div><strong id="viewTitle">Office v5</strong><span class="muted"> · scharf · A* Pathfinding · smoother Walk-Loop · 8 Plätze</span></div>
           <div class="scene-actions">
             <button id="idleBtn" class="chip active">Idle</button>
             <button id="walkBtn" class="chip">Walk</button>
@@ -47,7 +47,7 @@
         <div class="scene-panel">
           <canvas id="officeCanvas" aria-label="3D NEXUS Office"></canvas>
           <div id="loading" class="loading">3D-Engine wird gestartet …</div>
-          <div class="scene-badge"><span class="dot live"></span>OFFICE V4 · PATHFINDING</div>
+          <div class="scene-badge"><span class="dot live"></span>OFFICE V5 · SMOOTH WALK</div>
         </div>
 
         <section class="activity">
@@ -75,6 +75,7 @@
 
   <script src="https://cdn.babylonjs.com/babylon.js"></script>
   <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
-  <script defer src="./app.js?v=8"></script>
+  <script defer src="./animation-fix.js?v=9"></script>
+  <script defer src="./app.js?v=9"></script>
 </body>
 </html>
