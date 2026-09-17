@@ -34,12 +34,14 @@
 
   const canvas=document.getElementById('officeCanvas');
   const engine=new BABYLON.Engine(canvas,true,{preserveDrawingBuffer:false,stencil:true},true);
-  engine.setHardwareScalingLevel(Math.max(1,Math.min(1.35,window.devicePixelRatio||1)));
+  const renderDpr=Math.min(2,window.devicePixelRatio||1);
+  engine.setHardwareScalingLevel(1/renderDpr);
+
   const scene=new BABYLON.Scene(engine);
   scene.clearColor=new BABYLON.Color4(0.028,0.042,0.062,1);
   scene.imageProcessingConfiguration.toneMappingEnabled=true;
-  scene.imageProcessingConfiguration.exposure=1.15;
-  scene.imageProcessingConfiguration.contrast=1.08;
+  scene.imageProcessingConfiguration.exposure=1.12;
+  scene.imageProcessingConfiguration.contrast=1.12;
 
   const camera=new BABYLON.ArcRotateCamera('camera',Math.PI*0.24,1.0,17.3,new BABYLON.Vector3(0,1.05,0.15),scene);
   camera.attachControl(canvas,true); camera.lowerRadiusLimit=9; camera.upperRadiusLimit=22;
@@ -50,7 +52,7 @@
   const key=new BABYLON.DirectionalLight('key',new BABYLON.Vector3(-.45,-1,-.35),scene);
   key.position=new BABYLON.Vector3(7,10,8); key.intensity=1.15;
 
-  const glow=new BABYLON.GlowLayer('glow',scene,{blurKernelSize:24}); glow.intensity=.42;
+  const glow=new BABYLON.GlowLayer('glow',scene,{blurKernelSize:12}); glow.intensity=.22;
 
   function pbr(name,hex,rough=.68,metal=0){ const m=new BABYLON.PBRMaterial(name,scene); m.albedoColor=BABYLON.Color3.FromHexString(hex); m.roughness=rough; m.metallic=metal; return m; }
   function emissive(name,hex){ const m=new BABYLON.StandardMaterial(name,scene); const c=BABYLON.Color3.FromHexString(hex); m.diffuseColor=c.scale(.16); m.emissiveColor=c; return m; }
@@ -76,25 +78,21 @@
   function sofa(name,x,z,rot=0){ box(name+'Seat',1.55,.25,.68,x,.40,z,'#39495e',.9,0,rot); const dx=Math.sin(rot)*.28,dz=Math.cos(rot)*.28; box(name+'Back',1.55,.64,.12,x-dx,.73,z-dz,'#42546a',.92,0,rot); }
   function station(name,x,z,rot=0,exec=false){ desk(name+'Desk',x,z,rot,exec); monitor(name+'Mon',x,z+(rot===0?-.15:.15),rot); chair(name+'Chair',x,z+(rot===0?.72:-.72),rot); label(name+'Label',name,x,1.52,z+(rot===0?-.46:.46),rot); }
 
-  // premium shell
   box('floor',21,.16,14.5,0,-.08,0,'#171f2a',.95,0);
   box('backWall',21,3.9,.16,0,1.95,-7.25,'#101720',.94,0);
   box('leftWall',.16,3.9,14.5,-10.5,1.95,0,'#0e151e',.94,0);
   box('rightWall',.16,3.9,7.8,10.5,1.95,-3.35,'#0e151e',.94,0);
 
-  // illuminated architectural lines
   strip('wallBlue',6.5,.035,-6.2,2.75,-7.14,'#3f8cff');
   strip('wallBlue2',5.0,.035,1.0,2.92,-7.14,'#2f6bdc');
   strip('wallBlue3',3.0,.035,7.25,2.65,-7.14,'#4aa3ff');
   const brand=box('brandPanel',4.9,.92,.04,-6.4,2.05,-7.14,'#17263a',.35,.12); brand.material.emissiveColor=new BABYLON.Color3(.02,.07,.14);
 
-  // floor zoning, subtle rather than classroom rugs
   box('centralPlatform',7.4,.035,5.2,.1,.02,.45,'#202c39',.96,0);
   box('leadPlatform',4.1,.035,3.15,-6.35,.02,2.7,'#1a2533',.97,0);
   box('loungePlatform',4.2,.035,3.35,-6.25,.02,-3.95,'#18222e',.97,0);
   box('meetingPlatform',5.35,.035,4.45,6.05,.02,-3.55,'#182634',.97,0);
 
-  // 8 real workstations
   station('James',-6.35,2.75,0,true);
   station('Nora',-2.25,-.65,0,false);
   station('Kevin',1.05,-.65,Math.PI,false);
@@ -102,19 +100,16 @@
   station('Lina',1.05,2.05,Math.PI,false);
   station('Walter',6.9,1.55,Math.PI,false);
   station('Finn',6.9,4.0,Math.PI,false);
-  // Sarah = eighth, deliberately reception/contact position
   desk('SarahDesk',-3.85,5.0,-Math.PI/2,false); monitor('SarahMon',-3.7,5.0,-Math.PI/2); chair('SarahChair',-3.1,5.0,-Math.PI/2); label('SarahLabel','Sarah',-4.35,1.5,5.0,-Math.PI/2);
 
-  // reception divider and contact zone
   glass('receptionGlass',.05,1.55,2.65,-4.65,.8,5.0);
   strip('receptionLed',2.0,.03,-3.85,.69,5.42,'#56b8ff');
 
-  // lounge
   sofa('loungeA',-6.75,-4.35,0); sofa('loungeB',-4.55,-3.3,-Math.PI/2);
   box('coffee',1.05,.08,.62,-5.55,.34,-3.85,'#735d48',.52,.02); plant('loungePlant',-8.25,-5.65,1.08); plant('loungePlant2',-3.8,-5.55,.8);
 
-  // glass meeting room
-  glass('meetGlassL',.055,2.75,4.55,3.35,1.38,-3.55);
+  glass('meetGlassLTop',.055,2.75,1.50,3.35,1.38,-5.05);
+  glass('meetGlassLBottom',.055,2.75,1.40,3.35,1.38,-2.00);
   glass('meetGlassBack',5.45,2.75,.055,6.07,1.38,-5.82);
   glass('meetGlassFront',5.45,2.75,.055,6.07,1.38,-1.28);
   desk('meetTable',6.05,-3.55,0,true); chair('meetL',4.95,-3.55,Math.PI/2); chair('meetR',7.15,-3.55,-Math.PI/2); chair('meetT',6.05,-2.48,Math.PI); chair('meetB',6.05,-4.62,0);
@@ -123,7 +118,96 @@
   plant('leadPlant',-8.55,4.95,.95); plant('teamPlant',3.2,4.85,.82); plant('rightPlant',8.85,5.45,.88);
   [-7,-2.5,2.3,7].forEach((x,i)=>{ const p=new BABYLON.PointLight('accent'+i,new BABYLON.Vector3(x,3.1,.2),scene); p.diffuse=new BABYLON.Color3(.3,.55,1); p.intensity=.48; p.range=7; });
 
-  const locations={desk:new BABYLON.Vector3(-5.78,0,2.55),meeting:new BABYLON.Vector3(4.65,0,-3.55)};
+  const NAV={minX:-9.75,maxX:9.75,minZ:-6.65,maxZ:6.65,step:.34};
+  const obstacles=[];
+  function addObstacle(minX,maxX,minZ,maxZ,pad=.22){ obstacles.push({minX:minX-pad,maxX:maxX+pad,minZ:minZ-pad,maxZ:maxZ+pad}); }
+  function addFootprint(cx,cz,w,d,rot=0,pad=.22){
+    const ninety=Math.abs(Math.sin(rot))>.7; const fw=ninety?d:w, fd=ninety?w:d;
+    addObstacle(cx-fw/2,cx+fw/2,cz-fd/2,cz+fd/2,pad);
+  }
+  addFootprint(-6.35,3.05,2.9,2.0,0,.24);
+  addFootprint(-2.25,-.32,2.15,1.75,0,.20);
+  addFootprint(1.05,-.98,2.15,1.75,0,.20);
+  addFootprint(-2.25,2.38,2.15,1.75,0,.20);
+  addFootprint(1.05,1.72,2.15,1.75,0,.20);
+  addFootprint(6.9,1.22,2.15,1.75,0,.20);
+  addFootprint(6.9,3.67,2.15,1.75,0,.20);
+  addFootprint(-3.50,5.0,2.0,1.45,Math.PI/2,.22);
+  addFootprint(-6.75,-4.35,1.7,.85,0,.28);
+  addFootprint(-4.55,-3.3,1.7,.85,Math.PI/2,.28);
+  addFootprint(-5.55,-3.85,1.1,.72,0,.25);
+  addFootprint(6.05,-3.55,2.75,1.45,0,.30);
+  addObstacle(3.24,3.46,-5.82,-4.28,.12);
+  addObstacle(3.24,3.46,-2.72,-1.28,.12);
+  addObstacle(3.35,8.80,-5.94,-5.70,.10);
+  addObstacle(3.35,8.80,-1.40,-1.16,.10);
+  addObstacle(-4.76,-4.54,3.65,6.35,.10);
+
+  function isBlocked(x,z){
+    if(x<NAV.minX||x>NAV.maxX||z<NAV.minZ||z>NAV.maxZ) return true;
+    return obstacles.some(o=>x>=o.minX&&x<=o.maxX&&z>=o.minZ&&z<=o.maxZ);
+  }
+  function toCell(v){ return {x:Math.round((v.x-NAV.minX)/NAV.step), z:Math.round((v.z-NAV.minZ)/NAV.step)}; }
+  function toWorld(c){ return new BABYLON.Vector3(NAV.minX+c.x*NAV.step,0,NAV.minZ+c.z*NAV.step); }
+  function keyCell(c){ return c.x+','+c.z; }
+  function blockedCell(c){ const p=toWorld(c); return isBlocked(p.x,p.z); }
+  function nearestFree(cell){
+    if(!blockedCell(cell)) return cell;
+    for(let r=1;r<=8;r++) for(let dx=-r;dx<=r;dx++) for(let dz=-r;dz<=r;dz++){
+      if(Math.abs(dx)!==r&&Math.abs(dz)!==r) continue;
+      const c={x:cell.x+dx,z:cell.z+dz}; if(!blockedCell(c)) return c;
+    }
+    return null;
+  }
+  function heuristic(a,b){ return Math.hypot(a.x-b.x,a.z-b.z); }
+  function reconstruct(came,current){
+    const out=[current]; let k=keyCell(current);
+    while(came.has(k)){ current=came.get(k); out.push(current); k=keyCell(current); }
+    return out.reverse();
+  }
+  function lineClear(a,b){
+    const d=BABYLON.Vector3.Distance(a,b); const n=Math.max(1,Math.ceil(d/.14));
+    for(let i=1;i<n;i++){ const p=BABYLON.Vector3.Lerp(a,b,i/n); if(isBlocked(p.x,p.z)) return false; }
+    return true;
+  }
+  function simplifyPath(points){
+    if(points.length<3) return points;
+    const out=[points[0]]; let i=0;
+    while(i<points.length-1){
+      let j=points.length-1;
+      while(j>i+1&&!lineClear(points[i],points[j])) j--;
+      out.push(points[j]); i=j;
+    }
+    return out;
+  }
+  function findPath(start,end){
+    let s=nearestFree(toCell(start)), e=nearestFree(toCell(end)); if(!s||!e) return null;
+    const open=[s], openKeys=new Set([keyCell(s)]), came=new Map(), g=new Map([[keyCell(s),0]]), f=new Map([[keyCell(s),heuristic(s,e)]]);
+    const dirs=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
+    let guard=0;
+    while(open.length&&guard++<10000){
+      let best=0; for(let i=1;i<open.length;i++) if((f.get(keyCell(open[i]))??Infinity)<(f.get(keyCell(open[best]))??Infinity)) best=i;
+      const cur=open.splice(best,1)[0]; openKeys.delete(keyCell(cur));
+      if(cur.x===e.x&&cur.z===e.z){
+        const cells=reconstruct(came,cur); const pts=cells.map(toWorld); pts[0]=start.clone(); pts[pts.length-1]=end.clone(); return simplifyPath(pts);
+      }
+      for(const [dx,dz] of dirs){
+        const n={x:cur.x+dx,z:cur.z+dz}; if(blockedCell(n)) continue;
+        if(dx&&dz){ if(blockedCell({x:cur.x+dx,z:cur.z})||blockedCell({x:cur.x,z:cur.z+dz})) continue; }
+        const nk=keyCell(n), ck=keyCell(cur), tentative=(g.get(ck)??Infinity)+(dx&&dz?1.414:1);
+        if(tentative<(g.get(nk)??Infinity)){
+          came.set(nk,cur); g.set(nk,tentative); f.set(nk,tentative+heuristic(n,e));
+          if(!openKeys.has(nk)){ open.push(n); openKeys.add(nk); }
+        }
+      }
+    }
+    return null;
+  }
+
+  const locations={
+    desk:new BABYLON.Vector3(-4.48,0,3.75),
+    meeting:new BABYLON.Vector3(4.20,0,-3.55)
+  };
   let jamesRoot=null,groups={},travel=null;
 
   function setActiveButton(id){ document.querySelectorAll('.scene-actions .chip').forEach(x=>x.classList.remove('active')); const b=document.getElementById(id); if(b)b.classList.add('active'); }
@@ -133,19 +217,45 @@
   loading.textContent='James wird geladen …';
   BABYLON.SceneLoader.ImportMeshAsync('','./assets/','James_NEXUS_Animated.glb',scene).then(result=>{
     jamesRoot=new BABYLON.TransformNode('JamesRoot',scene); result.meshes.forEach(m=>{if(!m.parent)m.parent=jamesRoot;});
-    jamesRoot.position.copyFrom(locations.desk); jamesRoot.scaling.setAll(1.38); jamesRoot.rotation.y=.08;
+    jamesRoot.position.copyFrom(locations.desk); jamesRoot.scaling.setAll(1.38); jamesRoot.rotation.y=-.35;
     resolveAnimations(result.animationGroups||[]); play('Neutral Idle',true); loading.style.display='none';
-    document.getElementById('assetState').textContent='geladen'; document.getElementById('inspectorStatus').textContent='Ready'; log('Office v3 · 8 Arbeitsplätze · James geladen');
+    document.getElementById('assetState').textContent='geladen'; document.getElementById('inspectorStatus').textContent='Ready';
+    log('Office v4 · scharf · Pathfinding aktiv');
   }).catch(err=>{ console.error(err); loading.textContent='James konnte nicht geladen werden.'; document.getElementById('assetState').textContent='GLB-Fehler'; log('GLB-Ladefehler'); });
 
-  function travelTo(targetName){ if(!jamesRoot)return; const from=jamesRoot.position.clone(),to=locations[targetName].clone(),delta=to.subtract(from),dist=delta.length(); if(dist<.05){play('Neutral Idle',true);return;} const dir=delta.normalize(); jamesRoot.rotation.y=Math.atan2(dir.x,dir.z); travel={from,to,started:performance.now(),duration:Math.max(1900,dist*720),targetName}; play('Standard Walk',true); }
+  function travelTo(targetName){
+    if(!jamesRoot)return;
+    const from=jamesRoot.position.clone(),to=locations[targetName].clone();
+    const path=findPath(from,to);
+    if(!path||path.length<2){ log('Kein freier Weg zu '+targetName+' gefunden'); return; }
+    travel={path,index:1,targetName,speed:1.65};
+    const d=path[1].subtract(from); jamesRoot.rotation.y=Math.atan2(d.x,d.z);
+    play('Standard Walk',true); log('Pathfinding: '+(path.length-1)+' Wegsegmente');
+  }
+
   document.getElementById('idleBtn').addEventListener('click',()=>{travel=null;play('Neutral Idle',true);setActiveButton('idleBtn');});
   document.getElementById('walkBtn').addEventListener('click',()=>{travel=null;play('Standard Walk',true);setActiveButton('walkBtn');});
   document.getElementById('waveBtn').addEventListener('click',()=>{travel=null;play('Waving',false);setActiveButton('waveBtn');});
   document.getElementById('meetingBtn').addEventListener('click',()=>{travelTo('meeting');setActiveButton('meetingBtn');});
   document.getElementById('deskBtn').addEventListener('click',()=>{travelTo('desk');setActiveButton('deskBtn');});
 
-  scene.onBeforeRenderObservable.add(()=>{ if(!travel||!jamesRoot)return; const t=Math.min(1,(performance.now()-travel.started)/travel.duration),s=t*t*(3-2*t); jamesRoot.position=BABYLON.Vector3.Lerp(travel.from,travel.to,s); if(t>=1){ jamesRoot.position.copyFrom(travel.to); const where=travel.targetName==='desk'?'Leitungsbereich':'Meetingraum'; travel=null; play('Neutral Idle',true); setActiveButton('idleBtn'); log('James angekommen: '+where); } });
+  scene.onBeforeRenderObservable.add(()=>{
+    if(!travel||!jamesRoot)return;
+    let remaining=travel.speed*Math.min(.05,engine.getDeltaTime()/1000);
+    while(remaining>0&&travel){
+      const target=travel.path[travel.index];
+      const delta=target.subtract(jamesRoot.position); const dist=delta.length();
+      if(dist<.001){ travel.index++; if(travel.index>=travel.path.length){
+        const where=travel.targetName==='desk'?'Leitungsbereich':'Meetingraum'; travel=null; play('Neutral Idle',true); setActiveButton('idleBtn'); log('James angekommen: '+where); break;
+      } continue; }
+      const dir=delta.scale(1/dist); jamesRoot.rotation.y=Math.atan2(dir.x,dir.z);
+      if(dist<=remaining){ jamesRoot.position.copyFrom(target); remaining-=dist; travel.index++; if(travel.index>=travel.path.length){
+        const where=travel.targetName==='desk'?'Leitungsbereich':'Meetingraum'; travel=null; play('Neutral Idle',true); setActiveButton('idleBtn'); log('James angekommen: '+where); break;
+      }} else { jamesRoot.position.addInPlace(dir.scale(remaining)); remaining=0; }
+    }
+  });
 
-  engine.runRenderLoop(()=>scene.render()); window.addEventListener('resize',()=>engine.resize()); setTimeout(()=>engine.resize(),120);
+  engine.runRenderLoop(()=>scene.render());
+  window.addEventListener('resize',()=>engine.resize());
+  setTimeout(()=>engine.resize(),120);
 })();
