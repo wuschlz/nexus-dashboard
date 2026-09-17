@@ -53,10 +53,10 @@
 
         <div class="scene-panel">
           <canvas id="officeCanvas" aria-label="3D NEXUS Office"></canvas>
-          <div id="loading" class="loading">James wird geladen …</div>
+          <div id="loading" class="loading">3D-Engine wird gestartet …</div>
           <div class="scene-badge">
             <span class="dot live"></span>
-            LOCAL PREVIEW
+            LIVE PREVIEW
           </div>
         </div>
 
@@ -81,10 +81,10 @@
 
         <div class="divider"></div>
 
-        <div class="kv"><span>3D Asset</span><strong id="assetState">geladen</strong></div>
+        <div class="kv"><span>3D Asset</span><strong id="assetState">wird geladen</strong></div>
         <div class="kv"><span>Rig</span><strong>Mixamo</strong></div>
         <div class="kv"><span>Animationen</span><strong>3</strong></div>
-        <div class="kv"><span>Current</span><strong id="currentAnim">Neutral Idle</strong></div>
+        <div class="kv"><span>Current</span><strong id="currentAnim">—</strong></div>
 
         <div class="divider"></div>
 
@@ -108,6 +108,8 @@
     </div>
   </div>
 
-  <script type="module" src="./app.js"></script>
+  <script src="https://cdn.babylonjs.com/babylon.js"></script>
+  <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+  <script defer src="./app.js?v=4"></script>
 </body>
 </html>
