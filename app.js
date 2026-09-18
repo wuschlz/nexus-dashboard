@@ -377,7 +377,7 @@
     jamesRoot.position.copyFrom(locations.desk); jamesRoot.scaling.setAll(1.38); jamesRoot.rotation.y=-.35;
     resolveAnimations(result.animationGroups||[]); play('Neutral Idle',true); loading.style.display='none';
     document.getElementById('assetState').textContent='geladen'; document.getElementById('inspectorStatus').textContent='Ready';
-    log('Office 1.42 · scharf · Pathfinding V2 + Swing Doors aktiv');
+    log('Office 1.43 · scharf · Pathfinding V2 + direct Door Driver aktiv');
   }).catch(err=>{ console.error(err); loading.textContent='James konnte nicht geladen werden.'; document.getElementById('assetState').textContent='GLB-Fehler'; log('GLB-Ladefehler'); });
 
   function travelTo(targetName){
@@ -386,9 +386,6 @@
     const path=findPath(from,to);
     if(!path||path.length<2){ log('Kein freier Weg zu '+targetName+' gefunden'); return; }
     travel={path,index:1,targetName,speed:1.65};
-    if(window.NEXUS_AUTO_DOORS && typeof window.NEXUS_AUTO_DOORS.sensePosition==='function'){
-      window.NEXUS_AUTO_DOORS.sensePosition(from,1800);
-    }
     const d=path[1].subtract(from); jamesRoot.rotation.y=Math.atan2(d.x,d.z);
     play('Standard Walk',true); log('Pathfinding V2: '+(path.length-1)+' Wegsegmente');
   }
@@ -402,15 +399,16 @@
   scene.onBeforeRenderObservable.add(()=>{
     if(!jamesRoot)return;
 
-    // Direct bridge from navigation to automatic doors.
-    // This runs independently of the scene's own proximity sensor.
-    if(window.NEXUS_AUTO_DOORS && typeof window.NEXUS_AUTO_DOORS.sensePosition==='function'){
+    const frameDt=Math.min(.05,(engine.getDeltaTime()||16)/1000);
+
+    // Door mechanics now run in this exact render loop, together with James.
+    if(window.NEXUS_AUTO_DOORS && typeof window.NEXUS_AUTO_DOORS.tick==='function'){
       const p=(typeof jamesRoot.getAbsolutePosition==='function')?jamesRoot.getAbsolutePosition():jamesRoot.position;
-      window.NEXUS_AUTO_DOORS.sensePosition(p,1500);
+      window.NEXUS_AUTO_DOORS.tick(p,!!travel,frameDt);
     }
 
     if(!travel)return;
-    let remaining=travel.speed*Math.min(.05,engine.getDeltaTime()/1000);
+    let remaining=travel.speed*frameDt;
     while(remaining>0&&travel){
       const target=travel.path[travel.index];
       const delta=target.subtract(jamesRoot.position); const dist=delta.length();
