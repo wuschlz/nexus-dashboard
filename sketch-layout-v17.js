@@ -1202,11 +1202,11 @@
 
     // Quadrants from the sketch:
     // top-left ┘, top-right └, bottom-left ┐, bottom-right ┌
-    const giselaDesk=desk('Gisela',islandLeftX,islandTopZ,-Math.PI/2,false,-1);
-    const noraDesk=desk('Nora',islandRightX,islandTopZ,Math.PI,false,-1);
-    const kevinDesk=desk('Kevin',islandLeftX,islandBottomZ,0,false,-1);
+    const giselaDesk=desk('Gisela',islandLeftX,islandTopZ,-Math.PI/2,false,1);
+    const noraDesk=desk('Nora',islandRightX,islandTopZ,Math.PI,false,1);
+    const kevinDesk=desk('Kevin',islandLeftX,islandBottomZ,0,false,1);
     premiumKevinDesk(kevinDesk);
-    const linaDesk=desk('Lina',islandRightX,islandBottomZ,Math.PI/2,false,-1);
+    const linaDesk=desk('Lina',islandRightX,islandBottomZ,Math.PI/2,false,1);
 
     // Long, low planter strips instead of loose flower pots.
     function islandPlanterStrip(name,w,d,x,z){
@@ -1365,13 +1365,13 @@
     // Door animation is driven by app.js in the same render loop that moves James.
     // This avoids a separate animation observer getting out of sync with pathfinding.
     function ui(){
-      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.63';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · Premium-Arbeitsplätze · keine Pflanzen auf den Schreibtischen';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.63 · CLEAN DESKS';
+      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.64';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · 4 mittlere Schreibtische · Schilder auf der monitorfreien Seite';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.64 · CENTER DESK SIGNS';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
-    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.63 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
+    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.64 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
     return true;
   }
 
