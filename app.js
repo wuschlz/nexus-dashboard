@@ -118,86 +118,243 @@
   plant('leadPlant',-8.55,4.95,.95); plant('teamPlant',3.2,4.85,.82); plant('rightPlant',8.85,5.45,.88);
   [-7,-2.5,2.3,7].forEach((x,i)=>{ const p=new BABYLON.PointLight('accent'+i,new BABYLON.Vector3(x,3.1,.2),scene); p.diffuse=new BABYLON.Color3(.3,.55,1); p.intensity=.48; p.range=7; });
 
-  const NAV={minX:-9.75,maxX:9.75,minZ:-6.65,maxZ:6.65,step:.34};
+  // Office Pathfinding V2 — rebuilt for the current v17/v37 geometry.
+  // Grid A* + exact L-desk footprints + door gaps + clearance-aware routing.
+  const NAV={minX:-9.70,maxX:9.70,minZ:-6.62,maxZ:6.55,step:.22,actorRadius:.24};
   const obstacles=[];
-  function addObstacle(minX,maxX,minZ,maxZ,pad=.22){ obstacles.push({minX:minX-pad,maxX:maxX+pad,minZ:minZ-pad,maxZ:maxZ+pad}); }
-  function addFootprint(cx,cz,w,d,rot=0,pad=.22){
-    const ninety=Math.abs(Math.sin(rot))>.7; const fw=ninety?d:w, fd=ninety?w:d;
-    addObstacle(cx-fw/2,cx+fw/2,cz-fd/2,cz+fd/2,pad);
+
+  function addObstacle(minX,maxX,minZ,maxZ,pad=NAV.actorRadius,label=''){
+    obstacles.push({
+      minX:minX-pad,maxX:maxX+pad,
+      minZ:minZ-pad,maxZ:maxZ+pad,
+      label
+    });
   }
-  addFootprint(-6.35,3.05,2.9,2.0,0,.24);
-  addFootprint(-2.25,-.32,2.15,1.75,0,.20);
-  addFootprint(1.05,-.98,2.15,1.75,0,.20);
-  addFootprint(-2.25,2.38,2.15,1.75,0,.20);
-  addFootprint(1.05,1.72,2.15,1.75,0,.20);
-  addFootprint(6.9,1.22,2.15,1.75,0,.20);
-  addFootprint(6.9,3.67,2.15,1.75,0,.20);
-  addFootprint(-3.50,5.0,2.0,1.45,Math.PI/2,.22);
-  addFootprint(-6.75,-4.35,1.7,.85,0,.28);
-  addFootprint(-4.55,-3.3,1.7,.85,Math.PI/2,.28);
-  addFootprint(-5.55,-3.85,1.1,.72,0,.25);
-  addFootprint(6.05,-3.55,2.75,1.45,0,.30);
-  addObstacle(3.24,3.46,-5.82,-4.28,.12);
-  addObstacle(3.24,3.46,-2.72,-1.28,.12);
-  addObstacle(3.35,8.80,-5.94,-5.70,.10);
-  addObstacle(3.35,8.80,-1.40,-1.16,.10);
-  addObstacle(-4.76,-4.54,3.65,6.35,.10);
+
+  function addRect(cx,cz,w,d,rot=0,pad=NAV.actorRadius,label=''){
+    const ninety=Math.abs(Math.sin(rot))>.7;
+    const fw=ninety?d:w, fd=ninety?w:d;
+    addObstacle(cx-fw/2,cx+fw/2,cz-fd/2,cz+fd/2,pad,label);
+  }
+
+  function localToWorld(cx,cz,lx,lz,rot){
+    const c=Math.cos(rot),q=Math.sin(rot);
+    return {x:cx+lx*c+lz*q,z:cz-lx*q+lz*c};
+  }
+
+  // Precise L-shaped desk footprint: main top + return, rather than one oversized rectangle.
+  function addLDesk(name,cx,cz,rot=0,exec=false,pad=.20){
+    const W=exec?2.72:2.28;
+    const D=exec?1.05:.94;
+    const RW=exec?.86:.74;
+    const RD=exec?1.22:1.10;
+    addRect(cx,cz,W,D,rot,pad,name+' main');
+    const lx=W/2-RW/2;
+    const lz=D/2+RD/2-.06;
+    const p=localToWorld(cx,cz,lx,lz,rot);
+    addRect(p.x,p.z,RW,RD,rot,pad,name+' return');
+  }
+
+  // Glass front walls with a navigable doorway cut out.
+  function addWallWithDoor(label,left,right,z,doorX,doorW){
+    const safeHalf=doorW/2-.10;
+    if(doorX-safeHalf>left) addObstacle(left,doorX-safeHalf,z-.055,z+.055,.08,label+' left glass');
+    if(doorX+safeHalf<right) addObstacle(doorX+safeHalf,right,z-.055,z+.055,.08,label+' right glass');
+  }
+
+  // Current rear rooms.
+  const ROOM={back:-7.10,front:-2.82};
+  const server={left:-10.22,right:-4.92,doorX:-6.62,doorW:1.10};
+  const jamesRoom={left:-4.92,right:1.55,doorX:-1.685,doorW:1.12};
+  const meetingRoom={left:1.55,right:10.22,doorX:3.335,doorW:1.18};
+
+  addWallWithDoor('server front',server.left,server.right,ROOM.front,server.doorX,server.doorW);
+  addWallWithDoor('James front',jamesRoom.left,jamesRoom.right,ROOM.front,jamesRoom.doorX,jamesRoom.doorW);
+  addWallWithDoor('meeting front',meetingRoom.left,meetingRoom.right,ROOM.front,meetingRoom.doorX,meetingRoom.doorW);
+
+  // Solid room dividers. Route must leave one room through its own sliding door.
+  addObstacle(-4.98,-4.86,ROOM.back,ROOM.front,.10,'server/James divider');
+  addObstacle(1.49,1.61,ROOM.back,ROOM.front,.10,'James/meeting divider');
+
+  // Current desks.
+  addLDesk('Walter',-7.55,-3.96,-Math.PI/2,false,.18);
+  addLDesk('James',-1.685,-4.62,Math.PI,true,.18);
+
+  // Central four-desk cross from v35+.
+  const islandCX=-1.05,islandCZ=2.15;
+  const islandLeftX=islandCX-1.82,islandRightX=islandCX+1.82;
+  const islandTopZ=islandCZ-1.42,islandBottomZ=islandCZ+1.42;
+  addLDesk('Gisela',islandLeftX,islandTopZ,-Math.PI/2,false,.20);
+  addLDesk('Nora',islandRightX,islandTopZ,Math.PI,false,.20);
+  addLDesk('Kevin',islandLeftX,islandBottomZ,0,false,.20);
+  addLDesk('Lina',islandRightX,islandBottomZ,Math.PI/2,false,.20);
+
+  addLDesk('Sarah',7.15,.10,Math.PI/2,false,.20);
+  addLDesk('Finn',7.15,3.45,Math.PI/2,false,.20);
+
+  // Long planter cross from v37.
+  addRect(islandCX,islandCZ,.34,5.35,0,.18,'vertical planter');
+  addRect(islandCX,islandCZ,6.10,.34,0,.18,'horizontal planter');
+
+  // Meeting table + occupied chair envelope.
+  addRect(5.885,-5.18,5.05,2.45,0,.18,'meeting table/chairs');
+
+  // Server racks against the rear wall.
+  addRect(-8.13,-6.79,3.25,.90,0,.16,'server racks');
+
+  // File cabinets along the left wall.
+  addRect(-9.58,-.91,.70,3.85,0,.12,'archive cabinets');
+
+  // Lounge: sofa, armchair and coffee table as one navigational island.
+  addRect(-6.82,5.16,4.15,2.75,0,.20,'lounge');
 
   function isBlocked(x,z){
     if(x<NAV.minX||x>NAV.maxX||z<NAV.minZ||z>NAV.maxZ) return true;
     return obstacles.some(o=>x>=o.minX&&x<=o.maxX&&z>=o.minZ&&z<=o.maxZ);
   }
-  function toCell(v){ return {x:Math.round((v.x-NAV.minX)/NAV.step), z:Math.round((v.z-NAV.minZ)/NAV.step)}; }
-  function toWorld(c){ return new BABYLON.Vector3(NAV.minX+c.x*NAV.step,0,NAV.minZ+c.z*NAV.step); }
-  function keyCell(c){ return c.x+','+c.z; }
-  function blockedCell(c){ const p=toWorld(c); return isBlocked(p.x,p.z); }
+
+  // Mild penalty around obstacles keeps James centered in corridors instead of grazing furniture.
+  function clearancePenalty(x,z){
+    let p=0;
+    for(const o of obstacles){
+      if(x>=o.minX-.42&&x<=o.maxX+.42&&z>=o.minZ-.42&&z<=o.maxZ+.42){
+        if(!(x>=o.minX&&x<=o.maxX&&z>=o.minZ&&z<=o.maxZ)) p+=.20;
+      }
+    }
+    return Math.min(.75,p);
+  }
+
+  function toCell(v){
+    return {
+      x:Math.round((v.x-NAV.minX)/NAV.step),
+      z:Math.round((v.z-NAV.minZ)/NAV.step)
+    };
+  }
+
+  function toWorld(c){
+    return new BABYLON.Vector3(
+      NAV.minX+c.x*NAV.step,
+      0,
+      NAV.minZ+c.z*NAV.step
+    );
+  }
+
+  function keyCell(c){return c.x+','+c.z;}
+  function blockedCell(c){
+    const p=toWorld(c);
+    return isBlocked(p.x,p.z);
+  }
+
   function nearestFree(cell){
     if(!blockedCell(cell)) return cell;
-    for(let r=1;r<=8;r++) for(let dx=-r;dx<=r;dx++) for(let dz=-r;dz<=r;dz++){
-      if(Math.abs(dx)!==r&&Math.abs(dz)!==r) continue;
-      const c={x:cell.x+dx,z:cell.z+dz}; if(!blockedCell(c)) return c;
+    for(let r=1;r<=12;r++){
+      for(let dx=-r;dx<=r;dx++){
+        for(let dz=-r;dz<=r;dz++){
+          if(Math.abs(dx)!==r&&Math.abs(dz)!==r) continue;
+          const c={x:cell.x+dx,z:cell.z+dz};
+          const p=toWorld(c);
+          if(p.x<NAV.minX||p.x>NAV.maxX||p.z<NAV.minZ||p.z>NAV.maxZ) continue;
+          if(!blockedCell(c)) return c;
+        }
+      }
     }
     return null;
   }
-  function heuristic(a,b){ return Math.hypot(a.x-b.x,a.z-b.z); }
+
+  function heuristic(a,b){return Math.hypot(a.x-b.x,a.z-b.z);}
+
   function reconstruct(came,current){
-    const out=[current]; let k=keyCell(current);
-    while(came.has(k)){ current=came.get(k); out.push(current); k=keyCell(current); }
+    const out=[current];
+    let k=keyCell(current);
+    while(came.has(k)){
+      current=came.get(k);
+      out.push(current);
+      k=keyCell(current);
+    }
     return out.reverse();
   }
+
   function lineClear(a,b){
-    const d=BABYLON.Vector3.Distance(a,b); const n=Math.max(1,Math.ceil(d/.14));
-    for(let i=1;i<n;i++){ const p=BABYLON.Vector3.Lerp(a,b,i/n); if(isBlocked(p.x,p.z)) return false; }
+    const d=BABYLON.Vector3.Distance(a,b);
+    const n=Math.max(1,Math.ceil(d/.09));
+    for(let i=1;i<n;i++){
+      const p=BABYLON.Vector3.Lerp(a,b,i/n);
+      if(isBlocked(p.x,p.z)) return false;
+    }
     return true;
   }
+
   function simplifyPath(points){
     if(points.length<3) return points;
-    const out=[points[0]]; let i=0;
+    const out=[points[0]];
+    let i=0;
     while(i<points.length-1){
       let j=points.length-1;
       while(j>i+1&&!lineClear(points[i],points[j])) j--;
-      out.push(points[j]); i=j;
+      out.push(points[j]);
+      i=j;
     }
     return out;
   }
+
   function findPath(start,end){
-    let s=nearestFree(toCell(start)), e=nearestFree(toCell(end)); if(!s||!e) return null;
-    const open=[s], openKeys=new Set([keyCell(s)]), came=new Map(), g=new Map([[keyCell(s),0]]), f=new Map([[keyCell(s),heuristic(s,e)]]);
-    const dirs=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
+    const rawStart=toCell(start),rawEnd=toCell(end);
+    const startCell=nearestFree(rawStart),endCell=nearestFree(rawEnd);
+    if(!startCell||!endCell) return null;
+
+    const open=[startCell];
+    const openKeys=new Set([keyCell(startCell)]);
+    const came=new Map();
+    const g=new Map([[keyCell(startCell),0]]);
+    const f=new Map([[keyCell(startCell),heuristic(startCell,endCell)]]);
+    const dirs=[
+      [1,0,1],[-1,0,1],[0,1,1],[0,-1,1],
+      [1,1,1.414],[1,-1,1.414],[-1,1,1.414],[-1,-1,1.414]
+    ];
+
     let guard=0;
-    while(open.length&&guard++<10000){
-      let best=0; for(let i=1;i<open.length;i++) if((f.get(keyCell(open[i]))??Infinity)<(f.get(keyCell(open[best]))??Infinity)) best=i;
-      const cur=open.splice(best,1)[0]; openKeys.delete(keyCell(cur));
-      if(cur.x===e.x&&cur.z===e.z){
-        const cells=reconstruct(came,cur); const pts=cells.map(toWorld); pts[0]=start.clone(); pts[pts.length-1]=end.clone(); return simplifyPath(pts);
+    while(open.length&&guard++<24000){
+      let best=0;
+      for(let i=1;i<open.length;i++){
+        if((f.get(keyCell(open[i]))??Infinity)<(f.get(keyCell(open[best]))??Infinity)) best=i;
       }
-      for(const [dx,dz] of dirs){
-        const n={x:cur.x+dx,z:cur.z+dz}; if(blockedCell(n)) continue;
-        if(dx&&dz){ if(blockedCell({x:cur.x+dx,z:cur.z})||blockedCell({x:cur.x,z:cur.z+dz})) continue; }
-        const nk=keyCell(n), ck=keyCell(cur), tentative=(g.get(ck)??Infinity)+(dx&&dz?1.414:1);
+
+      const cur=open.splice(best,1)[0];
+      openKeys.delete(keyCell(cur));
+
+      if(cur.x===endCell.x&&cur.z===endCell.z){
+        const cells=reconstruct(came,cur);
+        const pts=cells.map(toWorld);
+
+        // Keep exact actor start/end positions where safe; otherwise use nearest free approach point.
+        if(!isBlocked(start.x,start.z)) pts[0]=start.clone();
+        if(!isBlocked(end.x,end.z)) pts[pts.length-1]=end.clone();
+
+        return simplifyPath(pts);
+      }
+
+      for(const [dx,dz,baseCost] of dirs){
+        const n={x:cur.x+dx,z:cur.z+dz};
+        const wp=toWorld(n);
+        if(wp.x<NAV.minX||wp.x>NAV.maxX||wp.z<NAV.minZ||wp.z>NAV.maxZ) continue;
+        if(blockedCell(n)) continue;
+
+        // Never squeeze diagonally through touching furniture corners.
+        if(dx&&dz){
+          if(blockedCell({x:cur.x+dx,z:cur.z})||blockedCell({x:cur.x,z:cur.z+dz})) continue;
+        }
+
+        const nk=keyCell(n),ck=keyCell(cur);
+        const tentative=(g.get(ck)??Infinity)+baseCost+clearancePenalty(wp.x,wp.z);
+
         if(tentative<(g.get(nk)??Infinity)){
-          came.set(nk,cur); g.set(nk,tentative); f.set(nk,tentative+heuristic(n,e));
-          if(!openKeys.has(nk)){ open.push(n); openKeys.add(nk); }
+          came.set(nk,cur);
+          g.set(nk,tentative);
+          f.set(nk,tentative+heuristic(n,endCell));
+          if(!openKeys.has(nk)){
+            open.push(n);
+            openKeys.add(nk);
+          }
         }
       }
     }
@@ -220,7 +377,7 @@
     jamesRoot.position.copyFrom(locations.desk); jamesRoot.scaling.setAll(1.38); jamesRoot.rotation.y=-.35;
     resolveAnimations(result.animationGroups||[]); play('Neutral Idle',true); loading.style.display='none';
     document.getElementById('assetState').textContent='geladen'; document.getElementById('inspectorStatus').textContent='Ready';
-    log('Office v17 · scharf · Pathfinding aktiv');
+    log('Office v17 · scharf · Pathfinding V2 aktiv');
   }).catch(err=>{ console.error(err); loading.textContent='James konnte nicht geladen werden.'; document.getElementById('assetState').textContent='GLB-Fehler'; log('GLB-Ladefehler'); });
 
   function travelTo(targetName){
@@ -230,7 +387,7 @@
     if(!path||path.length<2){ log('Kein freier Weg zu '+targetName+' gefunden'); return; }
     travel={path,index:1,targetName,speed:1.65};
     const d=path[1].subtract(from); jamesRoot.rotation.y=Math.atan2(d.x,d.z);
-    play('Standard Walk',true); log('Pathfinding: '+(path.length-1)+' Wegsegmente');
+    play('Standard Walk',true); log('Pathfinding V2: '+(path.length-1)+' Wegsegmente');
   }
 
   document.getElementById('idleBtn').addEventListener('click',()=>{travel=null;play('Neutral Idle',true);setActiveButton('idleBtn');});
