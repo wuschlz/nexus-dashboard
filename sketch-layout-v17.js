@@ -527,13 +527,13 @@
     };
 
     function ui(){
-      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office v17';
+      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.40';
       const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · automatische Glasschiebetüren mit Annäherungssensor · Pathfinding V2';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE V17 · AUTO DOORS V2';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.40 · AUTO DOORS V2';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
-    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office v17 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
+    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.40 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
     return true;
   }
 
