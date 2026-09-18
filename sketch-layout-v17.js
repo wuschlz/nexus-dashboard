@@ -139,6 +139,58 @@
       box('v17MonFrame'+name,.65,.41,.050,0,1.22,0,black,g);box('v17MonScreen'+name,.57,.34,.014,0,1.22,.031,screen,g);
       box('v17MonStem'+name,.045,.27,.045,0,.99,0,metal,g);box('v17MonFoot'+name,.25,.025,.14,0,.84,0,metal,g);
     }
+    function deskPropBox(parent,name,w,h,d,x,y,z,hex,rot=0){
+      return box('v17Prop'+name,w,h,d,x,y,z,pbr('v17PropM'+name,hex,.58,.025),parent,rot);
+    }
+    function deskPropCyl(parent,name,diam,h,x,y,z,hex){
+      return cyl('v17Prop'+name,diam,h,x,y,z,pbr('v17PropM'+name,hex,.60,.03),parent);
+    }
+    function addDeskProps(parent,name){
+      if(!parent) return;
+      switch(name){
+        case 'James':
+          deskPropBox(parent,'JamesFolio',.31,.026,.22,.58,.866,.24,'#5f422f',-.08);
+          deskPropBox(parent,'JamesPhone',.085,.014,.16,.88,.858,.26,'#161c23',-.10);
+          deskPropCyl(parent,'JamesPen',.018,.22,.38,.872,.25,'#c6a56e');
+          break;
+        case 'Walter':
+          deskPropBox(parent,'WalterToolCase',.34,.09,.20,.58,.895,.30,'#283641',.04);
+          deskPropBox(parent,'WalterDiagnostic',.20,.035,.15,.88,.866,.26,'#142432',-.08);
+          deskPropCyl(parent,'WalterSensor',.09,.055,.90,.885,.47,'#4d9bd6');
+          break;
+        case 'Gisela':
+          deskPropBox(parent,'GiselaFileA',.31,.035,.21,.58,.86,.26,'#6f8291',.04);
+          deskPropBox(parent,'GiselaFileB',.29,.035,.20,.58,.900,.26,'#c2a66f',.04);
+          deskPropBox(parent,'GiselaFileC',.27,.035,.19,.58,.940,.26,'#8d6b59',.04);
+          break;
+        case 'Nora':
+          deskPropBox(parent,'NoraInbox',.34,.055,.23,.58,.876,.26,'#80909d',.02);
+          deskPropBox(parent,'NoraEnvelopeA',.23,.012,.14,.58,.913,.26,'#eee7da',-.05);
+          deskPropBox(parent,'NoraEnvelopeB',.21,.012,.13,.62,.929,.29,'#d9e1e6',.06);
+          break;
+        case 'Kevin':
+          deskPropBox(parent,'KevinTablet',.27,.018,.19,.58,.858,.27,'#15212c',-.10);
+          deskPropBox(parent,'KevinNotes',.24,.020,.17,.88,.860,.28,'#d8d0bf',.08);
+          deskPropCyl(parent,'KevinLens',.11,.025,.88,.878,.47,'#6ba2c7');
+          break;
+        case 'Lina':
+          deskPropBox(parent,'LinaPlanner',.28,.030,.20,.58,.865,.27,'#a37b59',-.04);
+          deskPropBox(parent,'LinaCalendar',.22,.09,.035,.89,.91,.31,'#c8d3df',0);
+          deskPropBox(parent,'LinaTab',.05,.014,.10,.73,.890,.25,'#6e91b4',.02);
+          break;
+        case 'Sarah':
+          deskPropBox(parent,'SarahContactBook',.29,.030,.20,.58,.865,.26,'#718aa3',.06);
+          deskPropBox(parent,'SarahPhoneBase',.21,.045,.15,.88,.873,.27,'#252d36',-.06);
+          deskPropBox(parent,'SarahPhoneHandset',.18,.035,.055,.88,.915,.27,'#151a20',-.06);
+          break;
+        case 'Finn':
+          deskPropBox(parent,'FinnClipboard',.25,.022,.31,.58,.861,.27,'#b89969',-.06);
+          deskPropBox(parent,'FinnChecklist',.20,.010,.25,.58,.879,.27,'#ece8de',-.06);
+          deskPropBox(parent,'FinnFollowupTray',.30,.055,.20,.89,.878,.28,'#536f89',.04);
+          break;
+      }
+    }
+
     function desk(name,x,z,rot=0,exec=false,signSide=1){
       const g=new BABYLON.TransformNode('v17Desk'+name,scene);g.parent=root;g.position.set(x,0,z);g.rotation.y=rot;
       const W=exec?2.72:2.28,D=exec?1.05:.94,RW=exec?.86:.74,RD=exec?1.22:1.10,top=exec?woodExec:wood;
@@ -159,7 +211,7 @@
       return g;
     }
 
-    desk('Walter',-7.55,-4.35,Math.PI,false,-1);
+    const walterDesk=desk('Walter',-7.55,-4.35,Math.PI,false,-1);
     for(let r=0;r<3;r++){
       const x=-9.15+r*1.02;
       box('v17RackBody'+r,.78,2.10,.72,x,1.05,-6.79,serverBody,root);
@@ -167,7 +219,7 @@
       for(let i=0;i<9;i++) box('v17RackSlot'+r+'_'+i,.52,.066,.018,x,.29+i*.18,-6.375,i%3===0?blueGlow:serverFront,root);
     }
 
-    desk('James',jamesRoom.cx,-4.62,Math.PI,true,-1);
+    const jamesDesk=desk('James',jamesRoom.cx,-4.62,Math.PI,true,-1);
 
     const aktenX=-10.09;
     for(let i=0;i<5;i++){
@@ -175,14 +227,23 @@
       box('v17AktenCab'+i,.58,1.70,.66,aktenX,.85,z,cabinet,root,Math.PI/2);
       [.35,.76,1.17].forEach((y,j)=>box('v17AktenDrawer'+i+j,.50,.31,.035,aktenX+.34,y,z,cabinetDark,root,Math.PI/2));
     }
-    desk('Gisela',-7.72,1.42,-Math.PI/2,false,-1);
+    const giselaDesk=desk('Gisela',-7.72,1.42,-Math.PI/2,false,-1);
 
-    const lineZ=.28;
-    desk('Nora',-4.65,lineZ,Math.PI,false,-1);
-    desk('Kevin',-.95,lineZ,Math.PI,false,-1);
-    desk('Lina',2.75,lineZ,Math.PI,false,-1);
-    desk('Sarah',7.15,.10,Math.PI/2,false);
-    desk('Finn',7.15,3.45,Math.PI/2,false);
+    const lineZ=1.15;
+    const noraDesk=desk('Nora',-4.65,lineZ,Math.PI,false,-1);
+    const kevinDesk=desk('Kevin',-.95,lineZ,Math.PI,false,-1);
+    const linaDesk=desk('Lina',2.75,lineZ,Math.PI,false,-1);
+    const sarahDesk=desk('Sarah',7.15,.10,Math.PI/2,false);
+    const finnDesk=desk('Finn',7.15,3.45,Math.PI/2,false);
+
+    addDeskProps(walterDesk,'Walter');
+    addDeskProps(jamesDesk,'James');
+    addDeskProps(giselaDesk,'Gisela');
+    addDeskProps(noraDesk,'Nora');
+    addDeskProps(kevinDesk,'Kevin');
+    addDeskProps(linaDesk,'Lina');
+    addDeskProps(sarahDesk,'Sarah');
+    addDeskProps(finnDesk,'Finn');
 
     box('v17MeetingTable',4.25,.12,1.38,meeting.cx,.78,-5.18,wood,root);
     [-1.35,0,1.35].forEach((dx,i)=>{
@@ -194,6 +255,7 @@
     const meetScreen=box('v17MeetingScreen',1.65,.92,.055,9.72,1.63,-5.20,black,root,Math.PI/2); meetScreen.material.emissiveColor=C('#173b59');
 
     const lounge=new BABYLON.TransformNode('v17Lounge',scene);lounge.parent=root;lounge.position.set(-6.85,0,5.25);
+    box('v17LoungeRug',4.45,.030,3.20,-.05,.015,-.10,pbr('v17LoungeRugM','#8b8177',.96,0),lounge);
     box('v17SofaSeat',2.30,.30,.86,-.62,.42,.38,fabric,lounge);
     box('v17SofaBack',2.30,.78,.15,-.62,.84,.78,fabric,lounge);
     const arm=new BABYLON.TransformNode('v17Armchair',scene);arm.parent=lounge;arm.position.set(1.18,0,-.28);arm.rotation.y=Math.PI/2;
