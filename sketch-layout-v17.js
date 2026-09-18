@@ -24,7 +24,7 @@
     scene.clearColor = new BABYLON.Color4(.66,.77,.86,1);
     scene.imageProcessingConfiguration.exposure = 1.16;
     scene.imageProcessingConfiguration.contrast = 1.07;
-    const floor=scene.getMeshByName('floor'); if(floor) floor.material=pbr('v17Floor','#ded8cd',.90,.01);
+    const floor=scene.getMeshByName('floor'); if(floor) floor.material=pbr('v17Floor','#835f43',.58,.025);
     const back=scene.getMeshByName('backWall'); if(back) back.material=pbr('v17Back','#202a35',.80,.06);
     const left=scene.getMeshByName('leftWall'); if(left) left.material=pbr('v17Left','#25303a',.82,.05);
     const right=scene.getMeshByName('rightWall'); if(right) right.material=pbr('v17Right','#25303a',.82,.05);
@@ -37,7 +37,6 @@
     const woodExec=pbr('v17WoodExec','#7d5b42',.41,.06);
     const trim=pbr('v17Trim','#d0ad82',.48,.03);
     const fabric=pbr('v17Fabric','#657384',.90,.01);
-    const rug=pbr('v17Rug','#aaa39a',.97,0);
     const cabinet=pbr('v17Cabinet','#bcc4ca',.58,.06);
     const cabinetDark=pbr('v17CabinetDark','#5c6874',.42,.18);
     const serverBody=pbr('v17ServerBody','#141c25',.26,.58);
@@ -48,8 +47,12 @@
     const glassMat=new BABYLON.PBRMaterial('v17Glass',scene);
     glassMat.albedoColor=C('#9ccff1'); glassMat.alpha=.20; glassMat.roughness=.06; glassMat.metallic=.02; glassMat.backFaceCulling=false;
 
-    for(let x=-9.6;x<=9.6;x+=1.6) box('v17TileX'+x,.018,.012,13.7,x,.006,0,pbr('v17TileMX'+x,'#aaa39a',.97,0),root);
-    for(let z=-6.4;z<=6.4;z+=1.6) box('v17TileZ'+z,19.3,.012,.018,0,.006,z,pbr('v17TileMZ'+z,'#aaa39a',.97,0),root);
+    const woodSeam=pbr('v17WoodSeam','#64452f',.74,.01);
+    const woodHighlight=pbr('v17WoodHighlight','#9a7355',.66,.015);
+    for(let i=0,x=-9.85;x<=9.85;x+=.58,i++){
+      box('v17WoodSeam'+i,.012,.008,13.72,x,.004,0,woodSeam,root);
+      if(i%4===1) box('v17WoodHighlight'+i,.008,.006,13.72,x+.19,.003,0,woodHighlight,root);
+    }
 
     const winMat=std('v17Win','#a8d5ef',null,.26);
     for(let i=0;i<6;i++){
@@ -139,7 +142,6 @@
     function desk(name,x,z,rot=0,exec=false,signSide=1){
       const g=new BABYLON.TransformNode('v17Desk'+name,scene);g.parent=root;g.position.set(x,0,z);g.rotation.y=rot;
       const W=exec?2.72:2.28,D=exec?1.05:.94,RW=exec?.86:.74,RD=exec?1.22:1.10,top=exec?woodExec:wood;
-      box('v17DeskRug'+name,W+1.00,.024,2.48,0,.016,.28,rug,g);
       box('v17DeskBase'+name,W-.12,.62,.38,0,.33,-D/2+.20,dark2,g);
       box('v17DeskTop'+name,W,.10,D,0,.78,0,top,g);box('v17DeskTrim'+name,W,.022,D,0,.842,0,trim,g);
       box('v17DeskReturn'+name,RW,.10,RD,W/2-RW/2,.78,D/2+RD/2-.06,top,g);
@@ -182,7 +184,6 @@
     desk('Sarah',7.15,.10,Math.PI/2,false);
     desk('Finn',7.15,3.45,Math.PI/2,false);
 
-    box('v17MeetingRug',7.40,.024,3.08,meeting.cx,.016,-5.18,rug,root);
     box('v17MeetingTable',4.25,.12,1.38,meeting.cx,.78,-5.18,wood,root);
     [-1.35,0,1.35].forEach((dx,i)=>{
       chair('MeetNear'+i,root,meeting.cx+dx,-4.18,0);
@@ -193,7 +194,6 @@
     const meetScreen=box('v17MeetingScreen',1.65,.92,.055,9.72,1.63,-5.20,black,root,Math.PI/2); meetScreen.material.emissiveColor=C('#173b59');
 
     const lounge=new BABYLON.TransformNode('v17Lounge',scene);lounge.parent=root;lounge.position.set(-6.85,0,5.25);
-    box('v17LoungeRug',4.00,.024,2.65,0,.014,0,pbr('v17LoungeRugM','#918b84',.97,0),lounge);
     box('v17SofaSeat',2.30,.30,.86,-.62,.42,.38,fabric,lounge);
     box('v17SofaBack',2.30,.78,.15,-.62,.84,.78,fabric,lounge);
     const arm=new BABYLON.TransformNode('v17Armchair',scene);arm.parent=lounge;arm.position.set(1.18,0,-.28);arm.rotation.y=Math.PI/2;
