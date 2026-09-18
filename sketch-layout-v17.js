@@ -288,22 +288,24 @@
       box('v17AktenCab'+i,.58,1.70,.66,aktenX,.85,z,cabinet,root,Math.PI/2);
       [.35,.76,1.17].forEach((y,j)=>box('v17AktenDrawer'+i+j,.50,.31,.035,aktenX+.34,y,z,cabinetDark,root,Math.PI/2));
     }
-    // Four central L-desks arranged as a 2x2 island after the hand sketch.
-    // The inner corridor stays clear and is softened by a vertical line of plants.
-    const clusterLeftX=-4.20;
-    const clusterRightX=1.15;
-    const clusterTopZ=.35;
-    const clusterBottomZ=3.60;
+    // Compact 2x2 desk island matching the hand sketch:
+    // top pair mirrored inward, bottom pair mirrored inward,
+    // with a narrow central plant spine between the four L-desks.
+    const clusterCenterX=-1.00;
+    const clusterLeftX=clusterCenterX-2.18;
+    const clusterRightX=clusterCenterX+2.18;
+    const clusterTopZ=.95;
+    const clusterBottomZ=3.15;
 
-    const giselaDesk=desk('Gisela',clusterLeftX,clusterTopZ,0,false,-1);
-    const noraDesk=desk('Nora',clusterRightX,clusterTopZ,Math.PI/2,false,-1);
-    const kevinDesk=desk('Kevin',clusterLeftX,clusterBottomZ,-Math.PI/2,false,-1);
-    const linaDesk=desk('Lina',clusterRightX,clusterBottomZ,Math.PI,false,-1);
+    // top-left = ┘, top-right = └, bottom-left = ┐, bottom-right = ┌
+    const giselaDesk=desk('Gisela',clusterLeftX,clusterTopZ,Math.PI/2,false,-1);
+    const noraDesk=desk('Nora',clusterRightX,clusterTopZ,Math.PI,false,-1);
+    const kevinDesk=desk('Kevin',clusterLeftX,clusterBottomZ,0,false,-1);
+    const linaDesk=desk('Lina',clusterRightX,clusterBottomZ,-Math.PI/2,false,-1);
 
-    centerPlanter('A',-1.45,.45,.92);
-    centerPlanter('B',-1.45,1.50,1.00);
-    centerPlanter('C',-1.45,2.55,.96);
-    centerPlanter('D',-1.45,3.55,.88);
+    centerPlanter('A',clusterCenterX,1.05,.96);
+    centerPlanter('B',clusterCenterX,2.05,1.02);
+    centerPlanter('C',clusterCenterX,3.02,.94);
 
     const sarahDesk=desk('Sarah',7.15,.10,Math.PI/2,false);
     const finnDesk=desk('Finn',7.15,3.45,Math.PI/2,false);
@@ -371,8 +373,8 @@
 
     function ui(){
       const t=document.getElementById('viewTitle'); if(t)t.textContent='Office v17';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · Hochhaus-Sockel · 4er-Desk-Insel nach Skizze · Pflanzenachse · Auto-Glasschiebetüren';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE V17 · TOWER OFFICE';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · Hochhaus-Sockel · kompakte 4er-Desk-Insel exakt nach Skizze · 3 Pflanzen mittig';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE V17 · SKETCH DESK ISLAND';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
