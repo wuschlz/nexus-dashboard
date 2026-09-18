@@ -820,7 +820,7 @@
       plane.position.set(0,.055,0);
       plane.material=mat;
       plane.isPickable=false;
-      plane.renderingGroupId=2;
+      plane.renderingGroupId=0;
       plane.billboardMode=BABYLON.Mesh.BILLBOARDMODE_Y;
 
       // A few tiny scan markers keep it holographic without becoming a full sign.
@@ -831,7 +831,8 @@
       window.NEXUS_HALO_LABELS=window.NEXUS_HALO_LABELS||[];
       haloRoot.metadata={
         baseY:haloRoot.position.y,
-        phase:window.NEXUS_HALO_LABELS.length*.67
+        phase:window.NEXUS_HALO_LABELS.length*.67,
+        visualMeshes:[plane].concat(haloRoot.getChildMeshes(false).filter(m=>m!==plane))
       };
       window.NEXUS_HALO_LABELS.push(haloRoot);
 
@@ -841,9 +842,51 @@
           const t=performance.now()/1000;
           (window.NEXUS_HALO_LABELS||[]).forEach(node=>{
             if(!node || !node.metadata) return;
+
             node.position.y=node.metadata.baseY+Math.sin(t*1.55+node.metadata.phase)*.018;
             const pulse=.94+Math.sin(t*2.05+node.metadata.phase)*.035;
             node.scaling.set(pulse,pulse,pulse);
+
+            // Do not show holographic labels through office walls or glass partitions.
+            const cam=scene.activeCamera;
+            let blocked=false;
+            if(cam){
+              const camPos=(cam.globalPosition||cam.position).clone();
+              const target=node.getAbsolutePosition().add(new BABYLON.Vector3(0,.055,0));
+              const dir=target.subtract(camPos);
+              const distance=dir.length();
+
+              if(distance>.05){
+                dir.normalize();
+                const ray=new BABYLON.Ray(camPos,dir,distance-.04);
+
+                const wallPrefixes=[
+                  'v17ServerFront',
+                  'v17JamesFront',
+                  'v17MeetingFront',
+                  'v17ServerJamesDivider',
+                  'v17JamesMeetingDivider'
+                ];
+
+                for(const mesh of scene.meshes){
+                  if(!mesh || !mesh.isEnabled() || mesh===plane) continue;
+                  const n=mesh.name||'';
+                  const isOuterWall=n==='backWall' || n==='leftWall' || n==='rightWall';
+                  const isOfficeWall=wallPrefixes.some(prefix=>n.startsWith(prefix));
+                  if(!isOuterWall && !isOfficeWall) continue;
+
+                  const hit=ray.intersectsMesh(mesh,false);
+                  if(hit && hit.hit && hit.distance<distance-.05){
+                    blocked=true;
+                    break;
+                  }
+                }
+              }
+            }
+
+            (node.metadata.visualMeshes||node.getChildMeshes(false)).forEach(mesh=>{
+              mesh.isVisible=!blocked;
+            });
           });
         });
       }
@@ -1724,13 +1767,13 @@
     // Door animation is driven by app.js in the same render loop that moves James.
     // This avoids a separate animation observer getting out of sync with pathfinding.
     function ui(){
-      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.73';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · Funktions-Icons außen · Halo-Namen deutlich höher positioniert';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.73 · HIGHER HALO LABELS';
+      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.74';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · Funktions-Icons außen · Halo-Namen werden von Wänden verdeckt';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.74 · WALL-OCCLUDED HALOS';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
-    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.73 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
+    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.74 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
     return true;
   }
 
