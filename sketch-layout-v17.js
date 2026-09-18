@@ -124,17 +124,38 @@
     const autoDoors=[];
     function registerAutoDoor(name,doorX,z,doorW){
       const panelW=(doorW-.10)/2;
-      const left=box(name+'DoorL',panelW,H-.20,.045,doorX-panelW/2,H/2,z+.025,glassMat,root);
-      const right=box(name+'DoorR',panelW,H-.20,.045,doorX+panelW/2,H/2,z+.025,glassMat,root);
-      box(name+'HandleL',.035,.34,.055,panelW/2-.07,0,.035,dark,left);
-      box(name+'HandleR',.035,.34,.055,-panelW/2+.07,0,.035,dark,right);
+      const panelH=H-.20;
+
+      // True hinge pivots at the outer door edges.
+      const leftPivot=new BABYLON.TransformNode(name+'LeftHinge',scene);
+      leftPivot.parent=root;
+      leftPivot.position.set(doorX-doorW/2+.03,0,z+.025);
+
+      const rightPivot=new BABYLON.TransformNode(name+'RightHinge',scene);
+      rightPivot.parent=root;
+      rightPivot.position.set(doorX+doorW/2-.03,0,z+.025);
+
+      // Left leaf extends inward from its hinge.
+      box(name+'DoorLGlass',panelW-.08,panelH-.10,.035,panelW/2,H/2,0,glassMat,leftPivot);
+      box(name+'DoorLTop',panelW,.055,.055,panelW/2,H-.125,0,dark,leftPivot);
+      box(name+'DoorLBottom',panelW,.055,.055,panelW/2,.125,0,dark,leftPivot);
+      box(name+'DoorLHingeFrame',.045,panelH,.055,.025,H/2,0,dark,leftPivot);
+      box(name+'DoorLCenterFrame',.045,panelH,.055,panelW-.025,H/2,0,dark,leftPivot);
+      box(name+'HandleL',.035,.34,.070,panelW-.10,1.34,.045,dark,leftPivot);
+
+      // Right leaf extends inward from the opposite hinge.
+      box(name+'DoorRGlass',panelW-.08,panelH-.10,.035,-panelW/2,H/2,0,glassMat,rightPivot);
+      box(name+'DoorRTop',panelW,.055,.055,-panelW/2,H-.125,0,dark,rightPivot);
+      box(name+'DoorRBottom',panelW,.055,.055,-panelW/2,.125,0,dark,rightPivot);
+      box(name+'DoorRHingeFrame',.045,panelH,.055,-.025,H/2,0,dark,rightPivot);
+      box(name+'DoorRCenterFrame',.045,panelH,.055,-panelW+.025,H/2,0,dark,rightPivot);
+      box(name+'HandleR',.035,.34,.070,-panelW+.10,1.34,.045,dark,rightPivot);
+
       autoDoors.push({
         name, x:doorX, z, width:doorW,
-        left, right,
-        closedLeft:doorX-panelW/2,
-        closedRight:doorX+panelW/2,
-        openLeft:doorX-panelW*1.62,
-        openRight:doorX+panelW*1.62,
+        leftPivot, rightPivot,
+        leftOpenAngle:Math.PI*.47,
+        rightOpenAngle:-Math.PI*.47,
         openness:0,
         holdUntil:0,
         isOpen:false
@@ -464,7 +485,7 @@
     }
     const gl=scene.getEffectLayerByName('glow'); if(gl) gl.intensity=.24;
 
-    // Automatic sliding-door sensors.
+    // Automatic hinged-door sensors.
     // Doors open before an actor reaches the glass, remain open while crossing,
     // then close only after the doorway has been clear for a short moment.
     scene.onBeforeRenderObservable.add(()=>{
@@ -515,8 +536,10 @@
         if(Math.abs(target-d.openness)<.002) d.openness=target;
 
         const smooth=d.openness*d.openness*(3-2*d.openness);
-        d.left.position.x=d.closedLeft+(d.openLeft-d.closedLeft)*smooth;
-        d.right.position.x=d.closedRight+(d.openRight-d.closedRight)*smooth;
+
+        // Real swing motion around the two outer hinges.
+        d.leftPivot.rotation.y=d.leftOpenAngle*smooth;
+        d.rightPivot.rotation.y=d.rightOpenAngle*smooth;
       });
     });
 
@@ -554,13 +577,13 @@
     };
 
     function ui(){
-      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.41';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · automatische Glasschiebetüren mit Annäherungssensor · Pathfinding V2';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.41 · AUTO DOORS V3';
+      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.42';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · automatische Glas-Drehtüren mit Annäherungssensor · Pathfinding V2';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.42 · SWING DOORS';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
-    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.41 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
+    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.42 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
     return true;
   }
 
