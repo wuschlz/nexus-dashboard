@@ -356,8 +356,6 @@
       const sign=new BABYLON.TransformNode('v17JamesNexusSign',scene);
       sign.parent=root;
       sign.position.set(jamesRoom.cx,1.94,BACK+.34);
-      // Face the 3D wordmark toward the office/camera instead of showing its mirrored back side.
-      sign.rotation.y=Math.PI;
 
       const signBack=pbr('v17JamesSignBackM','#07121c',.22,.40);
       const neon=std('v17JamesSignNeonM','#08333b','#00eaff',1);
@@ -376,17 +374,19 @@
       }
 
       const sw=.10, lh=.76, lw=.52;
-      const xs=[-1.72,-.86,0,.86,1.72];
+      // Mirror the glyph layout only; keep the sign itself facing the office.
+      // This fixes the mirrored reading without moving the letters behind the backplate.
+      const xs=[1.72,.86,0,-.86,-1.72];
 
       // N
       signBar('NL',sw,lh,xs[0]-lw/2,0);
       signBar('NR',sw,lh,xs[0]+lw/2,0);
-      signBar('ND',sw,.91,xs[0],0,-.61);
+      signBar('ND',sw,.91,xs[0],0,.61);
 
       // E
-      signBar('EV',sw,lh,xs[1]-lw/2,0);
+      signBar('EV',sw,lh,xs[1]+lw/2,0);
       signBar('ET',lw,sw,xs[1],.33);
-      signBar('EM',lw*.88,sw,xs[1]-.03,0);
+      signBar('EM',lw*.88,sw,xs[1]+.03,0);
       signBar('EB',lw,sw,xs[1],-.33);
 
       // X
@@ -402,8 +402,8 @@
       signBar('ST',lw,sw,xs[4],.33);
       signBar('SM',lw,sw,xs[4],0);
       signBar('SB',lw,sw,xs[4],-.33);
-      signBar('SUL',sw,.33,xs[4]-lw/2,.165);
-      signBar('SLR',sw,.33,xs[4]+lw/2,-.165);
+      signBar('SUL',sw,.33,xs[4]+lw/2,.165);
+      signBar('SLR',sw,.33,xs[4]-lw/2,-.165);
 
       // Technical lower accents.
       signBar('TechL',1.20,.025,-1.45,-.54,0);
@@ -606,13 +606,13 @@
     // Door animation is driven by app.js in the same render loop that moves James.
     // This avoids a separate animation observer getting out of sync with pathfinding.
     function ui(){
-      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.53';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · 3D NEXUS Schild korrekt zur Büroseite ausgerichtet';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.53 · NEXUS SIGN FIXED';
+      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.54';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · 3D NEXUS Buchstaben korrekt lesbar · Trägerplatte unverändert';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.54 · NEXUS LETTERS FIXED';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
-    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.53 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
+    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.54 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
     return true;
   }
 
