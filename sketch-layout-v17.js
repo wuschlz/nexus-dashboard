@@ -416,8 +416,8 @@
     }
 
     // Cross-shaped planter exactly between the four desks.
-    islandPlanterStrip('Vertical',.34,2.66,islandCX,islandCZ);
-    islandPlanterStrip('Horizontal',3.10,.34,islandCX,islandCZ);
+    islandPlanterStrip('Vertical',.34,5.35,islandCX,islandCZ);
+    islandPlanterStrip('Horizontal',6.10,.34,islandCX,islandCZ);
 
     const sarahDesk=desk('Sarah',7.15,.10,Math.PI/2,false);
     const finnDesk=desk('Finn',7.15,3.45,Math.PI/2,false);
@@ -485,8 +485,8 @@
 
     function ui(){
       const t=document.getElementById('viewTitle'); if(t)t.textContent='Office v17';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · realistischere hohe Pflanzen · vollständiger Unterbau an allen L-Schreibtischen';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE V17 · PLANTS + DESK BASES';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · verlängertes Pflanzenkreuz bis an die Tischenden · hohe realistische Pflanzen · Desk-Unterbau';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE V17 · EXTENDED PLANT CROSS';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
