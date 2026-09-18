@@ -464,12 +464,12 @@
       else if(type==='crown'){line(cx-36*s,cy+21*s,cx-28*s,cy-18*s,cx-6*s,cy+2*s,cx,cy-26*s,cx+6*s,cy+2*s,cx+28*s,cy-18*s,cx+36*s,cy+21*s);line(cx-36*s,cy+21*s,cx+36*s,cy+21*s);}
     }
     function panelTex(name){
-      const [role,icon]=roles[name];
+      const [,icon]=roles[name];
       const tex=new BABYLON.DynamicTexture('v17PanelTex'+name,{width:700,height:280},scene,false);
       const ctx=tex.getContext();
       ctx.clearRect(0,0,700,280);
 
-      // Same smoked-black / cyan visual language as James' large NEXUS wall sign.
+      // Premium smoked plaque, but intentionally icon-only.
       const g=ctx.createLinearGradient(0,0,700,280);
       g.addColorStop(0,'#061019');
       g.addColorStop(.55,'#0a1822');
@@ -478,12 +478,12 @@
       roundRect(ctx,8,8,684,264,24);
       ctx.fill();
 
-      // Broken premium cyan frame instead of the old full blue outline.
+      // Segmented cyan frame like James' NEXUS wall sign.
       ctx.save();
       ctx.strokeStyle='#00dff4';
       ctx.lineWidth=5;
       ctx.shadowColor='#00dff4';
-      ctx.shadowBlur=20;
+      ctx.shadowBlur=22;
       ctx.beginPath();
       ctx.moveTo(28,30);ctx.lineTo(236,30);
       ctx.moveTo(464,30);ctx.lineTo(672,30);
@@ -492,31 +492,8 @@
       ctx.stroke();
       ctx.restore();
 
-      drawIcon(ctx,icon,122,140,1.12);
-
-      ctx.textAlign='left';
-      ctx.textBaseline='middle';
-      ctx.save();
-      ctx.shadowColor='#00e6ff';
-      ctx.shadowBlur=24;
-      ctx.fillStyle='#bffaff';
-      ctx.font='800 54px Arial';
-      ctx.fillText(name.toUpperCase(),232,112);
-      ctx.restore();
-
-      ctx.fillStyle='#72ddea';
-      ctx.font='700 26px Arial';
-      ctx.fillText(role.toUpperCase(),232,170);
-
-      ctx.fillStyle='#78939e';
-      ctx.font='600 17px Arial';
-      ctx.fillText('NEXUS OFFICE',232,218);
-
-      // Tiny center tech marker echoes James' wall plaque.
-      ctx.fillStyle='#d9ffff';
-      ctx.beginPath();
-      ctx.arc(350,251,4,0,Math.PI*2);
-      ctx.fill();
+      // Each workplace gets only its functional symbol.
+      drawIcon(ctx,icon,350,140,2.15);
 
       tex.update();
       return tex;
@@ -603,6 +580,75 @@
       return g;
     }
 
+    function standingDeskNameplate(name,parent,exec=false){
+      if(!parent) return;
+
+      const plateW=exec?.64:.58;
+      const plateH=exec?.20:.18;
+      const plateDark=pbr('v17NameplateDarkM'+name,'#07121b',.20,.42);
+      const plateEdge=std('v17NameplateEdgeM'+name,'#08313b','#00dff4',1);
+      const plateMetal=pbr('v17NameplateMetalM'+name,'#566773',.24,.46);
+
+      // Keep the nameplate near the front-left corner of the usable desktop,
+      // clear of monitors and the main keyboard area.
+      const nx=exec?-.72:-.62;
+      const nz=.34;
+
+      const g=new BABYLON.TransformNode('v17StandingNameplate'+name,scene);
+      g.parent=parent;
+      g.position.set(nx,.86,nz);
+      g.rotation.y=-.10;
+
+      // Small weighted base + twin supports so it visibly stands on the desk.
+      box('v17NameplateBase'+name,plateW*.72,.025,.12,0,.015,0,plateMetal,g);
+      box('v17NameplateSupportL'+name,.025,.12,.025,-plateW*.28,.085,-.01,plateMetal,g);
+      box('v17NameplateSupportR'+name,.025,.12,.025,plateW*.28,.085,-.01,plateMetal,g);
+
+      const pg=new BABYLON.TransformNode('v17NameplatePanelRoot'+name,scene);
+      pg.parent=g;
+      pg.position.set(0,.20,-.01);
+      pg.rotation.x=-.16;
+
+      box('v17NameplateBack'+name,plateW+.08,plateH+.06,.045,0,0,0,plateDark,pg);
+      box('v17NameplateTop'+name,plateW*.34,.014,.018,-plateW*.26,plateH/2+.035,.034,plateEdge,pg);
+      box('v17NameplateTopR'+name,plateW*.34,.014,.018,plateW*.26,plateH/2+.035,.034,plateEdge,pg);
+
+      const tex=new BABYLON.DynamicTexture('v17NameplateTex'+name,{width:900,height:280},scene,false);
+      tex.hasAlpha=true;
+      const ctx=tex.getContext();
+      ctx.clearRect(0,0,900,280);
+      ctx.textAlign='center';
+      ctx.textBaseline='middle';
+
+      ctx.save();
+      ctx.shadowColor='#00dff4';
+      ctx.shadowBlur=28;
+      ctx.fillStyle='#dffcff';
+      ctx.font='800 104px Arial';
+      ctx.fillText(name.toUpperCase(),450,138);
+      ctx.restore();
+
+      const mat=new BABYLON.StandardMaterial('v17NameplateTextM'+name,scene);
+      mat.diffuseTexture=tex;
+      mat.emissiveTexture=tex;
+      mat.opacityTexture=tex;
+      mat.emissiveColor=C('#a8fbff');
+      mat.disableLighting=true;
+      mat.backFaceCulling=false;
+
+      const p=BABYLON.MeshBuilder.CreatePlane(
+        'v17NameplateText'+name,
+        {width:plateW,height:plateH,sideOrientation:BABYLON.Mesh.DOUBLESIDE},
+        scene
+      );
+      p.parent=pg;
+      p.position.set(0,0,.032);
+      p.material=mat;
+      p.isPickable=false;
+
+      return g;
+    }
+
     function desk(name,x,z,rot=0,exec=false,signSide=1){
       const g=new BABYLON.TransformNode('v17Desk'+name,scene);g.parent=root;g.position.set(x,0,z);g.rotation.y=rot;
       const W=exec?2.72:2.28,D=exec?1.05:.94,RW=exec?.86:.74,RD=exec?1.22:1.10,top=exec?woodExec:wood;
@@ -686,6 +732,7 @@
         buildPremiumDeskSign(-.16,.39,signZ,signRotY,pw,ph);
       }
       chair(name,g,-.27,D/2+.78,0);
+      standingDeskNameplate(name,g,exec);
       return g;
     }
 
@@ -1475,13 +1522,13 @@
     // Door animation is driven by app.js in the same render loop that moves James.
     // This avoids a separate animation observer getting out of sync with pathfinding.
     function ui(){
-      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.67';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · Schreibtisch-Schilder im Premium-Stil von James';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.67 · PREMIUM DESK SIGNS';
+      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.68';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · Funktions-Icons außen · stehende Namensschilder auf den Schreibtischen';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.68 · ICON DESKS + NAMEPLATES';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
-    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.67 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
+    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.68 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
     return true;
   }
 
