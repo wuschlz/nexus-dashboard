@@ -363,7 +363,7 @@
 
   const locations={
     desk:new BABYLON.Vector3(-1.985,0,-3.78),
-    meeting:new BABYLON.Vector3(3.35,0,-3.95)
+    meeting:new BABYLON.Vector3(3.35,0,-3.45)
   };
   let jamesRoot=null,groups={},travel=null;
 
