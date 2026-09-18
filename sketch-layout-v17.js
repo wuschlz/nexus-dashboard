@@ -572,9 +572,54 @@
       box('v17Mouse'+name,.09,.023,.13,.31,.862,.18,pbr('v17MouseM'+name,'#e0e6eb',.82,.02),g);
       cyl('v17Mug'+name,.11,.11,-W*.38,.90,.16,pbr('v17MugM'+name,'#eef2f5',.82,.02),g);
       const tex=panelTex(name);const mat=new BABYLON.StandardMaterial('v17PanelM'+name,scene);mat.diffuseTexture=tex;mat.emissiveTexture=tex;mat.emissiveColor=C('#ffffff');mat.disableLighting=true;mat.backFaceCulling=false;
-      const pw=exec?1.18:1.04,ph=exec?.49:.43,signZ=signSide*(D/2+.025);box('v17PanelFrame'+name,pw+.10,ph+.10,.045,-.16,.39,signZ,black,g);
-      const p=BABYLON.MeshBuilder.CreatePlane('v17Panel'+name,{width:pw,height:ph,sideOrientation:BABYLON.Mesh.DOUBLESIDE},scene);p.parent=g;p.position.set(-.16,.39,signSide*(D/2+.052));p.rotation.y=signSide>0?Math.PI:0;p.material=mat;p.renderingGroupId=0;p.isPickable=false;
-      box('v17DeskGlow'+name,W-.27,.025,.035,0,.065,signSide*(D/2+.018),blueGlow,g);
+      const pw=exec?1.18:1.04,ph=exec?.49:.43;
+      const centerSideSign=['Gisela','Nora','Kevin','Lina'].includes(name);
+
+      if(centerSideSign){
+        // The four middle desks use the OUTER SIDE of the L-return cabinet.
+        // This is the vertical side panel without monitors, matching the marked reference area.
+        const sidePw=Math.min(.78,RD-.18);
+        const sideX=W/2-.045;
+        const sideZ=returnZ;
+
+        box(
+          'v17PanelFrame'+name,
+          .045,ph+.10,sidePw+.10,
+          sideX,.39,sideZ,
+          black,g
+        );
+
+        const p=BABYLON.MeshBuilder.CreatePlane(
+          'v17Panel'+name,
+          {width:sidePw,height:ph,sideOrientation:BABYLON.Mesh.DOUBLESIDE},
+          scene
+        );
+        p.parent=g;
+        p.position.set(sideX+.030,.39,sideZ);
+        p.rotation.y=-Math.PI/2;
+        p.material=mat;
+        p.renderingGroupId=0;
+        p.isPickable=false;
+
+        // Small accent directly below the side-mounted sign.
+        box(
+          'v17DeskGlow'+name,
+          .028,.025,sidePw-.06,
+          sideX+.018,.105,sideZ,
+          blueGlow,g
+        );
+      }else{
+        const signZ=signSide*(D/2+.025);
+        box('v17PanelFrame'+name,pw+.10,ph+.10,.045,-.16,.39,signZ,black,g);
+        const p=BABYLON.MeshBuilder.CreatePlane('v17Panel'+name,{width:pw,height:ph,sideOrientation:BABYLON.Mesh.DOUBLESIDE},scene);
+        p.parent=g;
+        p.position.set(-.16,.39,signSide*(D/2+.052));
+        p.rotation.y=signSide>0?Math.PI:0;
+        p.material=mat;
+        p.renderingGroupId=0;
+        p.isPickable=false;
+        box('v17DeskGlow'+name,W-.27,.025,.035,0,.065,signSide*(D/2+.018),blueGlow,g);
+      }
       chair(name,g,-.27,D/2+.78,0);
       return g;
     }
@@ -1202,11 +1247,11 @@
 
     // Quadrants from the sketch:
     // top-left ┘, top-right └, bottom-left ┐, bottom-right ┌
-    const giselaDesk=desk('Gisela',islandLeftX,islandTopZ,-Math.PI/2,false,1);
-    const noraDesk=desk('Nora',islandRightX,islandTopZ,Math.PI,false,1);
-    const kevinDesk=desk('Kevin',islandLeftX,islandBottomZ,0,false,1);
+    const giselaDesk=desk('Gisela',islandLeftX,islandTopZ,-Math.PI/2,false,-1);
+    const noraDesk=desk('Nora',islandRightX,islandTopZ,Math.PI,false,-1);
+    const kevinDesk=desk('Kevin',islandLeftX,islandBottomZ,0,false,-1);
     premiumKevinDesk(kevinDesk);
-    const linaDesk=desk('Lina',islandRightX,islandBottomZ,Math.PI/2,false,1);
+    const linaDesk=desk('Lina',islandRightX,islandBottomZ,Math.PI/2,false,-1);
 
     // Long, low planter strips instead of loose flower pots.
     function islandPlanterStrip(name,w,d,x,z){
@@ -1365,13 +1410,13 @@
     // Door animation is driven by app.js in the same render loop that moves James.
     // This avoids a separate animation observer getting out of sync with pathfinding.
     function ui(){
-      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.64';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · 4 mittlere Schreibtische · Schilder auf der monitorfreien Seite';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.64 · CENTER DESK SIGNS';
+      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.65';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · 4 mittlere Schreibtische · Schilder außen am L-Korpus';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.65 · SIDE-MOUNTED DESK SIGNS';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
-    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.64 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
+    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.65 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
     return true;
   }
 
