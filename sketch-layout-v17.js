@@ -580,12 +580,70 @@
     }
 
     const walterDesk=desk('Walter',-7.55,-3.96,-Math.PI/2,false,-1);
+
+    // Animated server activity LEDs: subtle, asynchronous and intentionally non-uniform.
+    const rackLeds=[];
+    const rackLedCyan=std('v17RackLedCyanM','#071e25','#36d7ff',1);
+    const rackLedGreen=std('v17RackLedGreenM','#0b2519','#51f59a',1);
+    const rackLedAmber=std('v17RackLedAmberM','#2c2110','#ffc15c',1);
+
     for(let r=0;r<3;r++){
       const x=-9.15+r*1.02;
       box('v17RackBody'+r,.78,2.10,.72,x,1.05,-6.79,serverBody,root);
       box('v17RackFront'+r,.66,1.90,.035,x,.99,-6.40,serverFront,root);
-      for(let i=0;i<9;i++) box('v17RackSlot'+r+'_'+i,.52,.066,.018,x,.29+i*.18,-6.375,i%3===0?blueGlow:serverFront,root);
+
+      for(let i=0;i<9;i++){
+        const y=.29+i*.18;
+        box('v17RackSlot'+r+'_'+i,.52,.066,.018,x,y,-6.375,i%3===0?blueGlow:serverFront,root);
+
+        // Two tiny activity lights per selected rack unit.
+        if(i%2===0 || i===3 || i===7){
+          const ledA=box(
+            'v17RackLedA'+r+'_'+i,
+            .042,.030,.024,
+            x+.205,y,-6.350,
+            ((r+i)%5===0)?rackLedGreen:rackLedCyan,
+            root
+          );
+          const ledB=box(
+            'v17RackLedB'+r+'_'+i,
+            .030,.022,.024,
+            x+.145,y,-6.349,
+            ((r*3+i)%7===0)?rackLedAmber:rackLedGreen,
+            root
+          );
+
+          ledA.isPickable=false;
+          ledB.isPickable=false;
+
+          rackLeds.push({
+            mesh:ledA,
+            freq:1.65+((r*11+i*7)%9)*.31,
+            phase:r*1.73+i*.91,
+            threshold:.08+((r+i)%4)*.12
+          });
+          rackLeds.push({
+            mesh:ledB,
+            freq:2.15+((r*7+i*13)%11)*.27,
+            phase:r*2.21+i*1.37+.8,
+            threshold:.18+((r+i+1)%4)*.11
+          });
+        }
+      }
     }
+
+    // Animate by visibility instead of changing shared materials.
+    // Result: believable network/disk activity rather than synchronized flashing.
+    scene.registerBeforeRender(()=>{
+      if(!rackLeds.length) return;
+      const t=performance.now()/1000;
+      rackLeds.forEach((led,idx)=>{
+        const wave=Math.sin(t*led.freq+led.phase);
+        const pulse=Math.sin(t*(led.freq*.47)+led.phase*1.7);
+        const on=(wave>led.threshold) || (pulse>.88 && idx%3===0);
+        if(led.mesh.isEnabled()!==on) led.mesh.setEnabled(on);
+      });
+    });
 
     const jamesDesk=desk('James',jamesRoom.cx,-4.62,Math.PI,true,-1);
 
@@ -881,13 +939,13 @@
     // Door animation is driven by app.js in the same render loop that moves James.
     // This avoids a separate animation observer getting out of sync with pathfinding.
     function ui(){
-      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.57';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · High-Rise City weit unter dem Office · 360° Skyline · atmosphärischer Dunst';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.57 · HIGH-RISE CITY';
+      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.58';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · animierte Server-Racks · asynchrone Status- und Aktivitäts-LEDs';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.58 · LIVE SERVER RACKS';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
-    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.57 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
+    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.58 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
     return true;
   }
 
