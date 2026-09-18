@@ -71,8 +71,8 @@
       const panelW=(doorW-.10)/2;
       const left=box(name+'DoorL',panelW,H-.20,.045,doorX-panelW/2,H/2,z+.025,glassMat,root);
       const right=box(name+'DoorR',panelW,H-.20,.045,doorX+panelW/2,H/2,z+.025,glassMat,root);
-      box(name+'HandleL',.035,.34,.055,doorX-.055,1.34,z+.058,dark,root);
-      box(name+'HandleR',.035,.34,.055,doorX+.055,1.34,z+.058,dark,root);
+      box(name+'HandleL',.035,.34,.055,panelW/2-.07,0,.035,dark,left);
+      box(name+'HandleR',.035,.34,.055,-panelW/2+.07,0,.035,dark,right);
       autoDoors.push({
         name, x:doorX, z,
         left, right,
