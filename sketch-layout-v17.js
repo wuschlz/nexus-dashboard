@@ -757,68 +757,113 @@
       return g;
     }
 
-    function deskEdgeName(name,parent,D,exec=false){
+    function haloDeskName(name,parent,exec=false){
       if(!parent) return;
 
-      // Integrated illuminated lettering in the front furniture edge.
-      // James/Kevin have deeper premium fascias, so their labels sit flush with those fronts.
-      const plateW=exec?1.18:.96;
-      const plateH=exec?.135:.12;
-      const frontZ=name==='James' ? -.638 : (name==='Kevin' ? -.602 : -D/2-.032);
-      const y=name==='James' ? .565 : (name==='Kevin' ? .545 : .595);
+      const haloRoot=new BABYLON.TransformNode('v17HaloDeskName'+name,scene);
+      haloRoot.parent=parent;
+      haloRoot.position.set(0,1.35,.14);
 
-      const inset=pbr('v17DeskEdgeNameInsetM'+name,'#0a151d',.24,.30);
-      const edge=std('v17DeskEdgeNameAccentM'+name,'#08262e','#00bfd5',1);
-
-      // Very shallow recess so the name reads as part of the desk, not as an added sign.
-      box('v17DeskEdgeNameInset'+name,plateW+.16,plateH+.075,.018,0,y,frontZ,inset,parent);
-      box('v17DeskEdgeNameAccent'+name,plateW*.34,.012,.010,0,y-plateH/2-.047,frontZ-.012,edge,parent);
+      const labelW=exec?1.22:1.04;
+      const labelH=exec?.25:.22;
 
       const tex=new BABYLON.DynamicTexture(
-        'v17DeskEdgeNameTex'+name,
-        {width:1024,height:200},
+        'v17HaloDeskNameTex'+name,
+        {width:1024,height:280},
         scene,
         false
       );
       tex.hasAlpha=true;
       const ctx=tex.getContext();
-      ctx.clearRect(0,0,1024,200);
+      ctx.clearRect(0,0,1024,280);
       ctx.textAlign='center';
       ctx.textBaseline='middle';
 
-      // Bright enough to remain legible from the normal office camera distance.
+      // Layered cyan hologram lettering.
+      ctx.save();
+      ctx.globalAlpha=.22;
+      ctx.shadowColor='#00dff4';
+      ctx.shadowBlur=42;
+      ctx.fillStyle='#00dff4';
+      ctx.font='900 124px Arial';
+      ctx.fillText(name.toUpperCase(),512,142);
+      ctx.restore();
+
       ctx.save();
       ctx.shadowColor='#00dff4';
-      ctx.shadowBlur=24;
-      ctx.fillStyle='#e2fdff';
-      ctx.font='800 92px Arial';
-      ctx.fillText(name.toUpperCase(),512,103);
+      ctx.shadowBlur=22;
+      ctx.fillStyle='rgba(226,253,255,.94)';
+      ctx.font='800 112px Arial';
+      ctx.fillText(name.toUpperCase(),512,142);
       ctx.restore();
 
       ctx.strokeStyle='rgba(0,223,244,.72)';
       ctx.lineWidth=2;
-      ctx.strokeText(name.toUpperCase(),512,103);
+      ctx.strokeText(name.toUpperCase(),512,142);
       tex.update();
 
-      const mat=new BABYLON.StandardMaterial('v17DeskEdgeNameM'+name,scene);
+      const mat=new BABYLON.StandardMaterial('v17HaloDeskNameM'+name,scene);
       mat.diffuseTexture=tex;
       mat.emissiveTexture=tex;
       mat.opacityTexture=tex;
       mat.emissiveColor=C('#b9fbff');
       mat.disableLighting=true;
       mat.backFaceCulling=false;
+      mat.alpha=.92;
 
-      const p=BABYLON.MeshBuilder.CreatePlane(
-        'v17DeskEdgeName'+name,
-        {width:plateW,height:plateH,sideOrientation:BABYLON.Mesh.DOUBLESIDE},
+      const plane=BABYLON.MeshBuilder.CreatePlane(
+        'v17HaloDeskNamePlane'+name,
+        {width:labelW,height:labelH,sideOrientation:BABYLON.Mesh.DOUBLESIDE},
         scene
       );
-      p.parent=parent;
-      p.position.set(0,y,frontZ-.014);
-      p.material=mat;
-      p.isPickable=false;
-      p.renderingGroupId=1;
-      return p;
+      plane.parent=haloRoot;
+      plane.position.set(0,.055,0);
+      plane.material=mat;
+      plane.isPickable=false;
+      plane.renderingGroupId=2;
+      plane.billboardMode=BABYLON.Mesh.BILLBOARDMODE_Y;
+
+      // Thin holographic halo under the name.
+      const ringMat=std('v17HaloDeskRingM'+name,'#06242c','#00dff4',.72);
+      const ring=BABYLON.MeshBuilder.CreateTorus(
+        'v17HaloDeskRing'+name,
+        {diameter:exec?.66:.58,thickness:.014,tessellation:40},
+        scene
+      );
+      ring.parent=haloRoot;
+      ring.position.set(0,-.105,0);
+      ring.rotation.x=Math.PI/2;
+      ring.scaling.y=.44;
+      ring.material=ringMat;
+      ring.isPickable=false;
+      ring.renderingGroupId=1;
+
+      // A few tiny scan markers keep it holographic without becoming a full sign.
+      const markerMat=std('v17HaloDeskMarkerM'+name,'#04171c','#00a8bb',.62);
+      box('v17HaloDeskMarkerL'+name,.12,.010,.010,-labelW*.38,-.09,.012,markerMat,haloRoot);
+      box('v17HaloDeskMarkerR'+name,.12,.010,.010,labelW*.38,-.09,.012,markerMat,haloRoot);
+
+      window.NEXUS_HALO_LABELS=window.NEXUS_HALO_LABELS||[];
+      haloRoot.metadata={
+        baseY:haloRoot.position.y,
+        phase:window.NEXUS_HALO_LABELS.length*.67
+      };
+      window.NEXUS_HALO_LABELS.push(haloRoot);
+
+      if(!window.NEXUS_HALO_LABELS_ANIM){
+        window.NEXUS_HALO_LABELS_ANIM=true;
+        scene.registerBeforeRender(()=>{
+          const t=performance.now()/1000;
+          (window.NEXUS_HALO_LABELS||[]).forEach(node=>{
+            if(!node || !node.metadata) return;
+            node.position.y=node.metadata.baseY+Math.sin(t*1.55+node.metadata.phase)*.018;
+            const pulse=.94+Math.sin(t*2.05+node.metadata.phase)*.035;
+            node.scaling.set(pulse,pulse,pulse);
+          });
+        });
+      }
+
+      return haloRoot;
     }
 
     function desk(name,x,z,rot=0,exec=false,signSide=1){
@@ -903,7 +948,7 @@
         const signRotY=signSide>0?Math.PI:0;
         buildPremiumDeskSign(-.16,.39,signZ,signRotY,pw,ph);
       }
-      deskEdgeName(name,g,D,exec);
+      haloDeskName(name,g,exec);
       chair(name,g,-.27,D/2+.78,0);
       return g;
     }
@@ -1694,13 +1739,13 @@
     // Door animation is driven by app.js in the same render loop that moves James.
     // This avoids a separate animation observer getting out of sync with pathfinding.
     function ui(){
-      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.70';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · Funktions-Icons außen · Namen dezent in die Schreibtischkante integriert';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.70 · INTEGRATED DESK NAMES';
+      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.71';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · Funktions-Icons außen · schwebende Halo-Namen über den Schreibtischen';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.71 · HALO DESK NAMES';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
-    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.70 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
+    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.71 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
     return true;
   }
 
