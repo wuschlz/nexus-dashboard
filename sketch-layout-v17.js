@@ -845,6 +845,170 @@
       window.NEXUS_JAMES_PREMIUM_READY=true;
     }
 
+    function premiumKevinDesk(parent){
+      if(!parent) return;
+
+      const kDark=pbr('v17KevinPremiumDarkM','#182129',.28,.34);
+      const kMid=pbr('v17KevinPremiumMidM','#2b3741',.34,.26);
+      const kEdge=pbr('v17KevinPremiumEdgeM','#687985',.24,.48);
+      const kWood=pbr('v17KevinPremiumWoodM','#9f7c5e',.38,.06);
+      const kShelf=pbr('v17KevinPremiumShelfM','#101820',.34,.24);
+      const kPaper=pbr('v17KevinPaperM','#eceae4',.82,.01);
+      const kBlue=pbr('v17KevinBlueM','#456f89',.46,.08);
+      const kGrey=pbr('v17KevinGreyM','#a8b2ba',.58,.04);
+      const kPlantPot=pbr('v17KevinPlantPotM','#202a31',.36,.30);
+      const kSoil=pbr('v17KevinPlantSoilM','#2c221a',.88,.01);
+      const kLeafA=pbr('v17KevinLeafAM','#2f6c4d',.70,.01);
+      const kLeafB=pbr('v17KevinLeafBM','#4f8b66',.68,.01);
+      const kGlow=std('v17KevinDeskGlowM','#082f38','#39ddf7',1);
+      const kMat=pbr('v17KevinDeskMatM','#20272d',.76,.04);
+
+      // Stronger front construction and inset fascia.
+      box('v17KevinPremiumFront',2.10,.59,.095,0,.32,-.515,kDark,parent);
+      box('v17KevinPremiumInset',1.02,.43,.030,.22,.34,-.575,kMid,parent);
+      box('v17KevinPremiumKick',2.02,.050,.10,0,.045,-.53,kShelf,parent);
+      box('v17KevinPremiumTopEdge',2.05,.035,.055,0,.625,-.555,kEdge,parent);
+
+      // Visible open shelving on the left side.
+      const sx=-.82;
+      box('v17KevinShelfBack',.50,.54,.045,sx,.31,-.31,kShelf,parent);
+      box('v17KevinShelfSideL',.040,.54,.34,sx-.25,.31,-.15,kDark,parent);
+      box('v17KevinShelfSideR',.040,.54,.34,sx+.25,.31,-.15,kDark,parent);
+      box('v17KevinShelfMid',.50,.032,.33,sx,.33,-.15,kMid,parent);
+      box('v17KevinShelfBottom',.50,.032,.33,sx,.075,-.15,kMid,parent);
+
+      // Books / binders.
+      const kBinders=[kPaper,kGrey,kBlue,kPaper];
+      for(let i=0;i<4;i++){
+        box('v17KevinBinder'+i,.082,.21,.18,sx-.14+i*.095,.455,-.14,kBinders[i],parent);
+        box('v17KevinBinderLabel'+i,.050,.018,.010,sx-.14+i*.095,.455,-.236,kEdge,parent);
+      }
+      box('v17KevinStorageBox',.28,.14,.22,sx,.17,-.14,kGrey,parent);
+
+      // L-return drawer stack.
+      const rx=.77;
+      [.18,.39,.58].forEach((yy,i)=>{
+        box('v17KevinReturnDrawer'+i,.49,.15,.025,rx,yy,.88,kMid,parent);
+        box('v17KevinReturnHandle'+i,.17,.016,.018,rx,yy,.862,kEdge,parent);
+      });
+
+      // Layered desktop edge and mat.
+      box('v17KevinTopEdgeFront',2.18,.028,.040,0,.815,-.445,kEdge,parent);
+      box('v17KevinReturnEdge',.68,.028,1.02,.83,.815,.51,kEdge,parent);
+      box('v17KevinDeskMat',1.00,.012,.36,-.02,.858,.16,kMat,parent);
+
+      // Monitor rail, premium bases, rear shells and camera bars.
+      box('v17KevinMonitorRail',1.27,.050,.18,-.02,.875,-.22,kDark,parent);
+      box('v17KevinMonitorRailGlow',1.12,.016,.020,-.02,.855,-.318,kGlow,parent);
+      [-.37,.34].forEach((mx,i)=>{
+        box('v17KevinMonitorBase'+i,.28,.023,.16,mx,.855,-.20,kEdge,parent);
+        box('v17KevinMonitorNeck'+i,.050,.21,.050,mx,1.00,-.20,kDark,parent);
+        box('v17KevinMonRear'+i,.58,.34,.022,mx,1.22,-.032,kDark,parent);
+        box('v17KevinMonVent'+i,.25,.022,.010,mx,1.12,-.048,kEdge,parent);
+        box('v17KevinMonCam'+i,.11,.032,.032,mx,1.43,-.015,black,parent);
+      });
+
+      // Cable tray, grommets and dock.
+      box('v17KevinCableTray',1.35,.07,.13,-.05,.72,-.34,kShelf,parent);
+      [-.50,.46].forEach((gx,i)=>{
+        const gm=cyl('v17KevinGrommet'+i,.085,.016,gx,.862,-.27,kDark,parent);
+        gm.rotation.x=Math.PI/2;
+      });
+      box('v17KevinDock',.27,.050,.10,.16,.892,-.25,kDark,parent);
+      box('v17KevinDockGlow',.16,.010,.010,.16,.900,-.307,kGlow,parent);
+
+      // Keyboard with visible keycaps.
+      const keyMat=pbr('v17KevinKeyCapM','#d9dfe4',.60,.025);
+      const keyDark=pbr('v17KevinKeyCapDarkM','#7f8b94',.55,.05);
+      for(let row=0;row<3;row++){
+        const count=row===2?8:10;
+        for(let k=0;k<count;k++){
+          box(
+            'v17KevinKey'+row+'_'+k,
+            .038,.011,.033,
+            -.28+k*.057+(row===2?.055:0),
+            .878,
+            .12+row*.046,
+            (k+row)%6===0?keyDark:keyMat,
+            parent
+          );
+        }
+      }
+      box('v17KevinSpaceBar',.28,.011,.033,-.02,.878,.258,keyMat,parent);
+      cyl('v17KevinMouseWheel',.020,.016,.31,.884,.14,kEdge,parent);
+
+      // Research / analysis props: tablet stand, paper stack, magnifier dock.
+      box('v17KevinTabletStand',.22,.050,.13,.63,.89,.18,kDark,parent,-.10);
+      const tab=box('v17KevinTabletScreen',.18,.24,.016,.63,1.00,.16,black,parent,-.10);
+      tab.rotation.x=-.35;
+      box('v17KevinTabletGlow',.09,.010,.010,.63,1.08,.145,kGlow,parent,-.10);
+
+      box('v17KevinInbox',.34,.032,.24,-.82,.885,.20,kDark,parent);
+      for(let p=0;p<4;p++){
+        box('v17KevinPaper'+p,.28,.007,.19,-.82,.904+p*.010,.20,kPaper,parent,(p-1.5)*.014);
+      }
+
+      // Small plant helper.
+      function kPlant(name,x,z,scale=1){
+        const g=new BABYLON.TransformNode('v17KevinPlant'+name,scene);
+        g.parent=parent; g.position.set(x,.86,z);
+        cyl('v17KevinPlantPot'+name,.20*scale,.18*scale,0,.09*scale,0,kPlantPot,g);
+        cyl('v17KevinPlantSoil'+name,.15*scale,.022*scale,0,.185*scale,0,kSoil,g);
+        for(let i=0;i<7;i++){
+          const ang=i/7*Math.PI*2+.24;
+          const h=(.23+(i%3)*.05)*scale;
+          const stem=BABYLON.MeshBuilder.CreateCylinder(
+            'v17KevinStem'+name+i,
+            {diameter:.016*scale,height:h,tessellation:7},scene
+          );
+          stem.parent=g;
+          stem.position.set(Math.cos(ang)*.022*scale,.19*scale+h/2,Math.sin(ang)*.022*scale);
+          stem.rotation.z=Math.cos(ang)*.15;
+          stem.material=kLeafA;
+          const leaf=BABYLON.MeshBuilder.CreateSphere(
+            'v17KevinLeaf'+name+i,
+            {diameter:.15*scale,segments:9},scene
+          );
+          leaf.parent=g;
+          leaf.position.set(Math.cos(ang)*.09*scale,.19*scale+h,Math.sin(ang)*.09*scale);
+          leaf.scaling.set(.48,1.50,.28);
+          leaf.rotation.z=Math.cos(ang)*.52;
+          leaf.rotation.x=Math.sin(ang)*.22;
+          leaf.rotation.y=-ang;
+          leaf.material=i%3===0?kLeafB:kLeafA;
+        }
+      }
+
+      // More visible from the normal camera than James' rear-room placement.
+      kPlant('Left',-.91,.02,.98);
+      kPlant('Return',.84,.62,.92);
+      kPlant('Small',.49,.24,.58);
+
+      // Pen cup, notebook and cup.
+      cyl('v17KevinPenCup',.11,.12,.48,.92,.34,kDark,parent);
+      [-.025,0,.025].forEach((px,i)=>{
+        const pen=cyl('v17KevinPen'+i,.013,.20,.48+px,1.02,.34,i===1?kWood:kBlue,parent);
+        pen.rotation.z=(i-1)*.08;
+      });
+      box('v17KevinNotebook',.28,.023,.20,.42,.874,.18,kWood,parent,-.06);
+      cyl('v17KevinCoaster',.12,.010,-.63,.868,.24,kMid,parent);
+      cyl('v17KevinCup',.10,.11,-.63,.923,.24,pbr('v17KevinCupM','#dce1e5',.62,.03),parent);
+
+      // Front glow logo / research node.
+      box('v17KevinLogoTop',.36,.022,.025,.31,.46,-.598,kGlow,parent);
+      box('v17KevinLogoBottom',.36,.022,.025,.31,.24,-.598,kGlow,parent);
+      box('v17KevinLogoLeft',.022,.24,.025,.13,.35,-.598,kGlow,parent);
+      box('v17KevinLogoRight',.022,.24,.025,.49,.35,-.598,kGlow,parent);
+      const ka=box('v17KevinLogoA',.17,.030,.028,.27,.36,-.614,kGlow,parent);
+      ka.rotation.z=-.72;
+      const kb=box('v17KevinLogoB',.25,.030,.028,.38,.39,-.614,kGlow,parent);
+      kb.rotation.z=.78;
+
+      box('v17KevinUnderGlow',1.48,.016,.018,-.10,.08,-.575,blueGlow,parent);
+
+      window.NEXUS_KEVIN_PREMIUM_READY=true;
+    }
+
     const walterDesk=desk('Walter',-7.55,-3.96,-Math.PI/2,false,-1);
 
     // Animated server activity LEDs: subtle, asynchronous and intentionally non-uniform.
@@ -1047,6 +1211,7 @@
     const giselaDesk=desk('Gisela',islandLeftX,islandTopZ,-Math.PI/2,false,-1);
     const noraDesk=desk('Nora',islandRightX,islandTopZ,Math.PI,false,-1);
     const kevinDesk=desk('Kevin',islandLeftX,islandBottomZ,0,false,-1);
+    premiumKevinDesk(kevinDesk);
     const linaDesk=desk('Lina',islandRightX,islandBottomZ,Math.PI/2,false,-1);
 
     // Long, low planter strips instead of loose flower pots.
@@ -1206,13 +1371,13 @@
     // Door animation is driven by app.js in the same render loop that moves James.
     // This avoids a separate animation observer getting out of sync with pathfinding.
     function ui(){
-      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.60';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · James Ultra-Detail · Möbelkonstruktion · Technik · Kabelmanagement · Executive Chair';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.60 · ULTRA DETAILED JAMES';
+      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.61';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · Kevin Premium-Detail · sichtbar im Hauptbereich · Technik · Pflanzen · Stauraum';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.61 · PREMIUM KEVIN DESK';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
-    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.60 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
+    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.61 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
     return true;
   }
 
