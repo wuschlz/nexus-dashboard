@@ -528,132 +528,112 @@
     }
     const gl=scene.getEffectLayerByName('glow'); if(gl) gl.intensity=.24;
 
-    // Safe NEXUS wall sign behind James.
-    // Intentionally simple and robust: backplate + emissive text planes.
+    // Physical 3D NEXUS wall sign behind James.
+    // No canvas/textures: every letter is built from emissive meshes for maximum browser reliability.
     try{
       const signRoot=new BABYLON.TransformNode('v17JamesNexusSign',scene);
       signRoot.parent=root;
+      signRoot.position.set(jamesRoom.cx,2.00,-6.72);
 
-      // Clearly in front of the rear wall and centered behind James.
-      signRoot.position.set(jamesRoom.cx,2.00,-6.86);
+      const signBack=pbr('v17JamesNexusBackM','#07111a',.22,.40);
+      const neon=std('v17JamesNexusNeonM','#06323a','#00eaff',1);
+      const neonSoft=std('v17JamesNexusNeonSoftM','#092a31','#00a9c5',1);
+      const metallic=pbr('v17JamesNexusMetalM','#283b49',.20,.52);
 
-      const signBack=pbr('v17JamesNexusBackM','#07121c',.22,.34);
-      const signFrame=std('v17JamesNexusFrameM','#06333b','#00dff3',1);
-      const signFrameSoft=std('v17JamesNexusFrameSoftM','#082931','#00a6bb',1);
+      // Deep floating backplate.
+      box('v17JamesNexusBack',5.35,1.66,.11,0,0,0,signBack,signRoot);
+      box('v17JamesNexusBackInset',5.03,1.38,.045,0,0,.075,pbr('v17JamesNexusInsetM','#0b1b25',.30,.30),signRoot);
 
-      // Large dark plaque.
-      box('v17JamesNexusBack',4.95,1.55,.10,0,0,0,signBack,signRoot);
+      // Bright sci-fi perimeter.
+      box('v17JamesNexusTop',4.93,.040,.050,0,.735,.115,neon,signRoot);
+      box('v17JamesNexusBottom',4.93,.040,.050,0,-.735,.115,neonSoft,signRoot);
+      box('v17JamesNexusLeft',.040,.82,.050,-2.50,.22,.115,neonSoft,signRoot);
+      box('v17JamesNexusRight',.040,.82,.050,2.50,.22,.115,neonSoft,signRoot);
 
-      // Strong sci-fi glow frame.
-      box('v17JamesNexusTop',4.72,.045,.045,0,.73,.075,signFrame,signRoot);
-      box('v17JamesNexusBottom',4.72,.045,.045,0,-.73,.075,signFrame,signRoot);
-      box('v17JamesNexusLeft',.045,1.46,.045,-2.36,0,.075,signFrameSoft,signRoot);
-      box('v17JamesNexusRight',.045,1.46,.045,2.36,0,.075,signFrameSoft,signRoot);
+      function bar(name,w,h,x,y,rz=0,mat=neon){
+        const m=box('v17JamesSign'+name,w,h,.075,x,y,.16,mat,signRoot);
+        m.rotation.z=rz;
+        return m;
+      }
 
-      // Main wordmark texture using Babylon's own drawText helper.
-      const nexusTex=new BABYLON.DynamicTexture(
-        'v17JamesNexusTex',
-        {width:2048,height:512},
-        scene,
-        false
-      );
-      nexusTex.hasAlpha=true;
-      nexusTex.drawText(
-        'NEXUS',
-        null,
-        330,
-        'bold 270px Arial',
-        '#DFFFFF',
-        'transparent',
-        true,
-        true
-      );
+      const stroke=.095;
+      const H=.82;
+      const W=.57;
+      const half=H/2;
+      const centers=[-1.72,-.86,0,.86,1.72];
 
-      const nexusMat=new BABYLON.StandardMaterial('v17JamesNexusTextM',scene);
-      nexusMat.diffuseTexture=nexusTex;
-      nexusMat.emissiveTexture=nexusTex;
-      nexusMat.opacityTexture=nexusTex;
-      nexusMat.emissiveColor=C('#00E7FF');
-      nexusMat.disableLighting=true;
-      nexusMat.backFaceCulling=false;
+      // N
+      {
+        const x=centers[0];
+        bar('N_L',stroke,H,x-W/2,0);
+        bar('N_R',stroke,H,x+W/2,0);
+        bar('N_D',stroke,.98,x,0,-.60);
+      }
 
-      const nexusPlane=BABYLON.MeshBuilder.CreatePlane(
-        'v17JamesNexusText',
-        {width:4.30,height:1.06,sideOrientation:BABYLON.Mesh.DOUBLESIDE},
-        scene
-      );
-      nexusPlane.parent=signRoot;
-      nexusPlane.position.set(0,.10,.105);
-      // Default plane faces +Z, which is toward the office/camera.
-      nexusPlane.rotation.y=0;
-      nexusPlane.material=nexusMat;
-      nexusPlane.isPickable=false;
+      // E
+      {
+        const x=centers[1];
+        bar('E_V',stroke,H,x-W/2,0);
+        bar('E_T',W,stroke,x,.36);
+        bar('E_M',W*.88,stroke,x-.03,0);
+        bar('E_B',W,stroke,x,-.36);
+      }
 
-      // Small lower sci-fi line.
-      const subTex=new BABYLON.DynamicTexture(
-        'v17JamesNexusSubTex',
-        {width:2048,height:256},
-        scene,
-        false
-      );
-      subTex.hasAlpha=true;
-      subTex.drawText(
-        'INTELLIGENCE  ·  OPERATIONS  ·  CORE',
-        null,
-        150,
-        'bold 78px Arial',
-        '#67D8E8',
-        'transparent',
-        true,
-        true
-      );
+      // X
+      {
+        const x=centers[2];
+        bar('X_A',stroke,1.00,x,0,.60);
+        bar('X_B',stroke,1.00,x,0,-.60);
+      }
 
-      const subMat=new BABYLON.StandardMaterial('v17JamesNexusSubM',scene);
-      subMat.diffuseTexture=subTex;
-      subMat.emissiveTexture=subTex;
-      subMat.opacityTexture=subTex;
-      subMat.emissiveColor=C('#37CDE1');
-      subMat.disableLighting=true;
-      subMat.backFaceCulling=false;
+      // U
+      {
+        const x=centers[3];
+        bar('U_L',stroke,.70,x-W/2,.055);
+        bar('U_R',stroke,.70,x+W/2,.055);
+        bar('U_B',W,stroke,x,-.36);
+      }
 
-      const subPlane=BABYLON.MeshBuilder.CreatePlane(
-        'v17JamesNexusSub',
-        {width:3.85,height:.34,sideOrientation:BABYLON.Mesh.DOUBLESIDE},
-        scene
-      );
-      subPlane.parent=signRoot;
-      subPlane.position.set(0,-.48,.11);
-      subPlane.rotation.y=0;
-      subPlane.material=subMat;
-      subPlane.isPickable=false;
+      // S
+      {
+        const x=centers[4];
+        bar('S_T',W,stroke,x,.36);
+        bar('S_M',W,stroke,x,0);
+        bar('S_B',W,stroke,x,-.36);
+        bar('S_UL',stroke,.36,x-W/2,.18);
+        bar('S_LR',stroke,.36,x+W/2,-.18);
+      }
 
-      // Visible cyan wall wash.
+      // Small technical details below the wordmark.
+      box('v17JamesSignTechL',1.28,.022,.040,-1.52,-.59,.145,neonSoft,signRoot);
+      box('v17JamesSignTechR',1.28,.022,.040,1.52,-.59,.145,neonSoft,signRoot);
+      box('v17JamesSignTechCenter',.25,.040,.050,0,-.59,.15,metallic,signRoot);
+
+      // Cyan wall wash for a clear halo.
       const halo=new BABYLON.PointLight(
         'v17JamesNexusHalo',
-        new BABYLON.Vector3(jamesRoom.cx,2.05,-6.55),
+        new BABYLON.Vector3(jamesRoom.cx,2.04,-6.36),
         scene
       );
-      halo.diffuse=C('#00DDF2');
-      halo.intensity=.72;
-      halo.range=4.8;
+      halo.diffuse=C('#00e1f3');
+      halo.intensity=.82;
+      halo.range=5.2;
 
-      if(gl) gl.intensity=Math.max(gl.intensity||0,.38);
-
-      console.log('NEXUS wall sign created',signRoot.position.toString());
+      if(gl) gl.intensity=Math.max(gl.intensity||0,.42);
     }catch(err){
-      console.error('NEXUS wall sign failed safely:',err);
+      console.error('Physical NEXUS wall sign failed:',err);
     }
 
     // Door animation is driven by app.js in the same render loop that moves James.
     // This avoids a separate animation observer getting out of sync with pathfinding.
     function ui(){
-      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.48';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · großes sichtbares NEXUS Glow-Schild hinter James';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.48 · NEXUS GLOW SIGN';
+      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.49';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · physisches 3D-NEXUS-Leuchtschild hinter James';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.49 · 3D NEXUS SIGN';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
-    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.48 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
+    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.49 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
     return true;
   }
 
