@@ -125,40 +125,46 @@
     function registerAutoDoor(name,doorX,z,doorW){
       const panelW=(doorW-.10)/2;
       const panelH=H-.20;
+      const closedLeft=doorX-panelW/2;
+      const closedRight=doorX+panelW/2;
 
-      // True hinge pivots at the outer door edges.
-      const leftPivot=new BABYLON.TransformNode(name+'LeftHinge',scene);
-      leftPivot.parent=root;
-      leftPivot.position.set(doorX-doorW/2+.03,0,z+.025);
+      // Sliding groups: glass + full frame + handle move together.
+      const leftSlide=new BABYLON.TransformNode(name+'SlideL',scene);
+      leftSlide.parent=root;
+      leftSlide.position.set(closedLeft,0,z+.025);
 
-      const rightPivot=new BABYLON.TransformNode(name+'RightHinge',scene);
-      rightPivot.parent=root;
-      rightPivot.position.set(doorX+doorW/2-.03,0,z+.025);
+      const rightSlide=new BABYLON.TransformNode(name+'SlideR',scene);
+      rightSlide.parent=root;
+      rightSlide.position.set(closedRight,0,z+.025);
 
-      // Left leaf extends inward from its hinge.
-      box(name+'DoorLGlass',panelW-.08,panelH-.10,.035,panelW/2,H/2,0,glassMat,leftPivot);
-      box(name+'DoorLTop',panelW,.055,.055,panelW/2,H-.125,0,dark,leftPivot);
-      box(name+'DoorLBottom',panelW,.055,.055,panelW/2,.125,0,dark,leftPivot);
-      box(name+'DoorLHingeFrame',.045,panelH,.055,.025,H/2,0,dark,leftPivot);
-      box(name+'DoorLCenterFrame',.045,panelH,.055,panelW-.025,H/2,0,dark,leftPivot);
-      box(name+'HandleL',.035,.34,.070,panelW-.10,1.34,.045,dark,leftPivot);
+      // Left framed panel.
+      box(name+'DoorLGlass',panelW-.08,panelH-.10,.035,0,H/2,0,glassMat,leftSlide);
+      box(name+'DoorLTop',panelW,.055,.060,0,H-.125,0,dark,leftSlide);
+      box(name+'DoorLBottom',panelW,.055,.060,0,.125,0,dark,leftSlide);
+      box(name+'DoorLFrameOuter',.045,panelH,.060,-panelW/2+.022,H/2,0,dark,leftSlide);
+      box(name+'DoorLFrameInner',.045,panelH,.060,panelW/2-.022,H/2,0,dark,leftSlide);
+      box(name+'HandleL',.035,.34,.075,panelW/2-.105,1.34,.048,dark,leftSlide);
 
-      // Right leaf extends inward from the opposite hinge.
-      box(name+'DoorRGlass',panelW-.08,panelH-.10,.035,-panelW/2,H/2,0,glassMat,rightPivot);
-      box(name+'DoorRTop',panelW,.055,.055,-panelW/2,H-.125,0,dark,rightPivot);
-      box(name+'DoorRBottom',panelW,.055,.055,-panelW/2,.125,0,dark,rightPivot);
-      box(name+'DoorRHingeFrame',.045,panelH,.055,-.025,H/2,0,dark,rightPivot);
-      box(name+'DoorRCenterFrame',.045,panelH,.055,-panelW+.025,H/2,0,dark,rightPivot);
-      box(name+'HandleR',.035,.34,.070,-panelW+.10,1.34,.045,dark,rightPivot);
+      // Right framed panel.
+      box(name+'DoorRGlass',panelW-.08,panelH-.10,.035,0,H/2,0,glassMat,rightSlide);
+      box(name+'DoorRTop',panelW,.055,.060,0,H-.125,0,dark,rightSlide);
+      box(name+'DoorRBottom',panelW,.055,.060,0,.125,0,dark,rightSlide);
+      box(name+'DoorRFrameOuter',.045,panelH,.060,panelW/2-.022,H/2,0,dark,rightSlide);
+      box(name+'DoorRFrameInner',.045,panelH,.060,-panelW/2+.022,H/2,0,dark,rightSlide);
+      box(name+'HandleR',.035,.34,.075,-panelW/2+.105,1.34,.048,dark,rightSlide);
 
       autoDoors.push({
-        name, x:doorX, z, width:doorW,
-        leftPivot, rightPivot,
-        leftOpenAngle:Math.PI*.47,
-        rightOpenAngle:-Math.PI*.47,
-        openness:0,
-        holdUntil:0,
-        isOpen:false
+        name,
+        x:doorX,
+        z,
+        width:doorW,
+        panelW,
+        leftName:name+'SlideL',
+        rightName:name+'SlideR',
+        closedLeft,
+        closedRight,
+        openLeft:closedLeft-panelW*1.02,
+        openRight:closedRight+panelW*1.02
       });
     }
     function glassWallZ(name,left,right,z,doorX=null,doorW=1.08){
@@ -487,85 +493,28 @@
 
     // Door animation is driven by app.js in the same render loop that moves James.
     // This avoids a separate animation observer getting out of sync with pathfinding.
-    // Shared automatic-door controller. app.js calls tick() every rendered frame.
-    window.NEXUS_AUTO_DOORS={
-      doors:autoDoors,
-
-      tick(pos,isMoving,dt=.016){
-        const now=performance.now();
-        const frame=Math.max(.001,Math.min(.05,dt||.016));
-
-        autoDoors.forEach(d=>{
-          let near=false;
-
-          if(pos && isMoving){
-            const dx=Math.abs(pos.x-d.x);
-            const dz=Math.abs(pos.z-d.z);
-
-            // Open well before the character reaches the glass.
-            near=dx<(d.width/2+1.30) && dz<2.80;
-          }
-
-          if(near){
-            d.isOpen=true;
-            d.holdUntil=now+1400;
-          }else if(now>d.holdUntil){
-            d.isOpen=false;
-          }
-
-          const target=d.isOpen?1:0;
-          const response=d.isOpen?frame*10.5:frame*4.3;
-          d.openness += (target-d.openness)*Math.min(1,response);
-
-          if(Math.abs(target-d.openness)<.0015) d.openness=target;
-
-          const smooth=d.openness*d.openness*(3-2*d.openness);
-
-          // Apply the actual hinge rotations here, in the same frame loop as James.
-          d.leftPivot.rotation.y=d.leftOpenAngle*smooth;
-          d.rightPivot.rotation.y=d.rightOpenAngle*smooth;
-
-          // Force Babylon to refresh these transforms immediately.
-          d.leftPivot.computeWorldMatrix(true);
-          d.rightPivot.computeWorldMatrix(true);
-        });
-      },
-
-      requestOpen(name,holdMs=1800){
-        const now=performance.now();
-        autoDoors.forEach(d=>{
-          if(d.name===name){
-            d.isOpen=true;
-            d.holdUntil=Math.max(d.holdUntil,now+holdMs);
-          }
-        });
-      },
-
-      openAll(holdMs=1800){
-        const until=performance.now()+holdMs;
-        autoDoors.forEach(d=>{
-          d.isOpen=true;
-          d.holdUntil=Math.max(d.holdUntil,until);
-        });
-      },
-
-      closeAll(){
-        const now=performance.now();
-        autoDoors.forEach(d=>{
-          d.holdUntil=now;
-          d.isOpen=false;
-        });
-      }
-    };
+    // Door geometry/data only. Movement is owned directly by app.js.
+    window.NEXUS_SLIDING_DOORS=autoDoors.map(d=>({
+      name:d.name,
+      x:d.x,
+      z:d.z,
+      width:d.width,
+      leftName:d.leftName,
+      rightName:d.rightName,
+      closedLeft:d.closedLeft,
+      closedRight:d.closedRight,
+      openLeft:d.openLeft,
+      openRight:d.openRight
+    }));
 
     function ui(){
-      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.43';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · Glas-Drehtüren direkt an James-Renderloop gekoppelt · Pathfinding V2';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.43 · DOOR DRIVER';
+      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.44';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · automatische Glasschiebetüren mit festen Rahmen · direkter James-Sensor';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.44 · SLIDING DOORS';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
-    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.43 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
+    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.44 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
     return true;
   }
 
