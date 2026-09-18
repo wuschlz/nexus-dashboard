@@ -54,6 +54,31 @@
       if(i%4===1) box('v17WoodHighlight'+i,.008,.006,13.72,x+.19,.003,0,woodHighlight,root);
     }
 
+    // High-rise structure beneath the office: visible slab, dark facade and lit window bands.
+    const towerBody=pbr('v17TowerBody','#161d25',.44,.16);
+    const towerTrim=pbr('v17TowerTrim','#2c3742',.34,.30);
+    const towerGlassDark=pbr('v17TowerGlassDark','#122231',.22,.18);
+    const towerGlassLit=std('v17TowerGlassLit','#17334a','#4d9dcc',1);
+
+    box('v17TowerMass',20.20,2.70,13.72,0,-1.43,0,towerBody,root);
+    box('v17TowerFrontCap',20.28,.18,.24,0,-.15,6.78,towerTrim,root);
+    box('v17TowerRightCap',.24,.18,13.72,10.10,-.15,0,towerTrim,root);
+    box('v17TowerLeftCap',.24,.18,13.72,-10.10,-.15,0,towerTrim,root);
+
+    for(let row=0;row<3;row++){
+      const y=-.58-row*.68;
+      for(let i=0;i<15;i++){
+        const x=-8.55+i*1.22;
+        const lit=(i+row)%4!==1;
+        box('v17TowerFrontWin'+row+'_'+i,.86,.38,.045,x,y,6.88,lit?towerGlassLit:towerGlassDark,root);
+      }
+      for(let i=0;i<9;i++){
+        const z=-5.05+i*1.20;
+        const lit=(i+row)%3===0;
+        box('v17TowerRightWin'+row+'_'+i,.045,.38,.86,10.22,y,z,lit?towerGlassLit:towerGlassDark,root);
+      }
+    }
+
     const winMat=std('v17Win','#a8d5ef',null,.26);
     for(let i=0;i<6;i++){
       const x=-8.8+i*3.15;
@@ -209,6 +234,24 @@
       }
     }
 
+    function centerPlanter(name,x,z,scale=1){
+      const g=new BABYLON.TransformNode('v17CenterPlanter'+name,scene);g.parent=root;g.position.set(x,0,z);
+      const pot=pbr('v17CenterPlanterPotM'+name,'#2b343d',.46,.24);
+      const soil=pbr('v17CenterPlanterSoilM'+name,'#30251d',.88,.01);
+      const leaf=pbr('v17CenterPlanterLeafM'+name,'#35795b',.72,.01);
+      cyl('v17CenterPlanterPot'+name,.48*scale,.40*scale,0,.20*scale,0,pot,g);
+      cyl('v17CenterPlanterSoil'+name,.39*scale,.04*scale,0,.42*scale,0,soil,g);
+      for(let i=0;i<7;i++){
+        const a=(i/7)*Math.PI*2;
+        const stem=box('v17CenterStem'+name+i,.035*scale,.50*scale,.035*scale,Math.cos(a)*.08*scale,.70*scale,Math.sin(a)*.08*scale,leaf,g);
+        stem.rotation.z=(i%2?1:-1)*(.18+.04*(i%3));
+        const l=BABYLON.MeshBuilder.CreateSphere('v17CenterLeaf'+name+i,{diameter:.24*scale,segments:10},scene);
+        l.parent=g;l.position.set(Math.cos(a)*.16*scale,(.78+(i%3)*.08)*scale,Math.sin(a)*.16*scale);
+        l.scaling.set(.72,1.45,.36);l.rotation.y=a;l.material=leaf;
+      }
+      return g;
+    }
+
     function desk(name,x,z,rot=0,exec=false,signSide=1){
       const g=new BABYLON.TransformNode('v17Desk'+name,scene);g.parent=root;g.position.set(x,0,z);g.rotation.y=rot;
       const W=exec?2.72:2.28,D=exec?1.05:.94,RW=exec?.86:.74,RD=exec?1.22:1.10,top=exec?woodExec:wood;
@@ -245,11 +288,23 @@
       box('v17AktenCab'+i,.58,1.70,.66,aktenX,.85,z,cabinet,root,Math.PI/2);
       [.35,.76,1.17].forEach((y,j)=>box('v17AktenDrawer'+i+j,.50,.31,.035,aktenX+.34,y,z,cabinetDark,root,Math.PI/2));
     }
-    const lineZ=1.15;
-    const giselaDesk=desk('Gisela',-7.72,lineZ,Math.PI,false,-1);
-    const noraDesk=desk('Nora',-4.65,lineZ,Math.PI,false,-1);
-    const kevinDesk=desk('Kevin',-.95,lineZ,Math.PI,false,-1);
-    const linaDesk=desk('Lina',2.75,lineZ,Math.PI,false,-1);
+    // Four central L-desks arranged as a 2x2 island after the hand sketch.
+    // The inner corridor stays clear and is softened by a vertical line of plants.
+    const clusterLeftX=-4.20;
+    const clusterRightX=1.15;
+    const clusterTopZ=.35;
+    const clusterBottomZ=3.60;
+
+    const giselaDesk=desk('Gisela',clusterLeftX,clusterTopZ,0,false,-1);
+    const noraDesk=desk('Nora',clusterRightX,clusterTopZ,Math.PI/2,false,-1);
+    const kevinDesk=desk('Kevin',clusterLeftX,clusterBottomZ,-Math.PI/2,false,-1);
+    const linaDesk=desk('Lina',clusterRightX,clusterBottomZ,Math.PI,false,-1);
+
+    centerPlanter('A',-1.45,.45,.92);
+    centerPlanter('B',-1.45,1.50,1.00);
+    centerPlanter('C',-1.45,2.55,.96);
+    centerPlanter('D',-1.45,3.55,.88);
+
     const sarahDesk=desk('Sarah',7.15,.10,Math.PI/2,false);
     const finnDesk=desk('Finn',7.15,3.45,Math.PI/2,false);
 
@@ -316,8 +371,8 @@
 
     function ui(){
       const t=document.getElementById('viewTitle'); if(t)t.textContent='Office v17';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · dunkles Holz · Petronas-Teppich · Auto-Glasschiebetüren · Arbeitsplätze neu ausgerichtet';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE V17 · AUTO DOORS';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · Hochhaus-Sockel · 4er-Desk-Insel nach Skizze · Pflanzenachse · Auto-Glasschiebetüren';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE V17 · TOWER OFFICE';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
