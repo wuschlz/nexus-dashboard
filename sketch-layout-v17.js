@@ -464,11 +464,62 @@
       else if(type==='crown'){line(cx-36*s,cy+21*s,cx-28*s,cy-18*s,cx-6*s,cy+2*s,cx,cy-26*s,cx+6*s,cy+2*s,cx+28*s,cy-18*s,cx+36*s,cy+21*s);line(cx-36*s,cy+21*s,cx+36*s,cy+21*s);}
     }
     function panelTex(name){
-      const [role,icon]=roles[name]; const tex=new BABYLON.DynamicTexture('v17PanelTex'+name,{width:700,height:280},scene,false); const ctx=tex.getContext(); ctx.clearRect(0,0,700,280);
-      const g=ctx.createLinearGradient(0,0,700,280);g.addColorStop(0,'#07111e');g.addColorStop(1,'#10263e');ctx.fillStyle=g;roundRect(ctx,8,8,684,264,28);ctx.fill();
-      ctx.strokeStyle='#3d9fff';ctx.lineWidth=7;ctx.shadowColor='#2f9dff';ctx.shadowBlur=20;roundRect(ctx,14,14,672,252,22);ctx.stroke();
-      drawIcon(ctx,icon,130,140,1.25);ctx.shadowBlur=0;ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillStyle='#f0f9ff';ctx.font='800 55px Arial';ctx.fillText(name.toUpperCase(),245,118);
-      ctx.fillStyle='#7bc1ff';ctx.font='700 27px Arial';ctx.fillText(role.toUpperCase(),245,174);ctx.fillStyle='#6f8ca5';ctx.font='600 18px Arial';ctx.fillText('NEXUS OFFICE',245,220);tex.update(); return tex;
+      const [role,icon]=roles[name];
+      const tex=new BABYLON.DynamicTexture('v17PanelTex'+name,{width:700,height:280},scene,false);
+      const ctx=tex.getContext();
+      ctx.clearRect(0,0,700,280);
+
+      // Same smoked-black / cyan visual language as James' large NEXUS wall sign.
+      const g=ctx.createLinearGradient(0,0,700,280);
+      g.addColorStop(0,'#061019');
+      g.addColorStop(.55,'#0a1822');
+      g.addColorStop(1,'#0d202b');
+      ctx.fillStyle=g;
+      roundRect(ctx,8,8,684,264,24);
+      ctx.fill();
+
+      // Broken premium cyan frame instead of the old full blue outline.
+      ctx.save();
+      ctx.strokeStyle='#00dff4';
+      ctx.lineWidth=5;
+      ctx.shadowColor='#00dff4';
+      ctx.shadowBlur=20;
+      ctx.beginPath();
+      ctx.moveTo(28,30);ctx.lineTo(236,30);
+      ctx.moveTo(464,30);ctx.lineTo(672,30);
+      ctx.moveTo(28,250);ctx.lineTo(194,250);
+      ctx.moveTo(506,250);ctx.lineTo(672,250);
+      ctx.stroke();
+      ctx.restore();
+
+      drawIcon(ctx,icon,122,140,1.12);
+
+      ctx.textAlign='left';
+      ctx.textBaseline='middle';
+      ctx.save();
+      ctx.shadowColor='#00e6ff';
+      ctx.shadowBlur=24;
+      ctx.fillStyle='#bffaff';
+      ctx.font='800 54px Arial';
+      ctx.fillText(name.toUpperCase(),232,112);
+      ctx.restore();
+
+      ctx.fillStyle='#72ddea';
+      ctx.font='700 26px Arial';
+      ctx.fillText(role.toUpperCase(),232,170);
+
+      ctx.fillStyle='#78939e';
+      ctx.font='600 17px Arial';
+      ctx.fillText('NEXUS OFFICE',232,218);
+
+      // Tiny center tech marker echoes James' wall plaque.
+      ctx.fillStyle='#d9ffff';
+      ctx.beginPath();
+      ctx.arc(350,251,4,0,Math.PI*2);
+      ctx.fill();
+
+      tex.update();
+      return tex;
     }
 
     function chair(name,parent,x,z,rot=0){
@@ -571,55 +622,68 @@
       box('v17Key'+name,.50,.025,.15,-.10,.86,.18,pbr('v17KeyM'+name,'#e0e6eb',.82,.02),g);
       box('v17Mouse'+name,.09,.023,.13,.31,.862,.18,pbr('v17MouseM'+name,'#e0e6eb',.82,.02),g);
       cyl('v17Mug'+name,.11,.11,-W*.38,.90,.16,pbr('v17MugM'+name,'#eef2f5',.82,.02),g);
-      const tex=panelTex(name);const mat=new BABYLON.StandardMaterial('v17PanelM'+name,scene);mat.diffuseTexture=tex;mat.emissiveTexture=tex;mat.emissiveColor=C('#ffffff');mat.disableLighting=true;mat.backFaceCulling=false;
+      const tex=panelTex(name);
+      const mat=new BABYLON.StandardMaterial('v17PanelM'+name,scene);
+      mat.diffuseTexture=tex;
+      mat.emissiveTexture=tex;
+      mat.emissiveColor=C('#a8fbff');
+      mat.disableLighting=true;
+      mat.backFaceCulling=false;
+
       const pw=exec?1.18:1.04,ph=exec?.49:.43;
       const centerSideSign=['Gisela','Nora','Kevin','Lina'].includes(name);
 
+      // James-style materials: smoked plaque, inset panel, segmented cyan edge light.
+      const signBackMat=pbr('v17DeskSignBackM'+name,'#07121b',.18,.44);
+      const signInnerMat=pbr('v17DeskSignInnerM'+name,'#0b1a25',.20,.34);
+      const signEdgeMat=std('v17DeskSignEdgeM'+name,'#062d36','#00dff4',1);
+      const signEdgeSoftMat=std('v17DeskSignEdgeSoftM'+name,'#09262d','#009fb7',1);
+
+      function buildPremiumDeskSign(x,y,z,rotY,width,height){
+        const sg=new BABYLON.TransformNode('v17DeskSignRoot'+name,scene);
+        sg.parent=g;
+        sg.position.set(x,y,z);
+        sg.rotation.y=rotY;
+
+        box('v17DeskSignBack'+name,width+.18,height+.16,.085,0,0,0,signBackMat,sg);
+        box('v17DeskSignInner'+name,width+.035,height+.015,.030,0,0,.058,signInnerMat,sg);
+
+        const topSeg=Math.max(.16,width*.31);
+        const bottomSeg=Math.max(.13,width*.23);
+        box('v17DeskSignTopL'+name,topSeg,.018,.024,-width*.27,height/2+.048,.090,signEdgeMat,sg);
+        box('v17DeskSignTopR'+name,topSeg,.018,.024,width*.27,height/2+.048,.090,signEdgeMat,sg);
+        box('v17DeskSignBottomL'+name,bottomSeg,.016,.022,-width*.31,-height/2-.048,.090,signEdgeSoftMat,sg);
+        box('v17DeskSignBottomR'+name,bottomSeg,.016,.022,width*.31,-height/2-.048,.090,signEdgeSoftMat,sg);
+        box('v17DeskSignSideL'+name,.016,height*.50,.022,-width/2-.072,0,.090,signEdgeSoftMat,sg);
+        box('v17DeskSignSideR'+name,.016,height*.50,.022,width/2+.072,0,.090,signEdgeSoftMat,sg);
+
+        const p=BABYLON.MeshBuilder.CreatePlane(
+          'v17Panel'+name,
+          {width,height,sideOrientation:BABYLON.Mesh.DOUBLESIDE},
+          scene
+        );
+        p.parent=sg;
+        p.position.set(0,0,.108);
+        p.material=mat;
+        p.renderingGroupId=0;
+        p.isPickable=false;
+
+        // Subtle lower accent, matching James rather than the old full-width neon strip.
+        box('v17DeskGlow'+name,width*.58,.014,.016,0,-height/2-.087,.098,blueGlow,sg);
+      }
+
       if(centerSideSign){
-        // The four middle desks use the SHORT END FACE of the L-return cabinet.
-        // Local +Z is the free tip of the return; rotating the whole desk automatically
-        // puts this short face in the correct world direction for all four desks.
+        // Keep the four center signs on the SHORT END FACE of the L-return.
         const endPw=Math.min(.68,RW-.18);
         const underbuildDepth=RD-.22;
         const endX=returnX;
         const endZ=returnZ+underbuildDepth/2+.028;
-
-        box(
-          'v17PanelFrame'+name,
-          endPw+.10,ph+.10,.045,
-          endX,.39,endZ,
-          black,g
-        );
-
-        const p=BABYLON.MeshBuilder.CreatePlane(
-          'v17Panel'+name,
-          {width:endPw,height:ph,sideOrientation:BABYLON.Mesh.DOUBLESIDE},
-          scene
-        );
-        p.parent=g;
-        p.position.set(endX,.39,endZ+.026);
-        p.material=mat;
-        p.renderingGroupId=0;
-        p.isPickable=false;
-
-        // Small accent directly below the short-end sign.
-        box(
-          'v17DeskGlow'+name,
-          endPw-.06,.025,.028,
-          endX,.105,endZ+.015,
-          blueGlow,g
-        );
+        buildPremiumDeskSign(endX,.39,endZ+.010,0,endPw,ph);
       }else{
-        const signZ=signSide*(D/2+.025);
-        box('v17PanelFrame'+name,pw+.10,ph+.10,.045,-.16,.39,signZ,black,g);
-        const p=BABYLON.MeshBuilder.CreatePlane('v17Panel'+name,{width:pw,height:ph,sideOrientation:BABYLON.Mesh.DOUBLESIDE},scene);
-        p.parent=g;
-        p.position.set(-.16,.39,signSide*(D/2+.052));
-        p.rotation.y=signSide>0?Math.PI:0;
-        p.material=mat;
-        p.renderingGroupId=0;
-        p.isPickable=false;
-        box('v17DeskGlow'+name,W-.27,.025,.035,0,.065,signSide*(D/2+.018),blueGlow,g);
+        // All other desks retain their existing sign face.
+        const signZ=signSide*(D/2+.052);
+        const signRotY=signSide>0?Math.PI:0;
+        buildPremiumDeskSign(-.16,.39,signZ,signRotY,pw,ph);
       }
       chair(name,g,-.27,D/2+.78,0);
       return g;
@@ -1411,13 +1475,13 @@
     // Door animation is driven by app.js in the same render loop that moves James.
     // This avoids a separate animation observer getting out of sync with pathfinding.
     function ui(){
-      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.66';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · 4 mittlere Schreibtische · Schilder an der kurzen Stirnseite';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.66 · SHORT-END DESK SIGNS';
+      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.67';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · Schreibtisch-Schilder im Premium-Stil von James';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.67 · PREMIUM DESK SIGNS';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
-    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.66 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
+    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.67 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
     return true;
   }
 
