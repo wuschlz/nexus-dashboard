@@ -688,9 +688,6 @@
       }
 
       // Greenery placed around the work surface like the reference.
-      deskPlant('Left',-1.03,-.05,1.05);
-      deskPlant('Return',.98,.70,.92);
-      deskPlant('Small',.61,.28,.62);
 
       // A few tactile accessories.
       box('v17JamesNotebookPremium',.30,.025,.22,.57,.877,.18,premiumWood,parent,-.08);
@@ -980,9 +977,6 @@
       }
 
       // More visible from the normal camera than James' rear-room placement.
-      kPlant('Left',-.91,.02,.98);
-      kPlant('Return',.84,.62,.92);
-      kPlant('Small',.49,.24,.58);
 
       // Pen cup, notebook and cup.
       cyl('v17KevinPenCup',.11,.12,.48,.92,.34,kDark,parent);
@@ -1371,13 +1365,13 @@
     // Door animation is driven by app.js in the same render loop that moves James.
     // This avoids a separate animation observer getting out of sync with pathfinding.
     function ui(){
-      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.62';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · Kevin Premium-Detail · exakt 2 Monitore · korrigierte Monitor-Rückseiten';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.62 · TWO-MONITOR FIX';
+      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.63';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · Premium-Arbeitsplätze · keine Pflanzen auf den Schreibtischen';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.63 · CLEAN DESKS';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
-    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.62 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
+    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.63 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
     return true;
   }
 
