@@ -579,6 +579,144 @@
       return g;
     }
 
+    function premiumJamesDesk(parent){
+      if(!parent) return;
+
+      const premiumDark=pbr('v17JamesPremiumDarkM','#1a232c',.28,.34);
+      const premiumMid=pbr('v17JamesPremiumMidM','#2d3944',.34,.26);
+      const premiumEdge=pbr('v17JamesPremiumEdgeM','#647583',.24,.48);
+      const premiumWood=pbr('v17JamesPremiumWoodM','#a88463',.38,.06);
+      const premiumShelf=pbr('v17JamesPremiumShelfM','#111920',.34,.24);
+      const binderWhite=pbr('v17JamesBinderWhiteM','#e8ecef',.66,.02);
+      const binderGrey=pbr('v17JamesBinderGreyM','#aab4bd',.58,.04);
+      const binderBlue=pbr('v17JamesBinderBlueM','#426983',.48,.08);
+      const plantPot=pbr('v17JamesPlantPotM','#202a31',.36,.30);
+      const plantSoil=pbr('v17JamesPlantSoilM','#2b211a',.88,.01);
+      const plantLeafA=pbr('v17JamesPlantLeafAM','#2f6e4f',.70,.01);
+      const plantLeafB=pbr('v17JamesPlantLeafBM','#4d8a65',.68,.01);
+      const logoGlow=std('v17JamesDeskLogoGlowM','#082d37','#36dfff',1);
+      const deskMat=pbr('v17JamesDeskMatM','#20272e',.76,.04);
+
+      // Strong architectural front fascia, closer to the reference image.
+      box('v17JamesPremiumFront',2.50,.64,.10,0,.34,-.575,premiumDark,parent);
+      box('v17JamesPremiumFrontInset',1.26,.48,.035,.26,.36,-.635,premiumMid,parent);
+      box('v17JamesPremiumFrontKick',2.42,.055,.11,0,.045,-.59,premiumShelf,parent);
+      box('v17JamesPremiumFrontTopEdge',2.46,.040,.06,0,.665,-.615,premiumEdge,parent);
+
+      // Left open storage cubbies under the worktop.
+      const sx=-1.03;
+      box('v17JamesShelfBack',.57,.59,.055,sx,.34,-.38,premiumShelf,parent);
+      box('v17JamesShelfSideL',.045,.59,.38,sx-.285,.34,-.20,premiumDark,parent);
+      box('v17JamesShelfSideR',.045,.59,.38,sx+.285,.34,-.20,premiumDark,parent);
+      box('v17JamesShelfTop',.61,.045,.40,sx,.655,-.20,premiumDark,parent);
+      box('v17JamesShelfMid',.57,.035,.37,sx,.365,-.20,premiumMid,parent);
+      box('v17JamesShelfBottom',.57,.035,.37,sx,.075,-.20,premiumMid,parent);
+
+      // Binder row in the upper cubby.
+      const binderCols=[binderWhite,binderGrey,binderWhite,binderBlue,binderWhite];
+      for(let i=0;i<5;i++){
+        const bx=sx-.19+i*.095;
+        box('v17JamesBinder'+i,.075,.235,.20,bx,.485,-.18,binderCols[i],parent);
+        box('v17JamesBinderSpine'+i,.052,.018,.012,bx,.485,-.288,premiumEdge,parent);
+      }
+
+      // Lower storage boxes/books.
+      box('v17JamesStorageBoxA',.23,.16,.24,sx-.15,.19,-.18,binderGrey,parent);
+      box('v17JamesStorageBoxB',.19,.13,.24,sx+.12,.175,-.18,binderBlue,parent);
+
+      // Premium drawer faces on the L-return pedestal.
+      const rx=.93;
+      [.18,.39,.60].forEach((yy,i)=>{
+        box('v17JamesReturnDrawer'+i,.58,.16,.028,rx,yy,.99,premiumMid,parent);
+        box('v17JamesReturnHandle'+i,.20,.018,.020,rx,yy,.972,premiumEdge,parent);
+      });
+
+      // Slim desk mat beneath keyboard/mouse.
+      box('v17JamesDeskMat',1.15,.012,.42,-.02,.858,.19,deskMat,parent);
+
+      // Monitor shelf / cable channel behind both screens.
+      box('v17JamesMonitorRail',1.45,.055,.20,-.02,.875,-.24,premiumDark,parent);
+      box('v17JamesMonitorRailGlow',1.30,.018,.022,-.02,.855,-.355,blueGlow,parent);
+
+      // Cleaner premium monitor bases layered over the existing functional monitor geometry.
+      [-.37,.34].forEach((mx,i)=>{
+        box('v17JamesMonitorBasePremium'+i,.31,.025,.18,mx,.855,-.20,premiumEdge,parent);
+        box('v17JamesMonitorNeckPremium'+i,.055,.22,.055,mx,1.00,-.20,premiumDark,parent);
+      });
+
+      // Small premium desk lamp.
+      const lampBase=cyl('v17JamesLampBase',.24,.035,.94,.87,.38,premiumDark,parent);
+      const lampStem=box('v17JamesLampStem',.035,.43,.035,.94,1.08,.38,premiumEdge,parent);
+      lampStem.rotation.z=-.12;
+      const lampHead=box('v17JamesLampHead',.30,.055,.11,.91,1.30,.38,premiumDark,parent,-.10);
+      box('v17JamesLampGlow',.23,.018,.075,.90,1.275,.38,warmGlow,parent,-.10);
+
+      // Small helper for premium desk plants.
+      function deskPlant(name,x,z,scale=1){
+        const g=new BABYLON.TransformNode('v17JamesDeskPlant'+name,scene);
+        g.parent=parent;
+        g.position.set(x,.86,z);
+        cyl('v17JamesPlantPot'+name,.22*scale,.20*scale,0,.10*scale,0,plantPot,g);
+        cyl('v17JamesPlantSoil'+name,.17*scale,.025*scale,0,.205*scale,0,plantSoil,g);
+
+        for(let i=0;i<8;i++){
+          const ang=i/8*Math.PI*2+.30;
+          const h=(.25+(i%3)*.055)*scale;
+          const stem=BABYLON.MeshBuilder.CreateCylinder(
+            'v17JamesPlantStem'+name+i,
+            {diameter:.018*scale,height:h,tessellation:7},
+            scene
+          );
+          stem.parent=g;
+          stem.position.set(Math.cos(ang)*.025*scale,.21*scale+h/2,Math.sin(ang)*.025*scale);
+          stem.rotation.z=Math.cos(ang)*.16;
+          stem.material=plantLeafA;
+
+          const leaf=BABYLON.MeshBuilder.CreateSphere(
+            'v17JamesPlantLeaf'+name+i,
+            {diameter:.16*scale,segments:9},
+            scene
+          );
+          leaf.parent=g;
+          leaf.position.set(Math.cos(ang)*.10*scale,.21*scale+h,Math.sin(ang)*.10*scale);
+          leaf.scaling.set(.48,1.55,.28);
+          leaf.rotation.z=Math.cos(ang)*.55;
+          leaf.rotation.x=Math.sin(ang)*.24;
+          leaf.rotation.y=-ang;
+          leaf.material=i%3===0?plantLeafB:plantLeafA;
+        }
+      }
+
+      // Greenery placed around the work surface like the reference.
+      deskPlant('Left',-1.03,-.05,1.05);
+      deskPlant('Return',.98,.70,.92);
+      deskPlant('Small',.61,.28,.62);
+
+      // A few tactile accessories.
+      box('v17JamesNotebookPremium',.30,.025,.22,.57,.877,.18,premiumWood,parent,-.08);
+      box('v17JamesTabletPremium',.21,.016,.15,.83,.870,.24,black,parent,-.10);
+      cyl('v17JamesCoasterPremium',.13,.012,-.73,.868,.25,premiumMid,parent);
+      cyl('v17JamesCupPremium',.105,.12,-.73,.925,.25,pbr('v17JamesCupPremiumM','#dadfe3',.62,.03),parent);
+
+      // Glowing front logo inspired by the reference image.
+      // Square outline.
+      box('v17JamesDeskLogoTop',.42,.025,.028,.37,.49,-.658,logoGlow,parent);
+      box('v17JamesDeskLogoBottom',.42,.025,.028,.37,.22,-.658,logoGlow,parent);
+      box('v17JamesDeskLogoLeft',.025,.29,.028,.16,.355,-.658,logoGlow,parent);
+      box('v17JamesDeskLogoRight',.025,.29,.028,.58,.355,-.658,logoGlow,parent);
+
+      // Checkmark / stylized NEXUS action glyph.
+      const tickA=box('v17JamesDeskTickA',.20,.035,.032,.33,.37,-.676,logoGlow,parent);
+      tickA.rotation.z=-.72;
+      const tickB=box('v17JamesDeskTickB',.30,.035,.032,.45,.40,-.676,logoGlow,parent);
+      tickB.rotation.z=.78;
+
+      // Under-desk ambient strip adds depth without turning it into a neon prop.
+      box('v17JamesPremiumUnderGlow',1.78,.018,.020,-.14,.08,-.635,blueGlow,parent);
+
+      window.NEXUS_JAMES_PREMIUM_READY=true;
+    }
+
     const walterDesk=desk('Walter',-7.55,-3.96,-Math.PI/2,false,-1);
 
     // Animated server activity LEDs: subtle, asynchronous and intentionally non-uniform.
@@ -646,6 +784,7 @@
     });
 
     const jamesDesk=desk('James',jamesRoom.cx,-4.62,Math.PI,true,-1);
+    premiumJamesDesk(jamesDesk);
 
     // Premium NEXUS wall sign behind James.
     // Built at the proven visible early scene point; isolated so it can never abort the office.
@@ -939,13 +1078,13 @@
     // Door animation is driven by app.js in the same render loop that moves James.
     // This avoids a separate animation observer getting out of sync with pathfinding.
     function ui(){
-      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.58';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · animierte Server-Racks · asynchrone Status- und Aktivitäts-LEDs';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.58 · LIVE SERVER RACKS';
+      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.59';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · James Premium-Arbeitsplatz · Regalfächer · Pflanzen · Props · Detailbeleuchtung';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.59 · PREMIUM JAMES DESK';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
-    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.58 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
+    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.59 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
     return true;
   }
 
