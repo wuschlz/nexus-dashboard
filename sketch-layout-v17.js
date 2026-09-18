@@ -762,7 +762,7 @@
 
       const haloRoot=new BABYLON.TransformNode('v17HaloDeskName'+name,scene);
       haloRoot.parent=parent;
-      haloRoot.position.set(0,1.35,.14);
+      haloRoot.position.set(0,1.52,.14);
 
       const labelW=exec?1.22:1.04;
       const labelH=exec?.25:.22;
@@ -823,25 +823,10 @@
       plane.renderingGroupId=2;
       plane.billboardMode=BABYLON.Mesh.BILLBOARDMODE_Y;
 
-      // Thin holographic halo under the name.
-      const ringMat=std('v17HaloDeskRingM'+name,'#06242c','#00dff4',.72);
-      const ring=BABYLON.MeshBuilder.CreateTorus(
-        'v17HaloDeskRing'+name,
-        {diameter:exec?.66:.58,thickness:.014,tessellation:40},
-        scene
-      );
-      ring.parent=haloRoot;
-      ring.position.set(0,-.105,0);
-      ring.rotation.x=Math.PI/2;
-      ring.scaling.y=.44;
-      ring.material=ringMat;
-      ring.isPickable=false;
-      ring.renderingGroupId=1;
-
       // A few tiny scan markers keep it holographic without becoming a full sign.
       const markerMat=std('v17HaloDeskMarkerM'+name,'#04171c','#00a8bb',.62);
-      box('v17HaloDeskMarkerL'+name,.12,.010,.010,-labelW*.38,-.09,.012,markerMat,haloRoot);
-      box('v17HaloDeskMarkerR'+name,.12,.010,.010,labelW*.38,-.09,.012,markerMat,haloRoot);
+      box('v17HaloDeskMarkerL'+name,.12,.010,.010,-labelW*.38,-.045,.012,markerMat,haloRoot);
+      box('v17HaloDeskMarkerR'+name,.12,.010,.010,labelW*.38,-.045,.012,markerMat,haloRoot);
 
       window.NEXUS_HALO_LABELS=window.NEXUS_HALO_LABELS||[];
       haloRoot.metadata={
@@ -1739,13 +1724,13 @@
     // Door animation is driven by app.js in the same render loop that moves James.
     // This avoids a separate animation observer getting out of sync with pathfinding.
     function ui(){
-      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.71';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · Funktions-Icons außen · schwebende Halo-Namen über den Schreibtischen';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.71 · HALO DESK NAMES';
+      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.72';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · Funktions-Icons außen · Halo-Namen höher und ohne Ring';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.72 · HALO LABELS REFINED';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
-    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.71 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
+    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.72 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
     return true;
   }
 
