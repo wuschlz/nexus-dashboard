@@ -485,67 +485,51 @@
     }
     const gl=scene.getEffectLayerByName('glow'); if(gl) gl.intensity=.24;
 
-    // Automatic hinged-door sensors.
-    // Doors open before an actor reaches the glass, remain open while crossing,
-    // then close only after the doorway has been clear for a short moment.
-    scene.onBeforeRenderObservable.add(()=>{
-      if(!autoDoors.length) return;
-
-      const dt=Math.min(.05,(scene.getEngine().getDeltaTime()||16)/1000);
-      const now=performance.now();
-      const actors=[
-        james,
-        ...scene.transformNodes.filter(t=>t!==james && t.metadata && t.metadata.nexusActor===true)
-      ];
-
-      autoDoors.forEach(d=>{
-        let sensorActive=false;
-
-        actors.forEach(actor=>{
-          if(sensorActive || !actor || actor.isEnabled && !actor.isEnabled()) return;
-
-          const pos=(typeof actor.getAbsolutePosition==='function')?actor.getAbsolutePosition():actor.position;
-          if(!pos) return;
-
-          const dx=Math.abs(pos.x-d.x);
-          const dz=Math.abs(pos.z-d.z);
-
-          // Generous approach zone on both sides of the doorway.
-          // The door is visibly open before James reaches the glass.
-          const approaching=dx<(d.width/2+1.15) && dz<2.45;
-
-          // Crossing zone keeps the door open until the actor is fully through.
-          const crossing=dx<(d.width/2+.62) && dz<.90;
-
-          if(approaching || crossing) sensorActive=true;
-        });
-
-        if(sensorActive){
-          d.holdUntil=now+1100;
-          d.isOpen=true;
-        }else if(now>d.holdUntil){
-          d.isOpen=false;
-        }
-
-        const target=d.isOpen?1:0;
-
-        // Open quickly, close a little more gently.
-        const response=d.isOpen?dt*9.0:dt*4.2;
-        d.openness += (target-d.openness)*Math.min(1,response);
-
-        if(Math.abs(target-d.openness)<.002) d.openness=target;
-
-        const smooth=d.openness*d.openness*(3-2*d.openness);
-
-        // Real swing motion around the two outer hinges.
-        d.leftPivot.rotation.y=d.leftOpenAngle*smooth;
-        d.rightPivot.rotation.y=d.rightOpenAngle*smooth;
-      });
-    });
-
-    // Expose a tiny controller for future actors/pathfinding without coupling the scene to app.js.
+    // Door animation is driven by app.js in the same render loop that moves James.
+    // This avoids a separate animation observer getting out of sync with pathfinding.
+    // Shared automatic-door controller. app.js calls tick() every rendered frame.
     window.NEXUS_AUTO_DOORS={
       doors:autoDoors,
+
+      tick(pos,isMoving,dt=.016){
+        const now=performance.now();
+        const frame=Math.max(.001,Math.min(.05,dt||.016));
+
+        autoDoors.forEach(d=>{
+          let near=false;
+
+          if(pos && isMoving){
+            const dx=Math.abs(pos.x-d.x);
+            const dz=Math.abs(pos.z-d.z);
+
+            // Open well before the character reaches the glass.
+            near=dx<(d.width/2+1.30) && dz<2.80;
+          }
+
+          if(near){
+            d.isOpen=true;
+            d.holdUntil=now+1400;
+          }else if(now>d.holdUntil){
+            d.isOpen=false;
+          }
+
+          const target=d.isOpen?1:0;
+          const response=d.isOpen?frame*10.5:frame*4.3;
+          d.openness += (target-d.openness)*Math.min(1,response);
+
+          if(Math.abs(target-d.openness)<.0015) d.openness=target;
+
+          const smooth=d.openness*d.openness*(3-2*d.openness);
+
+          // Apply the actual hinge rotations here, in the same frame loop as James.
+          d.leftPivot.rotation.y=d.leftOpenAngle*smooth;
+          d.rightPivot.rotation.y=d.rightOpenAngle*smooth;
+
+          // Force Babylon to refresh these transforms immediately.
+          d.leftPivot.computeWorldMatrix(true);
+          d.rightPivot.computeWorldMatrix(true);
+        });
+      },
 
       requestOpen(name,holdMs=1800){
         const now=performance.now();
@@ -557,33 +541,31 @@
         });
       },
 
-      sensePosition(pos,holdMs=1400){
-        if(!pos) return;
-        const now=performance.now();
+      openAll(holdMs=1800){
+        const until=performance.now()+holdMs;
         autoDoors.forEach(d=>{
-          const dx=Math.abs(pos.x-d.x);
-          const dz=Math.abs(pos.z-d.z);
-          if(dx<(d.width/2+1.20) && dz<2.55){
-            d.isOpen=true;
-            d.holdUntil=Math.max(d.holdUntil,now+holdMs);
-          }
+          d.isOpen=true;
+          d.holdUntil=Math.max(d.holdUntil,until);
         });
       },
 
-      openAll(holdMs=1800){
-        const until=performance.now()+holdMs;
-        autoDoors.forEach(d=>{d.isOpen=true;d.holdUntil=Math.max(d.holdUntil,until);});
+      closeAll(){
+        const now=performance.now();
+        autoDoors.forEach(d=>{
+          d.holdUntil=now;
+          d.isOpen=false;
+        });
       }
     };
 
     function ui(){
-      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.42';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · automatische Glas-Drehtüren mit Annäherungssensor · Pathfinding V2';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.42 · SWING DOORS';
+      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.43';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · Glas-Drehtüren direkt an James-Renderloop gekoppelt · Pathfinding V2';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.43 · DOOR DRIVER';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
-    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.42 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
+    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.43 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
     return true;
   }
 
