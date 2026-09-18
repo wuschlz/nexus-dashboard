@@ -151,7 +151,7 @@
       cyl('v17Mug'+name,.11,.11,-W*.38,.90,.16,pbr('v17MugM'+name,'#eef2f5',.82,.02),g);
       const tex=panelTex(name);const mat=new BABYLON.StandardMaterial('v17PanelM'+name,scene);mat.diffuseTexture=tex;mat.emissiveTexture=tex;mat.emissiveColor=C('#ffffff');mat.disableLighting=true;mat.backFaceCulling=false;
       const pw=exec?1.18:1.04,ph=exec?.49:.43,signZ=signSide*(D/2+.025);box('v17PanelFrame'+name,pw+.10,ph+.10,.045,-.16,.39,signZ,black,g);
-      const p=BABYLON.MeshBuilder.CreatePlane('v17Panel'+name,{width:pw,height:ph,sideOrientation:BABYLON.Mesh.DOUBLESIDE},scene);p.parent=g;p.position.set(-.16,.39,signSide*(D/2+.052));p.rotation.y=signSide>0?Math.PI:0;p.material=mat;p.renderingGroupId=2;
+      const p=BABYLON.MeshBuilder.CreatePlane('v17Panel'+name,{width:pw,height:ph,sideOrientation:BABYLON.Mesh.DOUBLESIDE},scene);p.parent=g;p.position.set(-.16,.39,signSide*(D/2+.052));p.rotation.y=signSide>0?Math.PI:0;p.material=mat;p.renderingGroupId=0;p.isPickable=false;
       box('v17DeskGlow'+name,W-.27,.025,.035,0,.065,signSide*(D/2+.018),blueGlow,g);
       chair(name,g,-.27,D/2+.78,0);
       return g;
@@ -168,12 +168,12 @@
     desk('James',jamesRoom.cx,-4.62,Math.PI,true,-1);
 
     const aktenX=-9.55;
-    for(let i=0;i<6;i++){
+    for(let i=0;i<5;i++){
       const z=-2.35+i*.72;
       box('v17AktenCab'+i,.58,1.70,.66,aktenX,.85,z,cabinet,root,Math.PI/2);
       [.35,.76,1.17].forEach((y,j)=>box('v17AktenDrawer'+i+j,.50,.31,.035,aktenX+.34,y,z,cabinetDark,root,Math.PI/2));
     }
-    desk('Gisela',-7.75,1.10,Math.PI/2,false,-1);
+    desk('Gisela',-7.72,1.42,-Math.PI/2,false,-1);
 
     const lineZ=.28;
     desk('Nora',-4.65,lineZ,Math.PI,false,-1);
