@@ -738,9 +738,9 @@
 
       // Monitor backs, camera bar and subtle rear ventilation.
       [-.37,.34].forEach((mx,i)=>{
-        box('v17JamesMonRearShell'+i,.59,.35,.024,mx,1.22,-.033,premiumDark,parent);
-        box('v17JamesMonRearVent'+i,.27,.025,.010,mx,1.12,-.050,premiumEdge,parent);
-        box('v17JamesMonCam'+i,.12,.035,.035,mx,1.435,-.015,black,parent);
+        box('v17JamesMonRearShell'+i,.59,.35,.018,mx,1.22,-.228,premiumDark,parent);
+        box('v17JamesMonRearVent'+i,.27,.025,.010,mx,1.12,-.239,premiumEdge,parent);
+        box('v17JamesMonCam'+i,.12,.035,.022,mx,1.435,-.205,black,parent);
       });
 
       // Keyboard detail: individual key rows are large enough to read from the normal camera.
@@ -903,9 +903,9 @@
       [-.37,.34].forEach((mx,i)=>{
         box('v17KevinMonitorBase'+i,.28,.023,.16,mx,.855,-.20,kEdge,parent);
         box('v17KevinMonitorNeck'+i,.050,.21,.050,mx,1.00,-.20,kDark,parent);
-        box('v17KevinMonRear'+i,.58,.34,.022,mx,1.22,-.032,kDark,parent);
-        box('v17KevinMonVent'+i,.25,.022,.010,mx,1.12,-.048,kEdge,parent);
-        box('v17KevinMonCam'+i,.11,.032,.032,mx,1.43,-.015,black,parent);
+        box('v17KevinMonRear'+i,.58,.34,.018,mx,1.22,-.228,kDark,parent);
+        box('v17KevinMonVent'+i,.25,.022,.010,mx,1.12,-.239,kEdge,parent);
+        box('v17KevinMonCam'+i,.11,.032,.022,mx,1.43,-.205,black,parent);
       });
 
       // Cable tray, grommets and dock.
@@ -1371,13 +1371,13 @@
     // Door animation is driven by app.js in the same render loop that moves James.
     // This avoids a separate animation observer getting out of sync with pathfinding.
     function ui(){
-      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.61';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · Kevin Premium-Detail · sichtbar im Hauptbereich · Technik · Pflanzen · Stauraum';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.61 · PREMIUM KEVIN DESK';
+      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.62';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · Kevin Premium-Detail · exakt 2 Monitore · korrigierte Monitor-Rückseiten';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.62 · TWO-MONITOR FIX';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
-    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.61 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
+    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.62 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
     return true;
   }
 
