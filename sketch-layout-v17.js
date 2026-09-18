@@ -58,7 +58,7 @@
       p.parent=root; p.position.set(x,2.0,-7.12); p.material=winMat;
     }
 
-    const BACK=-7.10, FRONT=-3.42, H=2.82;
+    const BACK=-7.10, FRONT=-2.82, H=2.82;
     const server={left:-10.22,right:-4.92,cx:-7.57};
     const jamesRoom={left:-4.92,right:1.55,cx:-1.685};
     const meeting={left:1.55,right:10.22,cx:5.885};
@@ -136,7 +136,7 @@
       box('v17MonFrame'+name,.65,.41,.050,0,1.22,0,black,g);box('v17MonScreen'+name,.57,.34,.014,0,1.22,.031,screen,g);
       box('v17MonStem'+name,.045,.27,.045,0,.99,0,metal,g);box('v17MonFoot'+name,.25,.025,.14,0,.84,0,metal,g);
     }
-    function desk(name,x,z,rot=0,exec=false){
+    function desk(name,x,z,rot=0,exec=false,signSide=1){
       const g=new BABYLON.TransformNode('v17Desk'+name,scene);g.parent=root;g.position.set(x,0,z);g.rotation.y=rot;
       const W=exec?2.72:2.28,D=exec?1.05:.94,RW=exec?.86:.74,RD=exec?1.22:1.10,top=exec?woodExec:wood;
       box('v17DeskRug'+name,W+1.00,.024,2.48,0,.016,.28,rug,g);
@@ -150,14 +150,14 @@
       box('v17Mouse'+name,.09,.023,.13,.31,.862,.18,pbr('v17MouseM'+name,'#e0e6eb',.82,.02),g);
       cyl('v17Mug'+name,.11,.11,-W*.38,.90,.16,pbr('v17MugM'+name,'#eef2f5',.82,.02),g);
       const tex=panelTex(name);const mat=new BABYLON.StandardMaterial('v17PanelM'+name,scene);mat.diffuseTexture=tex;mat.emissiveTexture=tex;mat.emissiveColor=C('#ffffff');mat.disableLighting=true;mat.backFaceCulling=false;
-      const pw=exec?1.18:1.04,ph=exec?.49:.43;box('v17PanelFrame'+name,pw+.10,ph+.10,.045,-.16,.39,D/2+.025,black,g);
-      const p=BABYLON.MeshBuilder.CreatePlane('v17Panel'+name,{width:pw,height:ph,sideOrientation:BABYLON.Mesh.DOUBLESIDE},scene);p.parent=g;p.position.set(-.16,.39,D/2+.052);p.rotation.y=Math.PI;p.material=mat;p.renderingGroupId=2;
-      box('v17DeskGlow'+name,W-.27,.025,.035,0,.065,D/2+.018,blueGlow,g);
+      const pw=exec?1.18:1.04,ph=exec?.49:.43,signZ=signSide*(D/2+.025);box('v17PanelFrame'+name,pw+.10,ph+.10,.045,-.16,.39,signZ,black,g);
+      const p=BABYLON.MeshBuilder.CreatePlane('v17Panel'+name,{width:pw,height:ph,sideOrientation:BABYLON.Mesh.DOUBLESIDE},scene);p.parent=g;p.position.set(-.16,.39,signSide*(D/2+.052));p.rotation.y=signSide>0?Math.PI:0;p.material=mat;p.renderingGroupId=2;
+      box('v17DeskGlow'+name,W-.27,.025,.035,0,.065,signSide*(D/2+.018),blueGlow,g);
       chair(name,g,-.27,D/2+.78,0);
       return g;
     }
 
-    desk('Walter',-7.55,-4.35,0,false);
+    desk('Walter',-7.55,-4.35,Math.PI,false,-1);
     for(let r=0;r<3;r++){
       const x=-9.15+r*1.02;
       box('v17RackBody'+r,.78,2.10,.72,x,1.05,-6.54,serverBody,root);
@@ -165,7 +165,7 @@
       for(let i=0;i<9;i++) box('v17RackSlot'+r+'_'+i,.52,.066,.018,x,.29+i*.18,-6.125,i%3===0?blueGlow:serverFront,root);
     }
 
-    desk('James',jamesRoom.cx,-4.62,0,true);
+    desk('James',jamesRoom.cx,-4.62,Math.PI,true,-1);
 
     const aktenX=-9.55;
     for(let i=0;i<6;i++){
@@ -173,12 +173,12 @@
       box('v17AktenCab'+i,.58,1.70,.66,aktenX,.85,z,cabinet,root,Math.PI/2);
       [.35,.76,1.17].forEach((y,j)=>box('v17AktenDrawer'+i+j,.50,.31,.035,aktenX+.34,y,z,cabinetDark,root,Math.PI/2));
     }
-    desk('Gisela',-7.75,1.10,Math.PI/2,false);
+    desk('Gisela',-7.75,1.10,-Math.PI/2,false,-1);
 
     const lineZ=.28;
-    desk('Nora',-4.65,lineZ,0,false);
-    desk('Kevin',-.95,lineZ,0,false);
-    desk('Lina',2.75,lineZ,0,false);
+    desk('Nora',-4.65,lineZ,Math.PI,false,-1);
+    desk('Kevin',-.95,lineZ,Math.PI,false,-1);
+    desk('Lina',2.75,lineZ,Math.PI,false,-1);
     desk('Sarah',7.15,.10,Math.PI/2,false);
     desk('Finn',7.15,3.45,Math.PI/2,false);
 
@@ -196,9 +196,9 @@
     box('v17LoungeRug',4.00,.024,2.65,0,.014,0,pbr('v17LoungeRugM','#918b84',.97,0),lounge);
     box('v17SofaSeat',2.30,.30,.86,-.38,.42,.32,fabric,lounge);
     box('v17SofaBack',2.30,.78,.15,-.38,.84,.72,fabric,lounge);
-    const arm=new BABYLON.TransformNode('v17Armchair',scene);arm.parent=lounge;arm.position.set(1.25,0,-.15);arm.rotation.y=-Math.PI/2;
+    const arm=new BABYLON.TransformNode('v17Armchair',scene);arm.parent=lounge;arm.position.set(1.25,0,-.15);arm.rotation.y=Math.PI/2;
     box('v17ArmSeat',.88,.30,.84,0,.42,0,fabric,arm);box('v17ArmBack',.88,.72,.15,0,.82,.34,fabric,arm);
-    cyl('v17Coffee',.92,.08,.22,.36,-.52,wood,lounge);cyl('v17CoffeeStem',.10,.62,.22,.18,-.52,metal,lounge);
+    cyl('v17Coffee',.92,.08,.62,.36,-.84,wood,lounge);cyl('v17CoffeeStem',.10,.62,.62,.18,-.84,metal,lounge);
 
     james.scaling.setAll(1.55);
     james.position.set(jamesRoom.cx-.30,0,-3.78);
