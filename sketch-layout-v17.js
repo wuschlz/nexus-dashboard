@@ -290,6 +290,13 @@
       box('v17DeskReturn'+name,RW,.10,RD,W/2-RW/2,.78,D/2+RD/2-.06,top,g);
       box('v17DeskReturnTrim'+name,RW,.022,RD,W/2-RW/2,.842,D/2+RD/2-.06,trim,g);
       box('v17DeskCab'+name,.44,.61,.66,-W/2+.25,.34,-.04,dark2,g);
+
+      // Full underbuild below the L-return: inset cabinet/pedestal so the return is visibly supported.
+      const returnX=W/2-RW/2;
+      const returnZ=D/2+RD/2-.06;
+      box('v17DeskReturnUnderbuild'+name,RW-.14,.61,RD-.22,returnX,.34,returnZ,dark2,g);
+      box('v17DeskReturnBase'+name,RW-.06,.055,RD-.14,returnX,.035,returnZ,dark,g);
+      box('v17DeskReturnReveal'+name,RW-.24,.035,RD-.32,returnX,.665,returnZ,pbr('v17DeskReturnRevealM'+name,'#121a22',.36,.18),g);
       monitor(name+'A',g,-.37,-.20,.08); monitor(name+'B',g,.34,-.20,-.08);
       box('v17Key'+name,.50,.025,.15,-.10,.86,.18,pbr('v17KeyM'+name,'#e0e6eb',.82,.02),g);
       box('v17Mouse'+name,.09,.023,.13,.31,.862,.18,pbr('v17MouseM'+name,'#e0e6eb',.82,.02),g);
@@ -339,25 +346,70 @@
     // Long, low planter strips instead of loose flower pots.
     function islandPlanterStrip(name,w,d,x,z){
       const g=new BABYLON.TransformNode('v17IslandPlanter'+name,scene);g.parent=root;g.position.set(x,0,z);
-      const shell=pbr('v17IslandPlanterShellM'+name,'#27343c',.40,.28);
-      const soil=pbr('v17IslandPlanterSoilM'+name,'#2b211a',.88,.01);
-      const leaf=pbr('v17IslandPlanterLeafM'+name,'#33785a',.73,.01);
-      box('v17IslandPlanterShell'+name,w,.32,d,0,.16,0,shell,g);
-      box('v17IslandPlanterSoil'+name,Math.max(.12,w-.10),.045,Math.max(.12,d-.10),0,.34,0,soil,g);
+
+      const shell=pbr('v17IslandPlanterShellM'+name,'#232d35',.38,.30);
+      const rim=pbr('v17IslandPlanterRimM'+name,'#3d4b55',.30,.38);
+      const soil=pbr('v17IslandPlanterSoilM'+name,'#2d241d',.90,.01);
+      const stemMat=pbr('v17IslandStemM'+name,'#315f48',.76,.01);
+      const leafDark=pbr('v17IslandLeafDarkM'+name,'#275f47',.73,.01);
+      const leafMid=pbr('v17IslandLeafMidM'+name,'#3c7f5e',.70,.01);
+      const leafLight=pbr('v17IslandLeafLightM'+name,'#579a73',.68,.01);
+
+      // Taller premium planter with a metallic rim.
+      box('v17IslandPlanterShell'+name,w,.42,d,0,.21,0,shell,g);
+      box('v17IslandPlanterRim'+name,w+.035,.055,d+.035,0,.435,0,rim,g);
+      box('v17IslandPlanterSoil'+name,Math.max(.12,w-.10),.045,Math.max(.12,d-.10),0,.455,0,soil,g);
 
       const vertical=d>w;
-      const count=vertical?5:6;
+      const length=vertical?d:w;
+      const count=Math.max(3,Math.round(length/.52));
+
       for(let i=0;i<count;i++){
         const t=count===1?.5:i/(count-1);
-        const px=vertical?0:(-w/2+.22+t*(w-.44));
-        const pz=vertical?(-d/2+.22+t*(d-.44)):0;
-        for(let j=0;j<4;j++){
-          const a=j*Math.PI/2+(i%2)*.34;
-          const stem=box('v17IslandStem'+name+i+'_'+j,.026,.31,.026,px+Math.cos(a)*.035,.55,pz+Math.sin(a)*.035,leaf,g);
-          stem.rotation.z=(j%2?1:-1)*(.15+.03*j);
-          const l=BABYLON.MeshBuilder.CreateSphere('v17IslandLeaf'+name+i+'_'+j,{diameter:.15,segments:8},scene);
-          l.parent=g;l.position.set(px+Math.cos(a)*.10,.68+(j%2)*.06,pz+Math.sin(a)*.10);
-          l.scaling.set(.72,1.30,.35);l.rotation.y=a;l.material=leaf;
+        const px=vertical?((i%2?1:-1)*.035):(-w/2+.22+t*(w-.44));
+        const pz=vertical?(-d/2+.22+t*(d-.44)):((i%2?1:-1)*.035);
+
+        // One dense clump per position, with uneven heights and leaf angles.
+        for(let j=0;j<5;j++){
+          const a=(Math.PI*2/5)*j + i*.37;
+          const stemH=.68 + ((i*3+j*2)%5)*.10;
+          const radial=.035 + (j%2)*.025;
+
+          const stem=BABYLON.MeshBuilder.CreateCylinder(
+            'v17IslandStem'+name+i+'_'+j,
+            {diameter:.022,height:stemH,tessellation:8},
+            scene
+          );
+          stem.parent=g;
+          stem.position.set(
+            px+Math.cos(a)*radial,
+            .47+stemH/2,
+            pz+Math.sin(a)*radial
+          );
+          stem.rotation.z=Math.cos(a)*.10;
+          stem.material=stemMat;
+
+          // Two long leaves per stem at different heights for a layered, natural crown.
+          for(let k=0;k<2;k++){
+            const leaf=BABYLON.MeshBuilder.CreateSphere(
+              'v17IslandLeaf'+name+i+'_'+j+'_'+k,
+              {diameter:.18,segments:10},
+              scene
+            );
+            leaf.parent=g;
+            const leafY=.47+stemH-(k*.18);
+            const spread=.12+k*.06;
+            leaf.position.set(
+              px+Math.cos(a)*spread,
+              leafY,
+              pz+Math.sin(a)*spread
+            );
+            leaf.scaling.set(.42,2.05-k*.28,.22);
+            leaf.rotation.z=Math.cos(a)*(.52+k*.10);
+            leaf.rotation.x=Math.sin(a)*.24;
+            leaf.rotation.y=-a;
+            leaf.material=((i+j+k)%3===0)?leafLight:(((i+j+k)%2===0)?leafMid:leafDark);
+          }
         }
       }
       return g;
@@ -433,8 +485,8 @@
 
     function ui(){
       const t=document.getElementById('viewTitle'); if(t)t.textContent='Office v17';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · tiefer moderner Hochhaus-Sockel · 4er-Desk-Kreuz exakt nach Skizze · Pflanzkreuz';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE V17 · SKETCH CROSS V2';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · realistischere hohe Pflanzen · vollständiger Unterbau an allen L-Schreibtischen';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE V17 · PLANTS + DESK BASES';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
