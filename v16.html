@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>NEXUS Office Dashboard v16</title>
+  <link rel="stylesheet" href="./styles.css?v=22" />
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">N</div>
+        <div>
+          <div class="brand-title">NEXUS OFFICE</div>
+          <div class="brand-sub">3D Operations Dashboard · Preview</div>
+        </div>
+      </div>
+      <div class="top-status"><span class="dot ok"></span><span>READ-ONLY PREVIEW</span></div>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <nav class="nav">
+          <button class="nav-item active" data-view="office">Office</button>
+          <button class="nav-item" data-view="cases">Cases</button>
+          <button class="nav-item" data-view="tasks">Tasks</button>
+          <button class="nav-item" data-view="meetings">Meetings</button>
+          <button class="nav-item" data-view="system">System</button>
+        </nav>
+        <div class="team-title">TEAM</div>
+        <div class="team-list" id="teamList"></div>
+      </aside>
+
+      <main class="stage-wrap">
+        <div class="stage-toolbar">
+          <div><strong id="viewTitle">Office v16</strong><span class="muted"> · Komplett neu nach Handskizze · Server · James · Meeting · Akten · Sitzecke</span></div>
+          <div class="scene-actions">
+            <button id="idleBtn" class="chip active">Idle</button>
+            <button id="walkBtn" class="chip">Walk</button>
+            <button id="waveBtn" class="chip">Wave</button>
+            <button id="meetingBtn" class="chip">Zum Meetingraum</button>
+            <button id="deskBtn" class="chip">Zum Schreibtisch</button>
+          </div>
+        </div>
+
+        <div class="scene-panel">
+          <canvas id="officeCanvas" aria-label="3D NEXUS Office"></canvas>
+          <div id="loading" class="loading">3D-Engine wird gestartet …</div>
+          <div class="scene-badge"><span class="dot live"></span>OFFICE V16 · PAPER SKETCH REBUILD</div>
+        </div>
+
+        <section class="activity">
+          <div class="activity-head"><strong>Live Activity</strong><span class="muted">Preview · noch nicht mit Backend verbunden</span></div>
+          <div id="activityFeed" class="activity-feed"></div>
+        </section>
+      </main>
+
+      <aside class="inspector">
+        <div class="inspector-kicker">INSPECTOR</div>
+        <h2 id="inspectorName">James</h2>
+        <div class="role" id="inspectorRole">Leitung</div>
+        <div class="status-row"><span class="dot ok"></span><span id="inspectorStatus">Ready</span></div>
+        <div class="divider"></div>
+        <div class="kv"><span>3D Asset</span><strong id="assetState">wird geladen</strong></div>
+        <div class="kv"><span>Rig</span><strong>Mixamo</strong></div>
+        <div class="kv"><span>Animationen</span><strong>3</strong></div>
+        <div class="kv"><span>Current</span><strong id="currentAnim">—</strong></div>
+        <div class="divider"></div>
+        <div class="inspector-section"><div class="label">ANIMATIONS</div><div class="pill-row"><span class="pill">Neutral Idle</span><span class="pill">Standard Walk</span><span class="pill">Waving</span></div></div>
+        <div class="inspector-section"><div class="label">BACKEND</div><p class="muted small">Noch nicht verbunden. Der finale Datenweg bleibt: Existing NEXUS Backend → Read-only Projection → Dashboard.</p></div>
+      </aside>
+    </div>
+  </div>
+
+  <script src="https://cdn.babylonjs.com/babylon.js"></script>
+  <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+  <script defer src="./animation-fix.js?v=22"></script>
+  <script defer src="./app.js?v=22"></script>
+  <script defer src="./sketch-layout-v16.js?v=22"></script>
+</body>
+</html>
