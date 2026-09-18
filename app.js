@@ -205,8 +205,8 @@
   }
 
   const locations={
-    desk:new BABYLON.Vector3(-4.48,0,3.75),
-    meeting:new BABYLON.Vector3(4.20,0,-3.55)
+    desk:new BABYLON.Vector3(-1.985,0,-3.78),
+    meeting:new BABYLON.Vector3(3.35,0,-3.95)
   };
   let jamesRoot=null,groups={},travel=null;
 
@@ -220,7 +220,7 @@
     jamesRoot.position.copyFrom(locations.desk); jamesRoot.scaling.setAll(1.38); jamesRoot.rotation.y=-.35;
     resolveAnimations(result.animationGroups||[]); play('Neutral Idle',true); loading.style.display='none';
     document.getElementById('assetState').textContent='geladen'; document.getElementById('inspectorStatus').textContent='Ready';
-    log('Office v4 · scharf · Pathfinding aktiv');
+    log('Office v17 · scharf · Pathfinding aktiv');
   }).catch(err=>{ console.error(err); loading.textContent='James konnte nicht geladen werden.'; document.getElementById('assetState').textContent='GLB-Fehler'; log('GLB-Ladefehler'); });
 
   function travelTo(targetName){
