@@ -533,7 +533,7 @@
     try{
       const signRoot=new BABYLON.TransformNode('v17JamesNexusSign',scene);
       signRoot.parent=root;
-      signRoot.position.set(jamesRoom.cx,2.00,-6.72);
+      signRoot.position.set(jamesRoom.cx,2.00,-6.28);
 
       const signBack=pbr('v17JamesNexusBackM','#07111a',.22,.40);
       const neon=std('v17JamesNexusNeonM','#06323a','#00eaff',1);
@@ -543,6 +543,13 @@
       // Deep floating backplate.
       box('v17JamesNexusBack',5.35,1.66,.11,0,0,0,signBack,signRoot);
       box('v17JamesNexusBackInset',5.03,1.38,.045,0,0,.075,pbr('v17JamesNexusInsetM','#0b1b25',.30,.30),signRoot);
+
+      // Visible metal standoffs back toward the wall so the sign clearly floats in front of it.
+      const standMat=pbr('v17JamesNexusStandM','#596875',.22,.58);
+      box('v17JamesNexusStandTL',.12,.12,.72,-2.22,.58,-.39,standMat,signRoot);
+      box('v17JamesNexusStandTR',.12,.12,.72,2.22,.58,-.39,standMat,signRoot);
+      box('v17JamesNexusStandBL',.12,.12,.72,-2.22,-.58,-.39,standMat,signRoot);
+      box('v17JamesNexusStandBR',.12,.12,.72,2.22,-.58,-.39,standMat,signRoot);
 
       // Bright sci-fi perimeter.
       box('v17JamesNexusTop',4.93,.040,.050,0,.735,.115,neon,signRoot);
@@ -627,13 +634,13 @@
     // Door animation is driven by app.js in the same render loop that moves James.
     // This avoids a separate animation observer getting out of sync with pathfinding.
     function ui(){
-      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.49';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · physisches 3D-NEXUS-Leuchtschild hinter James';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.49 · 3D NEXUS SIGN';
+      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.50';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · NEXUS Schild deutlich vor der Rückwand · sichtbare Abstandshalter';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.50 · NEXUS SIGN FORWARD';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
-    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.49 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
+    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.50 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
     return true;
   }
 
