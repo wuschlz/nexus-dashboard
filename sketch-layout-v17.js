@@ -506,9 +506,186 @@
       box('v17ChairArmL'+name,.07,.18,.45,-.26,.82,.01,dark,g);box('v17ChairArmR'+name,.07,.18,.45,.26,.82,.01,dark,g);
     }
     function monitor(name,parent,x,z,yaw=0){
-      const g=new BABYLON.TransformNode('v17Mon'+name,scene);g.parent=parent;g.position.set(x,0,z);g.rotation.y=yaw;
-      box('v17MonFrame'+name,.65,.41,.050,0,1.22,0,black,g);box('v17MonScreen'+name,.57,.34,.014,0,1.22,.031,screen,g);
-      box('v17MonStem'+name,.045,.27,.045,0,.99,0,metal,g);box('v17MonFoot'+name,.25,.025,.14,0,.84,0,metal,g);
+      const g=new BABYLON.TransformNode('v17Mon'+name,scene);
+      g.parent=parent;
+      g.position.set(x,0,z);
+      g.rotation.y=yaw;
+
+      const deskName=name.replace(/[AB]$/,'');
+      const variant=name.endsWith('B')?'work':'desktop';
+
+      function monitorTexture(){
+        const tex=new BABYLON.DynamicTexture(
+          'v17MonitorTex'+name,
+          {width:1024,height:612},
+          scene,
+          false
+        );
+        const ctx=tex.getContext();
+
+        // Dark NEXUS desktop background.
+        const bg=ctx.createLinearGradient(0,0,1024,612);
+        bg.addColorStop(0,'#07131d');
+        bg.addColorStop(.55,'#0d2637');
+        bg.addColorStop(1,'#103b52');
+        ctx.fillStyle=bg;
+        ctx.fillRect(0,0,1024,612);
+
+        // Soft cyan ambient glow in the wallpaper.
+        const glow=ctx.createRadialGradient(760,185,20,760,185,320);
+        glow.addColorStop(0,'rgba(70,210,245,.24)');
+        glow.addColorStop(1,'rgba(20,80,110,0)');
+        ctx.fillStyle=glow;
+        ctx.fillRect(0,0,1024,612);
+
+        // Tiny NEXUS mark in the wallpaper, subtle rather than a giant name.
+        ctx.save();
+        ctx.globalAlpha=.10;
+        ctx.fillStyle='#bffaff';
+        ctx.font='800 86px Arial';
+        ctx.textAlign='right';
+        ctx.fillText('NEXUS',955,115);
+        ctx.restore();
+
+        if(variant==='desktop'){
+          // A believable desktop with a few icons and one small open system card.
+          const iconItems=[
+            ['FILES',42,64],['MAIL',42,150],['TASKS',42,236],['NEXUS',42,322]
+          ];
+          iconItems.forEach(([label,ix,iy],i)=>{
+            ctx.fillStyle=i===3?'#1c718a':'#17384a';
+            roundRect(ctx,ix,iy,54,54,10);
+            ctx.fill();
+            ctx.strokeStyle='#55d8ee';
+            ctx.lineWidth=2;
+            ctx.stroke();
+            ctx.fillStyle='#bedce6';
+            ctx.font='600 14px Arial';
+            ctx.textAlign='left';
+            ctx.fillText(label,ix+68,iy+33);
+          });
+
+          // Small centered desktop widget.
+          ctx.fillStyle='rgba(5,14,22,.72)';
+          roundRect(ctx,610,300,292,150,18);
+          ctx.fill();
+          ctx.strokeStyle='rgba(82,215,238,.55)';
+          ctx.lineWidth=2;
+          ctx.stroke();
+
+          ctx.fillStyle='#74dff0';
+          ctx.font='700 18px Arial';
+          ctx.textAlign='left';
+          ctx.fillText('NEXUS DESKTOP',636,335);
+
+          // Name appears only as a normal user/profile label.
+          ctx.fillStyle='#ecfbff';
+          ctx.font='700 31px Arial';
+          ctx.fillText(deskName,636,382);
+
+          ctx.fillStyle='#7898a5';
+          ctx.font='500 15px Arial';
+          ctx.fillText('Workspace ready',636,414);
+
+          // User avatar dot.
+          ctx.fillStyle='#00dff4';
+          ctx.beginPath();
+          ctx.arc(861,375,19,0,Math.PI*2);
+          ctx.fill();
+        }else{
+          // Second monitor: ordinary work window, not another name display.
+          ctx.fillStyle='rgba(8,18,27,.92)';
+          roundRect(ctx,84,62,850,458,16);
+          ctx.fill();
+
+          // Window chrome.
+          ctx.fillStyle='#172a37';
+          roundRect(ctx,84,62,850,48,16);
+          ctx.fill();
+          ctx.fillRect(84,90,850,20);
+
+          ['#ff726d','#ffd36a','#62df8e'].forEach((col,i)=>{
+            ctx.fillStyle=col;
+            ctx.beginPath();
+            ctx.arc(111+i*28,84,7,0,Math.PI*2);
+            ctx.fill();
+          });
+
+          // Sidebar.
+          ctx.fillStyle='#10212c';
+          ctx.fillRect(84,110,188,410);
+          for(let i=0;i<6;i++){
+            ctx.fillStyle=i===1?'#1a465a':'#17313f';
+            roundRect(ctx,104,135+i*54,148,35,8);
+            ctx.fill();
+          }
+
+          // Main content blocks.
+          ctx.fillStyle='#173847';
+          roundRect(ctx,304,144,580,70,12);
+          ctx.fill();
+          ctx.fillStyle='#244d5e';
+          roundRect(ctx,304,238,275,118,12);
+          ctx.fill();
+          roundRect(ctx,609,238,275,118,12);
+          ctx.fill();
+          ctx.fillStyle='#163443';
+          roundRect(ctx,304,382,580,92,12);
+          ctx.fill();
+
+          // Small data lines.
+          ctx.strokeStyle='#48bfd6';
+          ctx.lineWidth=4;
+          ctx.beginPath();
+          ctx.moveTo(334,438);
+          ctx.lineTo(405,420);
+          ctx.lineTo(470,446);
+          ctx.lineTo(548,405);
+          ctx.lineTo(620,429);
+          ctx.lineTo(692,397);
+          ctx.lineTo(772,417);
+          ctx.lineTo(847,391);
+          ctx.stroke();
+        }
+
+        // Windows-like taskbar on both screens.
+        ctx.fillStyle='rgba(4,10,15,.90)';
+        ctx.fillRect(0,566,1024,46);
+
+        // Start/menu button.
+        ctx.fillStyle='#35bfd8';
+        roundRect(ctx,18,576,27,27,6);
+        ctx.fill();
+
+        // Pinned app hints.
+        [68,108,148,188].forEach((px,i)=>{
+          ctx.fillStyle=i===1?'#49d7ee':'#24495a';
+          roundRect(ctx,px,579,23,23,5);
+          ctx.fill();
+        });
+
+        // Clock/status hint.
+        ctx.fillStyle='#9fb7c1';
+        ctx.font='500 14px Arial';
+        ctx.textAlign='right';
+        ctx.fillText('NEXUS  •  ONLINE',998,595);
+
+        tex.update();
+        return tex;
+      }
+
+      const tex=monitorTexture();
+      const screenMat=new BABYLON.StandardMaterial('v17MonitorScreenM'+name,scene);
+      screenMat.diffuseTexture=tex;
+      screenMat.emissiveTexture=tex;
+      screenMat.emissiveColor=C('#a8dfee');
+      screenMat.disableLighting=true;
+      screenMat.backFaceCulling=false;
+
+      box('v17MonFrame'+name,.65,.41,.050,0,1.22,0,black,g);
+      box('v17MonScreen'+name,.57,.34,.014,0,1.22,.031,screenMat,g);
+      box('v17MonStem'+name,.045,.27,.045,0,.99,0,metal,g);
+      box('v17MonFoot'+name,.25,.025,.14,0,.84,0,metal,g);
     }
     function deskPropBox(parent,name,w,h,d,x,y,z,hex,rot=0){
       return box('v17Prop'+name,w,h,d,x,y,z,pbr('v17PropM'+name,hex,.58,.025),parent,rot);
@@ -577,75 +754,6 @@
         l.parent=g;l.position.set(Math.cos(a)*.16*scale,(.78+(i%3)*.08)*scale,Math.sin(a)*.16*scale);
         l.scaling.set(.72,1.45,.36);l.rotation.y=a;l.material=leaf;
       }
-      return g;
-    }
-
-    function standingDeskNameplate(name,parent,exec=false){
-      if(!parent) return;
-
-      const plateW=exec?.64:.58;
-      const plateH=exec?.20:.18;
-      const plateDark=pbr('v17NameplateDarkM'+name,'#07121b',.20,.42);
-      const plateEdge=std('v17NameplateEdgeM'+name,'#08313b','#00dff4',1);
-      const plateMetal=pbr('v17NameplateMetalM'+name,'#566773',.24,.46);
-
-      // Keep the nameplate near the front-left corner of the usable desktop,
-      // clear of monitors and the main keyboard area.
-      const nx=exec?-.72:-.62;
-      const nz=.34;
-
-      const g=new BABYLON.TransformNode('v17StandingNameplate'+name,scene);
-      g.parent=parent;
-      g.position.set(nx,.86,nz);
-      g.rotation.y=-.10;
-
-      // Small weighted base + twin supports so it visibly stands on the desk.
-      box('v17NameplateBase'+name,plateW*.72,.025,.12,0,.015,0,plateMetal,g);
-      box('v17NameplateSupportL'+name,.025,.12,.025,-plateW*.28,.085,-.01,plateMetal,g);
-      box('v17NameplateSupportR'+name,.025,.12,.025,plateW*.28,.085,-.01,plateMetal,g);
-
-      const pg=new BABYLON.TransformNode('v17NameplatePanelRoot'+name,scene);
-      pg.parent=g;
-      pg.position.set(0,.20,-.01);
-      pg.rotation.x=-.16;
-
-      box('v17NameplateBack'+name,plateW+.08,plateH+.06,.045,0,0,0,plateDark,pg);
-      box('v17NameplateTop'+name,plateW*.34,.014,.018,-plateW*.26,plateH/2+.035,.034,plateEdge,pg);
-      box('v17NameplateTopR'+name,plateW*.34,.014,.018,plateW*.26,plateH/2+.035,.034,plateEdge,pg);
-
-      const tex=new BABYLON.DynamicTexture('v17NameplateTex'+name,{width:900,height:280},scene,false);
-      tex.hasAlpha=true;
-      const ctx=tex.getContext();
-      ctx.clearRect(0,0,900,280);
-      ctx.textAlign='center';
-      ctx.textBaseline='middle';
-
-      ctx.save();
-      ctx.shadowColor='#00dff4';
-      ctx.shadowBlur=28;
-      ctx.fillStyle='#dffcff';
-      ctx.font='800 104px Arial';
-      ctx.fillText(name.toUpperCase(),450,138);
-      ctx.restore();
-
-      const mat=new BABYLON.StandardMaterial('v17NameplateTextM'+name,scene);
-      mat.diffuseTexture=tex;
-      mat.emissiveTexture=tex;
-      mat.opacityTexture=tex;
-      mat.emissiveColor=C('#a8fbff');
-      mat.disableLighting=true;
-      mat.backFaceCulling=false;
-
-      const p=BABYLON.MeshBuilder.CreatePlane(
-        'v17NameplateText'+name,
-        {width:plateW,height:plateH,sideOrientation:BABYLON.Mesh.DOUBLESIDE},
-        scene
-      );
-      p.parent=pg;
-      p.position.set(0,0,.032);
-      p.material=mat;
-      p.isPickable=false;
-
       return g;
     }
 
@@ -732,7 +840,6 @@
         buildPremiumDeskSign(-.16,.39,signZ,signRotY,pw,ph);
       }
       chair(name,g,-.27,D/2+.78,0);
-      standingDeskNameplate(name,g,exec);
       return g;
     }
 
@@ -1522,13 +1629,13 @@
     // Door animation is driven by app.js in the same render loop that moves James.
     // This avoids a separate animation observer getting out of sync with pathfinding.
     function ui(){
-      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.68';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · Funktions-Icons außen · stehende Namensschilder auf den Schreibtischen';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.68 · ICON DESKS + NAMEPLATES';
+      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.69';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · Funktions-Icons außen · Desktop-Monitore mit dezentem Benutzernamen';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.69 · DESKTOP MONITORS';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
-    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.68 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
+    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.69 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
     return true;
   }
 
