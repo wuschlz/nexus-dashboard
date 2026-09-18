@@ -21,7 +21,106 @@
       if(/^v(?:7|8|9|10|11|12|13|14|15|16)/.test(t.name)) t.setEnabled(false);
     });
 
-    scene.clearColor = new BABYLON.Color4(.66,.77,.86,1);
+    // Premium daylight sky: smooth atmospheric gradient, soft horizon haze and subtle clouds.
+    scene.clearColor = new BABYLON.Color4(.72,.83,.92,1);
+
+    try{
+      const skyTex=new BABYLON.DynamicTexture(
+        'v17PremiumSkyTex',
+        {width:1024,height:512},
+        scene,
+        false
+      );
+      const sctx=skyTex.getContext();
+      const SW=1024, SH=512;
+
+      // Deeper blue overhead, bright airy horizon.
+      const skyGrad=sctx.createLinearGradient(0,0,0,SH);
+      skyGrad.addColorStop(0.00,'#5f9dd2');
+      skyGrad.addColorStop(0.23,'#79add8');
+      skyGrad.addColorStop(0.50,'#a6c9e5');
+      skyGrad.addColorStop(0.72,'#d5e6f2');
+      skyGrad.addColorStop(1.00,'#eef4f7');
+      sctx.fillStyle=skyGrad;
+      sctx.fillRect(0,0,SW,SH);
+
+      // Atmospheric brightness near the skyline.
+      const horizon=sctx.createLinearGradient(0,SH*.54,0,SH);
+      horizon.addColorStop(0,'rgba(255,255,255,0)');
+      horizon.addColorStop(.55,'rgba(255,248,238,.10)');
+      horizon.addColorStop(1,'rgba(255,255,255,.22)');
+      sctx.fillStyle=horizon;
+      sctx.fillRect(0,SH*.54,SW,SH*.46);
+
+      // Layered translucent ellipses create soft clouds without relying on canvas filters.
+      function skyCloud(cx,cy,scale,alpha){
+        const parts=[
+          [-78,8,88,21],[-28,-8,74,29],[25,-14,83,34],[78,5,92,24],
+          [0,8,145,28],[-45,10,105,24],[52,9,115,25]
+        ];
+        sctx.save();
+        for(let layer=0;layer<3;layer++){
+          sctx.globalAlpha=alpha*(layer===0?.25:layer===1?.19:.12);
+          sctx.fillStyle=layer===0?'#ffffff':layer===1?'#f8fbfd':'#e8f1f7';
+          for(const [dx,dy,rx,ry] of parts){
+            sctx.beginPath();
+            sctx.ellipse(
+              cx+dx*scale,
+              cy+dy*scale+layer*3,
+              rx*scale*(1+layer*.08),
+              ry*scale*(1+layer*.15),
+              0,0,Math.PI*2
+            );
+            sctx.fill();
+          }
+        }
+        sctx.restore();
+      }
+
+      // Spread cloud banks around the panorama so gentle texture is visible from most angles.
+      skyCloud(130,150,.72,.62);
+      skyCloud(360,108,.52,.48);
+      skyCloud(610,165,.66,.52);
+      skyCloud(865,118,.56,.44);
+      skyCloud(250,260,.45,.24);
+      skyCloud(760,245,.50,.22);
+
+      // Very soft high-altitude wisps.
+      sctx.save();
+      sctx.globalAlpha=.10;
+      sctx.fillStyle='#ffffff';
+      sctx.beginPath(); sctx.ellipse(510,70,250,14,-.05,0,Math.PI*2); sctx.fill();
+      sctx.beginPath(); sctx.ellipse(875,55,145,9,.03,0,Math.PI*2); sctx.fill();
+      sctx.restore();
+
+      skyTex.update();
+
+      const skyMat=new BABYLON.StandardMaterial('v17PremiumSkyM',scene);
+      skyMat.backFaceCulling=false;
+      skyMat.disableLighting=true;
+      skyMat.disableDepthWrite=true;
+      skyMat.diffuseTexture=skyTex;
+      skyMat.emissiveTexture=skyTex;
+      skyMat.emissiveColor=new BABYLON.Color3(1,1,1);
+      skyMat.specularColor=new BABYLON.Color3(0,0,0);
+
+      const sky=BABYLON.MeshBuilder.CreateSphere(
+        'v17PremiumSky',
+        {diameter:220,segments:32,sideOrientation:BABYLON.Mesh.BACKSIDE},
+        scene
+      );
+      sky.material=skyMat;
+      sky.infiniteDistance=true;
+      sky.isPickable=false;
+      sky.applyFog=false;
+      sky.renderingGroupId=0;
+
+      window.NEXUS_SKY_READY=true;
+    }catch(err){
+      window.NEXUS_SKY_READY=false;
+      console.error('Premium sky failed safely:',err);
+    }
+
     scene.imageProcessingConfiguration.exposure = 1.16;
     scene.imageProcessingConfiguration.contrast = 1.07;
     const floor=scene.getMeshByName('floor'); if(floor) floor.material=pbr('v17Floor','#4b3022',.54,.03);
@@ -642,13 +741,13 @@
     // Door animation is driven by app.js in the same render loop that moves James.
     // This avoids a separate animation observer getting out of sync with pathfinding.
     function ui(){
-      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.55';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · Premium NEXUS Wandschild · klare Typografie · Sci-Fi Glow';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.55 · PREMIUM NEXUS SIGN';
+      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.56';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · Premium-Tageshimmel · atmosphärischer Horizont · zarte Wolken';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.56 · PREMIUM DAYLIGHT SKY';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
-    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.55 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
+    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.56 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
     return true;
   }
 
