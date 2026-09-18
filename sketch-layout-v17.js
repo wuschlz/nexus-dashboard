@@ -160,14 +160,14 @@
     desk('Walter',-7.55,-4.35,Math.PI,false,-1);
     for(let r=0;r<3;r++){
       const x=-9.15+r*1.02;
-      box('v17RackBody'+r,.78,2.10,.72,x,1.05,-6.54,serverBody,root);
-      box('v17RackFront'+r,.66,1.90,.035,x,.99,-6.15,serverFront,root);
-      for(let i=0;i<9;i++) box('v17RackSlot'+r+'_'+i,.52,.066,.018,x,.29+i*.18,-6.125,i%3===0?blueGlow:serverFront,root);
+      box('v17RackBody'+r,.78,2.10,.72,x,1.05,-6.79,serverBody,root);
+      box('v17RackFront'+r,.66,1.90,.035,x,.99,-6.40,serverFront,root);
+      for(let i=0;i<9;i++) box('v17RackSlot'+r+'_'+i,.52,.066,.018,x,.29+i*.18,-6.375,i%3===0?blueGlow:serverFront,root);
     }
 
     desk('James',jamesRoom.cx,-4.62,Math.PI,true,-1);
 
-    const aktenX=-9.55;
+    const aktenX=-10.09;
     for(let i=0;i<5;i++){
       const z=-2.35+i*.72;
       box('v17AktenCab'+i,.58,1.70,.66,aktenX,.85,z,cabinet,root,Math.PI/2);
@@ -198,7 +198,7 @@
     box('v17SofaBack',2.30,.78,.15,-.62,.84,.78,fabric,lounge);
     const arm=new BABYLON.TransformNode('v17Armchair',scene);arm.parent=lounge;arm.position.set(1.18,0,-.28);arm.rotation.y=Math.PI/2;
     box('v17ArmSeat',.88,.30,.84,0,.42,0,fabric,arm);box('v17ArmBack',.88,.72,.15,0,.82,.34,fabric,arm);
-    cyl('v17Coffee',.92,.08,.30,.36,-.14,wood,lounge);cyl('v17CoffeeStem',.10,.62,.30,.18,-.14,metal,lounge);
+    cyl('v17Coffee',.92,.08,-.62,.36,-.82,wood,lounge);cyl('v17CoffeeStem',.10,.62,-.62,.18,-.82,metal,lounge);
 
     james.scaling.setAll(1.55);
     james.position.set(jamesRoom.cx-.30,0,-3.78);
