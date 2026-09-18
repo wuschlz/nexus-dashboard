@@ -757,6 +757,70 @@
       return g;
     }
 
+    function deskEdgeName(name,parent,D,exec=false){
+      if(!parent) return;
+
+      // Integrated illuminated lettering in the front furniture edge.
+      // James/Kevin have deeper premium fascias, so their labels sit flush with those fronts.
+      const plateW=exec?1.18:.96;
+      const plateH=exec?.135:.12;
+      const frontZ=name==='James' ? -.638 : (name==='Kevin' ? -.602 : -D/2-.032);
+      const y=name==='James' ? .565 : (name==='Kevin' ? .545 : .595);
+
+      const inset=pbr('v17DeskEdgeNameInsetM'+name,'#0a151d',.24,.30);
+      const edge=std('v17DeskEdgeNameAccentM'+name,'#08262e','#00bfd5',1);
+
+      // Very shallow recess so the name reads as part of the desk, not as an added sign.
+      box('v17DeskEdgeNameInset'+name,plateW+.16,plateH+.075,.018,0,y,frontZ,inset,parent);
+      box('v17DeskEdgeNameAccent'+name,plateW*.34,.012,.010,0,y-plateH/2-.047,frontZ-.012,edge,parent);
+
+      const tex=new BABYLON.DynamicTexture(
+        'v17DeskEdgeNameTex'+name,
+        {width:1024,height:200},
+        scene,
+        false
+      );
+      tex.hasAlpha=true;
+      const ctx=tex.getContext();
+      ctx.clearRect(0,0,1024,200);
+      ctx.textAlign='center';
+      ctx.textBaseline='middle';
+
+      // Bright enough to remain legible from the normal office camera distance.
+      ctx.save();
+      ctx.shadowColor='#00dff4';
+      ctx.shadowBlur=24;
+      ctx.fillStyle='#e2fdff';
+      ctx.font='800 92px Arial';
+      ctx.fillText(name.toUpperCase(),512,103);
+      ctx.restore();
+
+      ctx.strokeStyle='rgba(0,223,244,.72)';
+      ctx.lineWidth=2;
+      ctx.strokeText(name.toUpperCase(),512,103);
+      tex.update();
+
+      const mat=new BABYLON.StandardMaterial('v17DeskEdgeNameM'+name,scene);
+      mat.diffuseTexture=tex;
+      mat.emissiveTexture=tex;
+      mat.opacityTexture=tex;
+      mat.emissiveColor=C('#b9fbff');
+      mat.disableLighting=true;
+      mat.backFaceCulling=false;
+
+      const p=BABYLON.MeshBuilder.CreatePlane(
+        'v17DeskEdgeName'+name,
+        {width:plateW,height:plateH,sideOrientation:BABYLON.Mesh.DOUBLESIDE},
+        scene
+      );
+      p.parent=parent;
+      p.position.set(0,y,frontZ-.014);
+      p.material=mat;
+      p.isPickable=false;
+      p.renderingGroupId=1;
+      return p;
+    }
+
     function desk(name,x,z,rot=0,exec=false,signSide=1){
       const g=new BABYLON.TransformNode('v17Desk'+name,scene);g.parent=root;g.position.set(x,0,z);g.rotation.y=rot;
       const W=exec?2.72:2.28,D=exec?1.05:.94,RW=exec?.86:.74,RD=exec?1.22:1.10,top=exec?woodExec:wood;
@@ -839,6 +903,7 @@
         const signRotY=signSide>0?Math.PI:0;
         buildPremiumDeskSign(-.16,.39,signZ,signRotY,pw,ph);
       }
+      deskEdgeName(name,g,D,exec);
       chair(name,g,-.27,D/2+.78,0);
       return g;
     }
@@ -1629,13 +1694,13 @@
     // Door animation is driven by app.js in the same render loop that moves James.
     // This avoids a separate animation observer getting out of sync with pathfinding.
     function ui(){
-      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.69';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · Funktions-Icons außen · Desktop-Monitore mit dezentem Benutzernamen';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.69 · DESKTOP MONITORS';
+      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.70';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · Funktions-Icons außen · Namen dezent in die Schreibtischkante integriert';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.70 · INTEGRATED DESK NAMES';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
-    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.69 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
+    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.70 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
     return true;
   }
 
