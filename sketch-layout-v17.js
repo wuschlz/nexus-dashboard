@@ -153,7 +153,7 @@
       const pw=exec?1.18:1.04,ph=exec?.49:.43;box('v17PanelFrame'+name,pw+.10,ph+.10,.045,-.16,.39,D/2+.025,black,g);
       const p=BABYLON.MeshBuilder.CreatePlane('v17Panel'+name,{width:pw,height:ph,sideOrientation:BABYLON.Mesh.DOUBLESIDE},scene);p.parent=g;p.position.set(-.16,.39,D/2+.052);p.rotation.y=Math.PI;p.material=mat;p.renderingGroupId=2;
       box('v17DeskGlow'+name,W-.27,.025,.035,0,.065,D/2+.018,blueGlow,g);
-      chair(name,g,-.27,D/2+.78,Math.PI);
+      chair(name,g,-.27,D/2+.78,0);
       return g;
     }
 
@@ -173,20 +173,20 @@
       box('v17AktenCab'+i,.58,1.70,.66,aktenX,.85,z,cabinet,root,Math.PI/2);
       [.35,.76,1.17].forEach((y,j)=>box('v17AktenDrawer'+i+j,.50,.31,.035,aktenX+.34,y,z,cabinetDark,root,Math.PI/2));
     }
-    desk('Gisela',-7.75,1.10,-Math.PI/2,false);
+    desk('Gisela',-7.75,1.10,Math.PI/2,false);
 
     const lineZ=.28;
     desk('Nora',-4.65,lineZ,0,false);
     desk('Kevin',-.95,lineZ,0,false);
     desk('Lina',2.75,lineZ,0,false);
-    desk('Sarah',7.15,.10,-Math.PI/2,false);
-    desk('Finn',7.15,3.45,-Math.PI/2,false);
+    desk('Sarah',7.15,.10,Math.PI/2,false);
+    desk('Finn',7.15,3.45,Math.PI/2,false);
 
     box('v17MeetingRug',7.40,.024,3.08,meeting.cx,.016,-5.18,rug,root);
     box('v17MeetingTable',4.25,.12,1.38,meeting.cx,.78,-5.18,wood,root);
     [-1.35,0,1.35].forEach((dx,i)=>{
-      chair('MeetNear'+i,root,meeting.cx+dx,-4.18,Math.PI);
-      chair('MeetFar'+i,root,meeting.cx+dx,-6.18,0);
+      chair('MeetNear'+i,root,meeting.cx+dx,-4.18,0);
+      chair('MeetFar'+i,root,meeting.cx+dx,-6.18,Math.PI);
     });
     chair('MeetLeft',root,meeting.cx-2.45,-5.18,-Math.PI/2);
     chair('MeetRight',root,meeting.cx+2.45,-5.18,Math.PI/2);
