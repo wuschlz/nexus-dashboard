@@ -576,36 +576,37 @@
       const centerSideSign=['Gisela','Nora','Kevin','Lina'].includes(name);
 
       if(centerSideSign){
-        // The four middle desks use the OUTER SIDE of the L-return cabinet.
-        // This is the vertical side panel without monitors, matching the marked reference area.
-        const sidePw=Math.min(.78,RD-.18);
-        const sideX=W/2-.045;
-        const sideZ=returnZ;
+        // The four middle desks use the SHORT END FACE of the L-return cabinet.
+        // Local +Z is the free tip of the return; rotating the whole desk automatically
+        // puts this short face in the correct world direction for all four desks.
+        const endPw=Math.min(.68,RW-.18);
+        const underbuildDepth=RD-.22;
+        const endX=returnX;
+        const endZ=returnZ+underbuildDepth/2+.028;
 
         box(
           'v17PanelFrame'+name,
-          .045,ph+.10,sidePw+.10,
-          sideX,.39,sideZ,
+          endPw+.10,ph+.10,.045,
+          endX,.39,endZ,
           black,g
         );
 
         const p=BABYLON.MeshBuilder.CreatePlane(
           'v17Panel'+name,
-          {width:sidePw,height:ph,sideOrientation:BABYLON.Mesh.DOUBLESIDE},
+          {width:endPw,height:ph,sideOrientation:BABYLON.Mesh.DOUBLESIDE},
           scene
         );
         p.parent=g;
-        p.position.set(sideX+.030,.39,sideZ);
-        p.rotation.y=-Math.PI/2;
+        p.position.set(endX,.39,endZ+.026);
         p.material=mat;
         p.renderingGroupId=0;
         p.isPickable=false;
 
-        // Small accent directly below the side-mounted sign.
+        // Small accent directly below the short-end sign.
         box(
           'v17DeskGlow'+name,
-          .028,.025,sidePw-.06,
-          sideX+.018,.105,sideZ,
+          endPw-.06,.025,.028,
+          endX,.105,endZ+.015,
           blueGlow,g
         );
       }else{
@@ -1410,13 +1411,13 @@
     // Door animation is driven by app.js in the same render loop that moves James.
     // This avoids a separate animation observer getting out of sync with pathfinding.
     function ui(){
-      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.65';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · 4 mittlere Schreibtische · Schilder außen am L-Korpus';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.65 · SIDE-MOUNTED DESK SIGNS';
+      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.66';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · 4 mittlere Schreibtische · Schilder an der kurzen Stirnseite';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.66 · SHORT-END DESK SIGNS';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
-    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.65 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
+    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.66 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
     return true;
   }
 
