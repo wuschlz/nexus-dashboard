@@ -24,7 +24,7 @@
     scene.clearColor = new BABYLON.Color4(.66,.77,.86,1);
     scene.imageProcessingConfiguration.exposure = 1.16;
     scene.imageProcessingConfiguration.contrast = 1.07;
-    const floor=scene.getMeshByName('floor'); if(floor) floor.material=pbr('v17Floor','#835f43',.58,.025);
+    const floor=scene.getMeshByName('floor'); if(floor) floor.material=pbr('v17Floor','#4b3022',.54,.03);
     const back=scene.getMeshByName('backWall'); if(back) back.material=pbr('v17Back','#202a35',.80,.06);
     const left=scene.getMeshByName('leftWall'); if(left) left.material=pbr('v17Left','#25303a',.82,.05);
     const right=scene.getMeshByName('rightWall'); if(right) right.material=pbr('v17Right','#25303a',.82,.05);
@@ -47,8 +47,8 @@
     const glassMat=new BABYLON.PBRMaterial('v17Glass',scene);
     glassMat.albedoColor=C('#9ccff1'); glassMat.alpha=.20; glassMat.roughness=.06; glassMat.metallic=.02; glassMat.backFaceCulling=false;
 
-    const woodSeam=pbr('v17WoodSeam','#64452f',.74,.01);
-    const woodHighlight=pbr('v17WoodHighlight','#9a7355',.66,.015);
+    const woodSeam=pbr('v17WoodSeam','#2f1c14',.72,.01);
+    const woodHighlight=pbr('v17WoodHighlight','#6b4935',.63,.015);
     for(let i=0,x=-9.85;x<=9.85;x+=.58,i++){
       box('v17WoodSeam'+i,.012,.008,13.72,x,.004,0,woodSeam,root);
       if(i%4===1) box('v17WoodHighlight'+i,.008,.006,13.72,x+.19,.003,0,woodHighlight,root);
@@ -66,6 +66,23 @@
     const jamesRoom={left:-4.92,right:1.55,cx:-1.685};
     const meeting={left:1.55,right:10.22,cx:5.885};
 
+    const autoDoors=[];
+    function registerAutoDoor(name,doorX,z,doorW){
+      const panelW=(doorW-.10)/2;
+      const left=box(name+'DoorL',panelW,H-.20,.045,doorX-panelW/2,H/2,z+.025,glassMat,root);
+      const right=box(name+'DoorR',panelW,H-.20,.045,doorX+panelW/2,H/2,z+.025,glassMat,root);
+      box(name+'HandleL',.035,.34,.055,doorX-.055,1.34,z+.058,dark,root);
+      box(name+'HandleR',.035,.34,.055,doorX+.055,1.34,z+.058,dark,root);
+      autoDoors.push({
+        name, x:doorX, z,
+        left, right,
+        closedLeft:doorX-panelW/2,
+        closedRight:doorX+panelW/2,
+        openLeft:doorX-panelW*1.52,
+        openRight:doorX+panelW*1.52,
+        openness:0
+      });
+    }
     function glassWallZ(name,left,right,z,doorX=null,doorW=1.08){
       const frameH=.065;
       box(name+'Top',right-left,frameH,.08,(left+right)/2,H,z,dark,root);
@@ -81,6 +98,7 @@
       if(doorX!==null){
         box(name+'DoorPostL',.055,H,.08,doorX-doorW/2,H/2,z,dark,root);
         box(name+'DoorPostR',.055,H,.08,doorX+doorW/2,H/2,z,dark,root);
+        registerAutoDoor(name,doorX,z,doorW);
       }
     }
     function glassWallX(name,x,z1,z2){
@@ -211,7 +229,7 @@
       return g;
     }
 
-    const walterDesk=desk('Walter',-7.55,-4.35,Math.PI,false,-1);
+    const walterDesk=desk('Walter',-7.55,-3.96,-Math.PI/2,false,-1);
     for(let r=0;r<3;r++){
       const x=-9.15+r*1.02;
       box('v17RackBody'+r,.78,2.10,.72,x,1.05,-6.79,serverBody,root);
@@ -227,9 +245,8 @@
       box('v17AktenCab'+i,.58,1.70,.66,aktenX,.85,z,cabinet,root,Math.PI/2);
       [.35,.76,1.17].forEach((y,j)=>box('v17AktenDrawer'+i+j,.50,.31,.035,aktenX+.34,y,z,cabinetDark,root,Math.PI/2));
     }
-    const giselaDesk=desk('Gisela',-7.72,1.42,-Math.PI/2,false,-1);
-
     const lineZ=1.15;
+    const giselaDesk=desk('Gisela',-7.72,lineZ,Math.PI,false,-1);
     const noraDesk=desk('Nora',-4.65,lineZ,Math.PI,false,-1);
     const kevinDesk=desk('Kevin',-.95,lineZ,Math.PI,false,-1);
     const linaDesk=desk('Lina',2.75,lineZ,Math.PI,false,-1);
@@ -255,7 +272,7 @@
     const meetScreen=box('v17MeetingScreen',1.65,.92,.055,9.72,1.63,-5.20,black,root,Math.PI/2); meetScreen.material.emissiveColor=C('#173b59');
 
     const lounge=new BABYLON.TransformNode('v17Lounge',scene);lounge.parent=root;lounge.position.set(-6.85,0,5.25);
-    box('v17LoungeRug',4.45,.030,3.20,-.05,.015,-.10,pbr('v17LoungeRugM','#8b8177',.96,0),lounge);
+    box('v17LoungeRug',4.45,.030,3.20,-.05,.015,-.10,pbr('v17LoungeRugM','#00A19C',.92,.01),lounge);
     box('v17SofaSeat',2.30,.30,.86,-.62,.42,.38,fabric,lounge);
     box('v17SofaBack',2.30,.78,.15,-.62,.84,.78,fabric,lounge);
     const arm=new BABYLON.TransformNode('v17Armchair',scene);arm.parent=lounge;arm.position.set(1.18,0,-.28);arm.rotation.y=Math.PI/2;
@@ -276,10 +293,31 @@
     }
     const gl=scene.getEffectLayerByName('glow'); if(gl) gl.intensity=.24;
 
+    scene.onBeforeRenderObservable.add(()=>{
+      if(!autoDoors.length) return;
+      const dt=Math.min(.05,(scene.getEngine().getDeltaTime()||16)/1000);
+      const actors=[james,...scene.transformNodes.filter(t=>t!==james && t.metadata && t.metadata.nexusActor===true)];
+      autoDoors.forEach(d=>{
+        let nearest=Infinity;
+        actors.forEach(actor=>{
+          if(!actor || !actor.position) return;
+          const dist=Math.hypot(actor.position.x-d.x,actor.position.z-d.z);
+          if(dist<nearest) nearest=dist;
+        });
+        const shouldOpen=nearest<1.55;
+        const target=shouldOpen?1:0;
+        const speed=dt*4.8;
+        d.openness += (target-d.openness)*Math.min(1,speed);
+        const smooth=d.openness*d.openness*(3-2*d.openness);
+        d.left.position.x=d.closedLeft+(d.openLeft-d.closedLeft)*smooth;
+        d.right.position.x=d.closedRight+(d.openRight-d.closedRight)*smooth;
+      });
+    });
+
     function ui(){
       const t=document.getElementById('viewTitle'); if(t)t.textContent='Office v17';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · feste Orientierung · Glasräume · 5 L-Arbeitsplätze · ohne Pflanzen';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE V17 · FIXED ORIENTATION REBUILD';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · dunkles Holz · Petronas-Teppich · Auto-Glasschiebetüren · Arbeitsplätze neu ausgerichtet';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE V17 · AUTO DOORS';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
