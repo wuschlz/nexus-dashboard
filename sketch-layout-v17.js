@@ -159,12 +159,14 @@
         z,
         width:doorW,
         panelW,
-        leftName:name+'SlideL',
-        rightName:name+'SlideR',
+        leftSlide,
+        rightSlide,
         closedLeft,
         closedRight,
-        openLeft:closedLeft-panelW*1.02,
-        openRight:closedRight+panelW*1.02
+        openLeft:closedLeft-panelW*1.08,
+        openRight:closedRight+panelW*1.08,
+        openness:0,
+        holdUntil:0
       });
     }
     function glassWallZ(name,left,right,z,doorX=null,doorW=1.08){
@@ -481,6 +483,41 @@
     james.position.set(jamesRoom.cx-.30,0,-3.78);
     james.rotation.y=Math.PI;
 
+    // Self-contained automatic sliding doors.
+    // Direct node references, no lookup, no window bridge, no dependency on app.js.
+    scene.registerBeforeRender(()=>{
+      if(!autoDoors.length) return;
+
+      const now=performance.now();
+      const dt=Math.max(.001,Math.min(.05,(scene.getEngine().getDeltaTime()||16)/1000));
+      const pos=(typeof james.getAbsolutePosition==='function')?james.getAbsolutePosition():james.position;
+
+      autoDoors.forEach(d=>{
+        const dx=Math.abs(pos.x-d.x);
+        const dz=Math.abs(pos.z-d.z);
+
+        // Open early on both sides of the glass wall.
+        const near=dx<(d.width/2+1.35) && dz<2.95;
+        if(near) d.holdUntil=now+1700;
+
+        const target=(near || now<d.holdUntil)?1:0;
+        const rate=target>0?12.5:4.2;
+        d.openness += (target-d.openness)*Math.min(1,dt*rate);
+        if(Math.abs(target-d.openness)<.001) d.openness=target;
+
+        const smooth=d.openness*d.openness*(3-2*d.openness);
+
+        d.leftSlide.position.x=d.closedLeft+(d.openLeft-d.closedLeft)*smooth;
+        d.rightSlide.position.x=d.closedRight+(d.openRight-d.closedRight)*smooth;
+
+        d.leftSlide.computeWorldMatrix(true);
+        d.rightSlide.computeWorldMatrix(true);
+      });
+    });
+
+    // Small runtime hook for checking live door state in dev tools if needed.
+    window.NEXUS_DOOR_STATE=autoDoors;
+
     [-7.8,-2.0,3.0,7.8].forEach((x,i)=>{const p=new BABYLON.PointLight('v17Accent'+i,new BABYLON.Vector3(x,3.05,.20),scene);p.diffuse=C('#8cc7ff');p.intensity=.30;p.range=7.5;});
     const cam=scene.activeCamera;
     if(cam && typeof cam.radius==='number'){
@@ -493,28 +530,14 @@
 
     // Door animation is driven by app.js in the same render loop that moves James.
     // This avoids a separate animation observer getting out of sync with pathfinding.
-    // Door geometry/data only. Movement is owned directly by app.js.
-    window.NEXUS_SLIDING_DOORS=autoDoors.map(d=>({
-      name:d.name,
-      x:d.x,
-      z:d.z,
-      width:d.width,
-      leftName:d.leftName,
-      rightName:d.rightName,
-      closedLeft:d.closedLeft,
-      closedRight:d.closedRight,
-      openLeft:d.openLeft,
-      openRight:d.openRight
-    }));
-
     function ui(){
-      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.44';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · automatische Glasschiebetüren mit festen Rahmen · direkter James-Sensor';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.44 · SLIDING DOORS';
+      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.45';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · direkte automatische Glasschiebetüren · selbstständiger Tür-Driver';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.45 · DIRECT SLIDING';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
-    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.44 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
+    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.45 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
     return true;
   }
 
