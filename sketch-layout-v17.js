@@ -714,6 +714,134 @@
       // Under-desk ambient strip adds depth without turning it into a neon prop.
       box('v17JamesPremiumUnderGlow',1.78,.018,.020,-.14,.08,-.635,blueGlow,parent);
 
+      // --- Detail pass 2: visible furniture construction and workstation realism ---
+
+      // Layered desktop edge, so the top reads as a manufactured furniture panel rather than one box.
+      box('v17JamesTopEdgeFront',2.64,.030,.045,0,.815,-.505,premiumEdge,parent);
+      box('v17JamesTopEdgeLeft',.045,.030,.98,-1.335,.815,-.01,premiumEdge,parent);
+      box('v17JamesReturnEdge',.80,.030,1.12,.96,.815,.58,premiumEdge,parent);
+
+      // Rear cable-management channel and two desk grommets.
+      box('v17JamesCableTray',1.56,.075,.14,-.06,.72,-.38,premiumShelf,parent);
+      [-.54,.49].forEach((gx,i)=>{
+        const grom=cyl('v17JamesGrommet'+i,.095,.018,gx,.862,-.30,premiumDark,parent);
+        grom.rotation.x=Math.PI/2;
+      });
+
+      // Visible PC / dock equipment in the open storage.
+      box('v17JamesMiniPC',.22,.29,.25,sx+.12,.19,-.18,premiumDark,parent);
+      for(let vi=0;vi<5;vi++){
+        box('v17JamesMiniPCVent'+vi,.12,.012,.012,sx+.12,.12+vi*.04,-.312,premiumEdge,parent);
+      }
+      box('v17JamesDock',.31,.055,.11,.15,.895,-.27,premiumDark,parent);
+      box('v17JamesDockGlow',.18,.012,.012,.15,.905,-.333,logoGlow,parent);
+
+      // Monitor backs, camera bar and subtle rear ventilation.
+      [-.37,.34].forEach((mx,i)=>{
+        box('v17JamesMonRearShell'+i,.59,.35,.024,mx,1.22,-.033,premiumDark,parent);
+        box('v17JamesMonRearVent'+i,.27,.025,.010,mx,1.12,-.050,premiumEdge,parent);
+        box('v17JamesMonCam'+i,.12,.035,.035,mx,1.435,-.015,black,parent);
+      });
+
+      // Keyboard detail: individual key rows are large enough to read from the normal camera.
+      const keyMat=pbr('v17JamesKeyCapM','#d9dfe4',.60,.025);
+      const keyDark=pbr('v17JamesKeyCapDarkM','#7e8b94',.55,.05);
+      for(let row=0;row<3;row++){
+        const count=row===2?9:11;
+        for(let k=0;k<count;k++){
+          box(
+            'v17JamesKeyCap'+row+'_'+k,
+            .038,.012,.034,
+            -.30+k*.058+(row===2?.055:0),
+            .878,
+            .135+row*.048,
+            (k+row)%7===0?keyDark:keyMat,
+            parent
+          );
+        }
+      }
+      box('v17JamesSpaceBar',.31,.012,.034,-.03,.878,.285,keyMat,parent);
+      cyl('v17JamesMouseWheel',.022,.018,.31,.884,.145,premiumEdge,parent);
+
+      // Paperwork stack, inbox and document separators.
+      box('v17JamesInboxBase',.38,.035,.27,-.93,.885,.24,premiumDark,parent);
+      box('v17JamesInboxBack',.38,.16,.030,-.93,.955,.355,premiumMid,parent);
+      box('v17JamesInboxSideL',.030,.13,.26,-1.105,.945,.24,premiumMid,parent);
+      box('v17JamesInboxSideR',.030,.13,.26,-.755,.945,.24,premiumMid,parent);
+      const paper=pbr('v17JamesPaperM','#f0eee8',.84,.01);
+      for(let p=0;p<4;p++){
+        box('v17JamesPaper'+p,.31,.008,.21,-.93,.905+p*.010,.24,paper,parent,(p-1.5)*.015);
+      }
+
+      // Pen holder with visible pens/pencils.
+      cyl('v17JamesPenCup',.12,.13,.72,.925,.39,premiumDark,parent);
+      const pencilM=pbr('v17JamesPencilM','#c99b58',.52,.02);
+      const penM=pbr('v17JamesPenDarkM','#304c63',.46,.08);
+      [-.028,0,.028].forEach((px,i)=>{
+        const pen=cyl('v17JamesDeskPen'+i,.014,.22,.72+px,1.035,.39,i===1?pencilM:penM,parent);
+        pen.rotation.z=(i-1)*.08;
+      });
+
+      // Phone stand and a thin glowing notification line.
+      box('v17JamesPhoneStand',.16,.055,.13,.88,.89,.06,premiumDark,parent,-.10);
+      const phone=box('v17JamesPhoneDisplay',.13,.22,.018,.88,1.005,.04,black,parent,-.10);
+      phone.rotation.x=-.38;
+      box('v17JamesPhoneNotify',.055,.010,.012,.88,1.09,.025,logoGlow,parent,-.10);
+
+      // Extra front-panel furniture seams and handles.
+      [-.43,.04,.51].forEach((fx,i)=>{
+        box('v17JamesFrontSeam'+i,.018,.46,.012,fx,.37,-.658,premiumShelf,parent);
+      });
+      box('v17JamesFrontHandleA',.18,.018,.018,-.63,.43,-.672,premiumEdge,parent);
+      box('v17JamesFrontHandleB',.18,.018,.018,-.63,.29,-.672,premiumEdge,parent);
+
+      // Executive-chair upgrade layered onto the existing James chair.
+      const chairZ=1.305;
+      const chairLeather=pbr('v17JamesChairLeatherM','#252c33',.46,.10);
+      const chairMetal=pbr('v17JamesChairMetalM','#56616a',.26,.48);
+      box('v17JamesChairHeadrest',.55,.24,.13,-.27,1.25,chairZ+.25,chairLeather,parent);
+      box('v17JamesChairLumbar',.50,.18,.09,-.27,.83,chairZ+.18,premiumMid,parent);
+      box('v17JamesChairArmL',.09,.07,.46,-.62,.77,chairZ-.02,chairLeather,parent);
+      box('v17JamesChairArmR',.09,.07,.46,.08,.77,chairZ-.02,chairLeather,parent);
+      box('v17JamesChairArmStemL',.055,.32,.055,-.62,.59,chairZ-.02,chairMetal,parent);
+      box('v17JamesChairArmStemR',.055,.32,.055,.08,.59,chairZ-.02,chairMetal,parent);
+
+      // Larger floor plant beside James for the richer office composition seen in the reference.
+      const floorPlant=new BABYLON.TransformNode('v17JamesFloorPlant',scene);
+      floorPlant.parent=parent;
+      floorPlant.position.set(1.28,0,-.26);
+      cyl('v17JamesFloorPlantPot',.42,.42,0,.21,0,plantPot,floorPlant);
+      cyl('v17JamesFloorPlantSoil',.33,.035,0,.43,0,plantSoil,floorPlant);
+      for(let i=0;i<12;i++){
+        const ang=i/12*Math.PI*2+.17;
+        const h=.66+(i%4)*.10;
+        const stem=BABYLON.MeshBuilder.CreateCylinder(
+          'v17JamesFloorStem'+i,
+          {diameter:.025,height:h,tessellation:8},
+          scene
+        );
+        stem.parent=floorPlant;
+        stem.position.set(Math.cos(ang)*.055,.43+h/2,Math.sin(ang)*.055);
+        stem.rotation.z=Math.cos(ang)*.12;
+        stem.material=plantLeafA;
+
+        for(let q=0;q<2;q++){
+          const leaf=BABYLON.MeshBuilder.CreateSphere(
+            'v17JamesFloorLeaf'+i+'_'+q,
+            {diameter:.24,segments:10},
+            scene
+          );
+          leaf.parent=floorPlant;
+          const spread=.15+q*.08;
+          leaf.position.set(Math.cos(ang)*spread,.43+h-q*.18,Math.sin(ang)*spread);
+          leaf.scaling.set(.50,1.75-q*.18,.30);
+          leaf.rotation.z=Math.cos(ang)*(.50+q*.10);
+          leaf.rotation.x=Math.sin(ang)*.22;
+          leaf.rotation.y=-ang;
+          leaf.material=(i+q)%3===0?plantLeafB:plantLeafA;
+        }
+      }
+
       window.NEXUS_JAMES_PREMIUM_READY=true;
     }
 
@@ -1078,13 +1206,13 @@
     // Door animation is driven by app.js in the same render loop that moves James.
     // This avoids a separate animation observer getting out of sync with pathfinding.
     function ui(){
-      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.59';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · James Premium-Arbeitsplatz · Regalfächer · Pflanzen · Props · Detailbeleuchtung';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.59 · PREMIUM JAMES DESK';
+      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.60';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · James Ultra-Detail · Möbelkonstruktion · Technik · Kabelmanagement · Executive Chair';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.60 · ULTRA DETAILED JAMES';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
-    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.59 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
+    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.60 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
     return true;
   }
 
