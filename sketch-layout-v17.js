@@ -528,119 +528,126 @@
     }
     const gl=scene.getEffectLayerByName('glow'); if(gl) gl.intensity=.24;
 
-    // Physical 3D NEXUS wall sign behind James.
-    // No canvas/textures: every letter is built from emissive meshes for maximum browser reliability.
+    // NEXUS wall sign — restored from the exact 1.46 implementation that visibly rendered.
+    // It now runs only after the whole office exists, so any later sign error cannot remove furniture.
     try{
-      const signRoot=new BABYLON.TransformNode('v17JamesNexusSign',scene);
-      signRoot.parent=root;
-      signRoot.position.set(jamesRoom.cx,2.00,-6.28);
+      const sign=new BABYLON.TransformNode('v17JamesNexusSign',scene);
+      sign.parent=root;
+      sign.position.set(jamesRoom.cx,1.93,BACK+.15);
 
-      const signBack=pbr('v17JamesNexusBackM','#07111a',.22,.40);
-      const neon=std('v17JamesNexusNeonM','#06323a','#00eaff',1);
-      const neonSoft=std('v17JamesNexusNeonSoftM','#092a31','#00a9c5',1);
-      const metallic=pbr('v17JamesNexusMetalM','#283b49',.20,.52);
+      const backMat=pbr('v17JamesSignBackM','#07111a',.24,.38);
+      const edgeMat=pbr('v17JamesSignEdgeM','#223746',.22,.46);
+      const cyan=std('v17JamesSignCyan','#0b3138','#00e5ff',1);
+      const cyanSoft=std('v17JamesSignCyanSoft','#0a252c','#00a9c8',1);
 
-      // Deep floating backplate.
-      box('v17JamesNexusBack',5.35,1.66,.11,0,0,0,signBack,signRoot);
-      box('v17JamesNexusBackInset',5.03,1.38,.045,0,0,.075,pbr('v17JamesNexusInsetM','#0b1b25',.30,.30),signRoot);
+      // Floating sci-fi backplate with layered depth.
+      box('v17JamesSignShadow',4.92,1.48,.09,0,0,0,backMat,sign);
+      box('v17JamesSignInset',4.66,1.24,.035,0,0,.065,pbr('v17JamesSignInsetM','#0b1822',.30,.28),sign);
 
-      // Visible metal standoffs back toward the wall so the sign clearly floats in front of it.
-      const standMat=pbr('v17JamesNexusStandM','#596875',.22,.58);
-      box('v17JamesNexusStandTL',.12,.12,.72,-2.22,.58,-.39,standMat,signRoot);
-      box('v17JamesNexusStandTR',.12,.12,.72,2.22,.58,-.39,standMat,signRoot);
-      box('v17JamesNexusStandBL',.12,.12,.72,-2.22,-.58,-.39,standMat,signRoot);
-      box('v17JamesNexusStandBR',.12,.12,.72,2.22,-.58,-.39,standMat,signRoot);
+      // Broken / segmented luminous frame.
+      box('v17JamesSignTopL',1.55,.035,.035,-1.42,.66,.105,cyan,sign);
+      box('v17JamesSignTopR',1.55,.035,.035,1.42,.66,.105,cyan,sign);
+      box('v17JamesSignBottomL',1.18,.028,.030,-1.65,-.66,.105,cyanSoft,sign);
+      box('v17JamesSignBottomR',1.18,.028,.030,1.65,-.66,.105,cyanSoft,sign);
+      box('v17JamesSignEdgeL',.032,.62,.035,-2.34,.13,.105,cyanSoft,sign);
+      box('v17JamesSignEdgeR',.032,.62,.035,2.34,.13,.105,cyanSoft,sign);
 
-      // Bright sci-fi perimeter.
-      box('v17JamesNexusTop',4.93,.040,.050,0,.735,.115,neon,signRoot);
-      box('v17JamesNexusBottom',4.93,.040,.050,0,-.735,.115,neonSoft,signRoot);
-      box('v17JamesNexusLeft',.040,.82,.050,-2.50,.22,.115,neonSoft,signRoot);
-      box('v17JamesNexusRight',.040,.82,.050,2.50,.22,.115,neonSoft,signRoot);
+      box('v17JamesSignCornerTL',.34,.045,.055,-2.17,.66,.075,edgeMat,sign);
+      box('v17JamesSignCornerTR',.34,.045,.055,2.17,.66,.075,edgeMat,sign);
+      box('v17JamesSignCornerBL',.34,.045,.055,-2.17,-.66,.075,edgeMat,sign);
+      box('v17JamesSignCornerBR',.34,.045,.055,2.17,-.66,.075,edgeMat,sign);
 
-      function bar(name,w,h,x,y,rz=0,mat=neon){
-        const m=box('v17JamesSign'+name,w,h,.075,x,y,.16,mat,signRoot);
-        m.rotation.z=rz;
-        return m;
-      }
+      const tex=new BABYLON.DynamicTexture('v17JamesNexusTex',{width:2048,height:640},scene,false);
+      tex.hasAlpha=true;
+      const ctx=tex.getContext();
+      ctx.clearRect(0,0,2048,640);
+      ctx.textAlign='center';
+      ctx.textBaseline='middle';
 
-      const stroke=.095;
-      const H=.82;
-      const W=.57;
-      const half=H/2;
-      const centers=[-1.72,-.86,0,.86,1.72];
+      ctx.save();
+      ctx.shadowColor='#00e5ff';
+      ctx.shadowBlur=70;
+      ctx.fillStyle='rgba(0,229,255,.34)';
+      ctx.font='900 248px Arial';
+      ctx.fillText('NEXUS',1024,292);
+      ctx.restore();
 
-      // N
-      {
-        const x=centers[0];
-        bar('N_L',stroke,H,x-W/2,0);
-        bar('N_R',stroke,H,x+W/2,0);
-        bar('N_D',stroke,.98,x,0,-.60);
-      }
+      const grad=ctx.createLinearGradient(0,190,0,410);
+      grad.addColorStop(0,'#f4ffff');
+      grad.addColorStop(.40,'#bafcff');
+      grad.addColorStop(1,'#38d9ef');
+      ctx.fillStyle=grad;
+      ctx.font='900 248px Arial';
+      ctx.fillText('NEXUS',1024,292);
 
-      // E
-      {
-        const x=centers[1];
-        bar('E_V',stroke,H,x-W/2,0);
-        bar('E_T',W,stroke,x,.36);
-        bar('E_M',W*.88,stroke,x-.03,0);
-        bar('E_B',W,stroke,x,-.36);
-      }
+      ctx.strokeStyle='#00d9ef';
+      ctx.lineWidth=5;
+      ctx.strokeText('NEXUS',1024,292);
 
-      // X
-      {
-        const x=centers[2];
-        bar('X_A',stroke,1.00,x,0,.60);
-        bar('X_B',stroke,1.00,x,0,-.60);
-      }
+      ctx.fillStyle='#72ddeb';
+      ctx.font='700 42px Arial';
+      ctx.fillText('INTELLIGENCE · OPERATIONS · CORE',1024,505);
+      ctx.fillStyle='#00b9cf';
+      ctx.fillRect(390,548,365,5);
+      ctx.fillRect(1293,548,365,5);
+      ctx.fillStyle='#d9ffff';
+      ctx.beginPath();
+      ctx.arc(1024,550,8,0,Math.PI*2);
+      ctx.fill();
+      tex.update();
 
-      // U
-      {
-        const x=centers[3];
-        bar('U_L',stroke,.70,x-W/2,.055);
-        bar('U_R',stroke,.70,x+W/2,.055);
-        bar('U_B',W,stroke,x,-.36);
-      }
+      const textMat=new BABYLON.StandardMaterial('v17JamesNexusTextM',scene);
+      textMat.diffuseTexture=tex;
+      textMat.emissiveTexture=tex;
+      textMat.opacityTexture=tex;
+      textMat.emissiveColor=C('#93f7ff');
+      textMat.disableLighting=true;
+      textMat.backFaceCulling=false;
+      textMat.useAlphaFromDiffuseTexture=true;
 
-      // S
-      {
-        const x=centers[4];
-        bar('S_T',W,stroke,x,.36);
-        bar('S_M',W,stroke,x,0);
-        bar('S_B',W,stroke,x,-.36);
-        bar('S_UL',stroke,.36,x-W/2,.18);
-        bar('S_LR',stroke,.36,x+W/2,-.18);
-      }
-
-      // Small technical details below the wordmark.
-      box('v17JamesSignTechL',1.28,.022,.040,-1.52,-.59,.145,neonSoft,signRoot);
-      box('v17JamesSignTechR',1.28,.022,.040,1.52,-.59,.145,neonSoft,signRoot);
-      box('v17JamesSignTechCenter',.25,.040,.050,0,-.59,.15,metallic,signRoot);
-
-      // Cyan wall wash for a clear halo.
-      const halo=new BABYLON.PointLight(
-        'v17JamesNexusHalo',
-        new BABYLON.Vector3(jamesRoom.cx,2.04,-6.36),
+      const plane=BABYLON.MeshBuilder.CreatePlane(
+        'v17JamesNexusText',
+        {width:4.40,height:1.18,sideOrientation:BABYLON.Mesh.DOUBLESIDE},
         scene
       );
-      halo.diffuse=C('#00e1f3');
-      halo.intensity=.82;
-      halo.range=5.2;
+      plane.parent=sign;
+      plane.position.set(0,.015,.125);
 
-      if(gl) gl.intensity=Math.max(gl.intensity||0,.42);
+      // In 1.46 we saw the back side of the plane, therefore NEXUS appeared mirrored.
+      // Flip only the text plane; the proven sign position/backplate stay untouched.
+      plane.rotation.y=Math.PI;
+
+      plane.material=textMat;
+      plane.isPickable=false;
+
+      // Everything below this point is optional. Even if it fails, the visible plaque/text already exist.
+      try{
+        const halo=new BABYLON.PointLight(
+          'v17JamesNexusHalo',
+          new BABYLON.Vector3(jamesRoom.cx,2.02,BACK+.46),
+          scene
+        );
+        halo.diffuse=C('#00cfe8');
+        halo.intensity=.52;
+        halo.range=4.4;
+        if(gl) gl.intensity=Math.max(gl.intensity||0,.34);
+      }catch(lightErr){
+        console.warn('NEXUS sign halo skipped:',lightErr);
+      }
     }catch(err){
-      console.error('Physical NEXUS wall sign failed:',err);
+      console.error('NEXUS wall sign failed safely:',err);
     }
 
     // Door animation is driven by app.js in the same render loop that moves James.
     // This avoids a separate animation observer getting out of sync with pathfinding.
     function ui(){
-      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.50';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · NEXUS Schild deutlich vor der Rückwand · sichtbare Abstandshalter';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.50 · NEXUS SIGN FORWARD';
+      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.51';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · bewiesen sichtbarer 1.46-NEXUS-Schildcode · jetzt fail-safe';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.51 · PROVEN NEXUS SIGN';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
-    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.50 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
+    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.51 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
     return true;
   }
 
