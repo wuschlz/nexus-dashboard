@@ -54,30 +54,60 @@
       if(i%4===1) box('v17WoodHighlight'+i,.008,.006,13.72,x+.19,.003,0,woodHighlight,root);
     }
 
-    // High-rise structure beneath the office: visible slab, dark facade and lit window bands.
-    const towerBody=pbr('v17TowerBody','#161d25',.44,.16);
-    const towerTrim=pbr('v17TowerTrim','#2c3742',.34,.30);
-    const towerGlassDark=pbr('v17TowerGlassDark','#122231',.22,.18);
-    const towerGlassLit=std('v17TowerGlassLit','#17334a','#4d9dcc',1);
+    // Deep modern high-rise beneath the office floor.
+    // A projecting office slab sits on a recessed dark-glass curtain-wall tower.
+    const towerCore=pbr('v17TowerCore','#111820',.32,.24);
+    const towerFrame=pbr('v17TowerFrame','#273440',.26,.48);
+    const towerGlass=pbr('v17TowerGlass','#10283a',.15,.28);
+    const towerGlassAlt=pbr('v17TowerGlassAlt','#173447',.16,.24);
+    const towerLit=std('v17TowerLit','#173849','#4bb6d6',1);
+    const towerAccent=std('v17TowerAccent','#0f3440','#00A19C',1);
 
-    box('v17TowerMass',20.20,2.70,13.72,0,-1.43,0,towerBody,root);
-    box('v17TowerFrontCap',20.28,.18,.24,0,-.15,6.78,towerTrim,root);
-    box('v17TowerRightCap',.24,.18,13.72,10.10,-.15,0,towerTrim,root);
-    box('v17TowerLeftCap',.24,.18,13.72,-10.10,-.15,0,towerTrim,root);
+    // Recessed tower body: much deeper than before so it reads as a real high-rise.
+    box('v17TowerCore',19.10,6.30,12.62,0,-3.20,.05,towerCore,root);
 
-    for(let row=0;row<3;row++){
-      const y=-.58-row*.68;
+    // Floating floor slab / shadow reveal below the office.
+    box('v17TowerSlab',20.35,.26,13.78,0,-.22,0,towerFrame,root);
+    box('v17TowerRevealFront',19.75,.075,.09,0,-.43,6.73,towerAccent,root);
+    box('v17TowerRevealRight',.09,.075,13.10,9.73,-.43,0,towerAccent,root);
+    box('v17TowerRevealLeft',.09,.075,13.10,-9.73,-.43,0,towerAccent,root);
+
+    // Floor bands create the modern stacked-glass facade.
+    for(let row=0;row<7;row++){
+      const y=-.82-row*.78;
+      box('v17TowerFrontBand'+row,19.18,.055,.10,0,y-.31,6.38,towerFrame,root);
+      box('v17TowerRightBand'+row,.10,.055,12.54,9.58,y-.31,.05,towerFrame,root);
+      box('v17TowerLeftBand'+row,.10,.055,12.54,-9.58,y-.31,.05,towerFrame,root);
+
+      // Front curtain-wall glazing.
       for(let i=0;i<15;i++){
         const x=-8.55+i*1.22;
-        const lit=(i+row)%4!==1;
-        box('v17TowerFrontWin'+row+'_'+i,.86,.38,.045,x,y,6.88,lit?towerGlassLit:towerGlassDark,root);
+        const mat=((i+row)%5===0)?towerLit:(((i+row)%2===0)?towerGlassAlt:towerGlass);
+        box('v17TowerFrontGlass'+row+'_'+i,1.05,.55,.045,x,y,6.44,mat,root);
+        box('v17TowerFrontMullion'+row+'_'+i,.035,.60,.075,x+.57,y,6.46,towerFrame,root);
       }
+
+      // Right-hand curtain wall, clearly visible from the default camera.
       for(let i=0;i<9;i++){
-        const z=-5.05+i*1.20;
-        const lit=(i+row)%3===0;
-        box('v17TowerRightWin'+row+'_'+i,.045,.38,.86,10.22,y,z,lit?towerGlassLit:towerGlassDark,root);
+        const z=-4.86+i*1.20;
+        const mat=((i+row)%4===0)?towerLit:(((i+row)%2===0)?towerGlass:towerGlassAlt);
+        box('v17TowerRightGlass'+row+'_'+i,.045,.55,1.02,9.64,y,z,mat,root);
+        box('v17TowerRightMullion'+row+'_'+i,.075,.60,.035,9.66,y,z+.56,towerFrame,root);
+      }
+
+      // Left facade so rotation still shows a complete tower.
+      for(let i=0;i<9;i++){
+        const z=-4.86+i*1.20;
+        const mat=((i+row)%6===0)?towerLit:(((i+row)%2===0)?towerGlassAlt:towerGlass);
+        box('v17TowerLeftGlass'+row+'_'+i,.045,.55,1.02,-9.64,y,z,mat,root);
       }
     }
+
+    // Strong vertical corner fins and a few Petronas-toned light lines.
+    box('v17TowerCornerR',.18,5.95,.18,9.67,-3.16,6.36,towerFrame,root);
+    box('v17TowerCornerL',.18,5.95,.18,-9.67,-3.16,6.36,towerFrame,root);
+    box('v17TowerAccentFrontA',.06,5.35,.075,-6.10,-3.12,6.49,towerAccent,root);
+    box('v17TowerAccentFrontB',.06,5.35,.075,6.10,-3.12,6.49,towerAccent,root);
 
     const winMat=std('v17Win','#a8d5ef',null,.26);
     for(let i=0;i<6;i++){
@@ -288,24 +318,54 @@
       box('v17AktenCab'+i,.58,1.70,.66,aktenX,.85,z,cabinet,root,Math.PI/2);
       [.35,.76,1.17].forEach((y,j)=>box('v17AktenDrawer'+i+j,.50,.31,.035,aktenX+.34,y,z,cabinetDark,root,Math.PI/2));
     }
-    // Compact 2x2 desk island matching the hand sketch:
-    // top pair mirrored inward, bottom pair mirrored inward,
-    // with a narrow central plant spine between the four L-desks.
-    const clusterCenterX=-1.00;
-    const clusterLeftX=clusterCenterX-2.18;
-    const clusterRightX=clusterCenterX+2.18;
-    const clusterTopZ=.95;
-    const clusterBottomZ=3.15;
+    // Exact four-desk island from the latest hand sketch.
+    // Four L-desks form the four quadrants of a compact cross; planters fill both axes.
+    const islandCX=-1.05;
+    const islandCZ=2.15;
 
-    // top-left = ┘, top-right = └, bottom-left = ┐, bottom-right = ┌
-    const giselaDesk=desk('Gisela',clusterLeftX,clusterTopZ,Math.PI/2,false,-1);
-    const noraDesk=desk('Nora',clusterRightX,clusterTopZ,Math.PI,false,-1);
-    const kevinDesk=desk('Kevin',clusterLeftX,clusterBottomZ,0,false,-1);
-    const linaDesk=desk('Lina',clusterRightX,clusterBottomZ,-Math.PI/2,false,-1);
+    // Tight spacing: desk inner edges nearly meet the planter cross.
+    const islandLeftX=islandCX-1.82;
+    const islandRightX=islandCX+1.82;
+    const islandTopZ=islandCZ-1.42;
+    const islandBottomZ=islandCZ+1.42;
 
-    centerPlanter('A',clusterCenterX,1.05,.96);
-    centerPlanter('B',clusterCenterX,2.05,1.02);
-    centerPlanter('C',clusterCenterX,3.02,.94);
+    // Quadrants from the sketch:
+    // top-left ┘, top-right └, bottom-left ┐, bottom-right ┌
+    const giselaDesk=desk('Gisela',islandLeftX,islandTopZ,-Math.PI/2,false,-1);
+    const noraDesk=desk('Nora',islandRightX,islandTopZ,Math.PI,false,-1);
+    const kevinDesk=desk('Kevin',islandLeftX,islandBottomZ,0,false,-1);
+    const linaDesk=desk('Lina',islandRightX,islandBottomZ,Math.PI/2,false,-1);
+
+    // Long, low planter strips instead of loose flower pots.
+    function islandPlanterStrip(name,w,d,x,z){
+      const g=new BABYLON.TransformNode('v17IslandPlanter'+name,scene);g.parent=root;g.position.set(x,0,z);
+      const shell=pbr('v17IslandPlanterShellM'+name,'#27343c',.40,.28);
+      const soil=pbr('v17IslandPlanterSoilM'+name,'#2b211a',.88,.01);
+      const leaf=pbr('v17IslandPlanterLeafM'+name,'#33785a',.73,.01);
+      box('v17IslandPlanterShell'+name,w,.32,d,0,.16,0,shell,g);
+      box('v17IslandPlanterSoil'+name,Math.max(.12,w-.10),.045,Math.max(.12,d-.10),0,.34,0,soil,g);
+
+      const vertical=d>w;
+      const count=vertical?5:6;
+      for(let i=0;i<count;i++){
+        const t=count===1?.5:i/(count-1);
+        const px=vertical?0:(-w/2+.22+t*(w-.44));
+        const pz=vertical?(-d/2+.22+t*(d-.44)):0;
+        for(let j=0;j<4;j++){
+          const a=j*Math.PI/2+(i%2)*.34;
+          const stem=box('v17IslandStem'+name+i+'_'+j,.026,.31,.026,px+Math.cos(a)*.035,.55,pz+Math.sin(a)*.035,leaf,g);
+          stem.rotation.z=(j%2?1:-1)*(.15+.03*j);
+          const l=BABYLON.MeshBuilder.CreateSphere('v17IslandLeaf'+name+i+'_'+j,{diameter:.15,segments:8},scene);
+          l.parent=g;l.position.set(px+Math.cos(a)*.10,.68+(j%2)*.06,pz+Math.sin(a)*.10);
+          l.scaling.set(.72,1.30,.35);l.rotation.y=a;l.material=leaf;
+        }
+      }
+      return g;
+    }
+
+    // Cross-shaped planter exactly between the four desks.
+    islandPlanterStrip('Vertical',.34,2.66,islandCX,islandCZ);
+    islandPlanterStrip('Horizontal',3.10,.34,islandCX,islandCZ);
 
     const sarahDesk=desk('Sarah',7.15,.10,Math.PI/2,false);
     const finnDesk=desk('Finn',7.15,3.45,Math.PI/2,false);
@@ -373,8 +433,8 @@
 
     function ui(){
       const t=document.getElementById('viewTitle'); if(t)t.textContent='Office v17';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · Hochhaus-Sockel · kompakte 4er-Desk-Insel exakt nach Skizze · 3 Pflanzen mittig';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE V17 · SKETCH DESK ISLAND';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · tiefer moderner Hochhaus-Sockel · 4er-Desk-Kreuz exakt nach Skizze · Pflanzkreuz';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE V17 · SKETCH CROSS V2';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
