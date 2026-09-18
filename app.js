@@ -377,7 +377,7 @@
     jamesRoot.position.copyFrom(locations.desk); jamesRoot.scaling.setAll(1.38); jamesRoot.rotation.y=-.35;
     resolveAnimations(result.animationGroups||[]); play('Neutral Idle',true); loading.style.display='none';
     document.getElementById('assetState').textContent='geladen'; document.getElementById('inspectorStatus').textContent='Ready';
-    log('Office v17 · scharf · Pathfinding V2 aktiv');
+    log('Office 1.40 · scharf · Pathfinding V2 aktiv');
   }).catch(err=>{ console.error(err); loading.textContent='James konnte nicht geladen werden.'; document.getElementById('assetState').textContent='GLB-Fehler'; log('GLB-Ladefehler'); });
 
   function travelTo(targetName){
