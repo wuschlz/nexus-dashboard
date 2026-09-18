@@ -129,13 +129,15 @@
       box(name+'HandleL',.035,.34,.055,panelW/2-.07,0,.035,dark,left);
       box(name+'HandleR',.035,.34,.055,-panelW/2+.07,0,.035,dark,right);
       autoDoors.push({
-        name, x:doorX, z,
+        name, x:doorX, z, width:doorW,
         left, right,
         closedLeft:doorX-panelW/2,
         closedRight:doorX+panelW/2,
-        openLeft:doorX-panelW*1.52,
-        openRight:doorX+panelW*1.52,
-        openness:0
+        openLeft:doorX-panelW*1.62,
+        openRight:doorX+panelW*1.62,
+        openness:0,
+        holdUntil:0,
+        isOpen:false
       });
     }
     function glassWallZ(name,left,right,z,doorX=null,doorW=1.08){
@@ -462,31 +464,72 @@
     }
     const gl=scene.getEffectLayerByName('glow'); if(gl) gl.intensity=.24;
 
+    // Automatic sliding-door sensors.
+    // Doors open before an actor reaches the glass, remain open while crossing,
+    // then close only after the doorway has been clear for a short moment.
     scene.onBeforeRenderObservable.add(()=>{
       if(!autoDoors.length) return;
+
       const dt=Math.min(.05,(scene.getEngine().getDeltaTime()||16)/1000);
-      const actors=[james,...scene.transformNodes.filter(t=>t!==james && t.metadata && t.metadata.nexusActor===true)];
+      const now=performance.now();
+      const actors=[
+        james,
+        ...scene.transformNodes.filter(t=>t!==james && t.metadata && t.metadata.nexusActor===true)
+      ];
+
       autoDoors.forEach(d=>{
-        let nearest=Infinity;
+        let sensorActive=false;
+
         actors.forEach(actor=>{
-          if(!actor || !actor.position) return;
-          const dist=Math.hypot(actor.position.x-d.x,actor.position.z-d.z);
-          if(dist<nearest) nearest=dist;
+          if(sensorActive || !actor || !actor.position || actor.isEnabled && !actor.isEnabled()) return;
+
+          const dx=Math.abs(actor.position.x-d.x);
+          const dz=Math.abs(actor.position.z-d.z);
+
+          // Wide approach zone on both sides of the doorway.
+          // This opens roughly 1.8 m before James reaches the glass.
+          const approaching=dx<(d.width/2+1.05) && dz<1.85;
+
+          // Narrow crossing zone keeps the door open until the actor is fully through.
+          const crossing=dx<(d.width/2+.48) && dz<.70;
+
+          if(approaching || crossing) sensorActive=true;
         });
-        const shouldOpen=nearest<1.55;
-        const target=shouldOpen?1:0;
-        const speed=dt*4.8;
-        d.openness += (target-d.openness)*Math.min(1,speed);
+
+        if(sensorActive){
+          d.holdUntil=now+1100;
+          d.isOpen=true;
+        }else if(now>d.holdUntil){
+          d.isOpen=false;
+        }
+
+        const target=d.isOpen?1:0;
+
+        // Open quickly, close a little more gently.
+        const response=d.isOpen?dt*9.0:dt*4.2;
+        d.openness += (target-d.openness)*Math.min(1,response);
+
+        if(Math.abs(target-d.openness)<.002) d.openness=target;
+
         const smooth=d.openness*d.openness*(3-2*d.openness);
         d.left.position.x=d.closedLeft+(d.openLeft-d.closedLeft)*smooth;
         d.right.position.x=d.closedRight+(d.openRight-d.closedRight)*smooth;
       });
     });
 
+    // Expose a tiny controller for future actors/pathfinding without coupling the scene to app.js.
+    window.NEXUS_AUTO_DOORS={
+      doors:autoDoors,
+      openAll(){
+        const until=performance.now()+1800;
+        autoDoors.forEach(d=>{d.isOpen=true;d.holdUntil=until;});
+      }
+    };
+
     function ui(){
       const t=document.getElementById('viewTitle'); if(t)t.textContent='Office v17';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · verlängertes Pflanzenkreuz bis an die Tischenden · hohe realistische Pflanzen · Desk-Unterbau';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE V17 · EXTENDED PLANT CROSS';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · automatische Glasschiebetüren mit Annäherungssensor · Pathfinding V2';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE V17 · AUTO DOORS V2';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
