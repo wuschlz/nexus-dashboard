@@ -366,63 +366,6 @@
     meeting:new BABYLON.Vector3(3.35,0,-3.45)
   };
 
-  // Direct sliding-door animation state.
-  // These names match the three framed slide groups built by sketch-layout-v17.js.
-  const slidingDoorStates=[
-    {name:'v17ServerFront',x:-6.62,z:-2.82,width:1.10,openness:0,holdUntil:0,left:null,right:null},
-    {name:'v17JamesFront',x:-1.685,z:-2.82,width:1.12,openness:0,holdUntil:0,left:null,right:null},
-    {name:'v17MeetingFront',x:3.335,z:-2.82,width:1.18,openness:0,holdUntil:0,left:null,right:null}
-  ];
-
-  function animateSlidingDoors(pos,dt){
-    const defs=window.NEXUS_SLIDING_DOORS;
-    if(!Array.isArray(defs)||!defs.length) return;
-
-    const now=performance.now();
-    const frame=Math.max(.001,Math.min(.05,dt||.016));
-
-    slidingDoorStates.forEach(state=>{
-      const def=defs.find(d=>d.name===state.name);
-      if(!def) return;
-
-      if(!state.left || state.left.isDisposed && state.left.isDisposed()){
-        state.left=scene.getTransformNodeByName(def.leftName);
-      }
-      if(!state.right || state.right.isDisposed && state.right.isDisposed()){
-        state.right=scene.getTransformNodeByName(def.rightName);
-      }
-      if(!state.left||!state.right) return;
-
-      let near=false;
-      if(pos){
-        const dx=Math.abs(pos.x-def.x);
-        const dz=Math.abs(pos.z-def.z);
-        // Open early enough that the panels are already clear when James arrives.
-        near=dx<(def.width/2+1.28) && dz<2.65;
-      }
-
-      if(near){
-        state.holdUntil=now+1450;
-      }
-
-      const shouldOpen=near || now<state.holdUntil;
-      const target=shouldOpen?1:0;
-
-      // Fast opening, calmer closing.
-      const response=shouldOpen?frame*11.5:frame*4.0;
-      state.openness += (target-state.openness)*Math.min(1,response);
-      if(Math.abs(target-state.openness)<.001) state.openness=target;
-
-      const smooth=state.openness*state.openness*(3-2*state.openness);
-
-      state.left.position.x=def.closedLeft+(def.openLeft-def.closedLeft)*smooth;
-      state.right.position.x=def.closedRight+(def.openRight-def.closedRight)*smooth;
-
-      state.left.computeWorldMatrix(true);
-      state.right.computeWorldMatrix(true);
-    });
-  }
-
   let jamesRoot=null,groups={},travel=null;
 
   function setActiveButton(id){ document.querySelectorAll('.scene-actions .chip').forEach(x=>x.classList.remove('active')); const b=document.getElementById(id); if(b)b.classList.add('active'); }
@@ -435,7 +378,7 @@
     jamesRoot.position.copyFrom(locations.desk); jamesRoot.scaling.setAll(1.38); jamesRoot.rotation.y=-.35;
     resolveAnimations(result.animationGroups||[]); play('Neutral Idle',true); loading.style.display='none';
     document.getElementById('assetState').textContent='geladen'; document.getElementById('inspectorStatus').textContent='Ready';
-    log('Office 1.44 · scharf · Pathfinding V2 + direkte Schiebetüren aktiv');
+    log('Office 1.45 · scharf · Pathfinding V2 · Türen im Layout selbstständig');
   }).catch(err=>{ console.error(err); loading.textContent='James konnte nicht geladen werden.'; document.getElementById('assetState').textContent='GLB-Fehler'; log('GLB-Ladefehler'); });
 
   function travelTo(targetName){
@@ -458,10 +401,6 @@
     if(!jamesRoot)return;
 
     const frameDt=Math.min(.05,(engine.getDeltaTime()||16)/1000);
-    const jamesPos=(typeof jamesRoot.getAbsolutePosition==='function')?jamesRoot.getAbsolutePosition():jamesRoot.position;
-
-    // Door panels are moved directly here — no secondary controller/observer.
-    animateSlidingDoors(jamesPos,frameDt);
 
     if(!travel)return;
     let remaining=travel.speed*frameDt;
