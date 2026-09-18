@@ -481,17 +481,20 @@
         let sensorActive=false;
 
         actors.forEach(actor=>{
-          if(sensorActive || !actor || !actor.position || actor.isEnabled && !actor.isEnabled()) return;
+          if(sensorActive || !actor || actor.isEnabled && !actor.isEnabled()) return;
 
-          const dx=Math.abs(actor.position.x-d.x);
-          const dz=Math.abs(actor.position.z-d.z);
+          const pos=(typeof actor.getAbsolutePosition==='function')?actor.getAbsolutePosition():actor.position;
+          if(!pos) return;
 
-          // Wide approach zone on both sides of the doorway.
-          // This opens roughly 1.8 m before James reaches the glass.
-          const approaching=dx<(d.width/2+1.05) && dz<1.85;
+          const dx=Math.abs(pos.x-d.x);
+          const dz=Math.abs(pos.z-d.z);
 
-          // Narrow crossing zone keeps the door open until the actor is fully through.
-          const crossing=dx<(d.width/2+.48) && dz<.70;
+          // Generous approach zone on both sides of the doorway.
+          // The door is visibly open before James reaches the glass.
+          const approaching=dx<(d.width/2+1.15) && dz<2.45;
+
+          // Crossing zone keeps the door open until the actor is fully through.
+          const crossing=dx<(d.width/2+.62) && dz<.90;
 
           if(approaching || crossing) sensorActive=true;
         });
@@ -520,20 +523,44 @@
     // Expose a tiny controller for future actors/pathfinding without coupling the scene to app.js.
     window.NEXUS_AUTO_DOORS={
       doors:autoDoors,
-      openAll(){
-        const until=performance.now()+1800;
-        autoDoors.forEach(d=>{d.isOpen=true;d.holdUntil=until;});
+
+      requestOpen(name,holdMs=1800){
+        const now=performance.now();
+        autoDoors.forEach(d=>{
+          if(d.name===name){
+            d.isOpen=true;
+            d.holdUntil=Math.max(d.holdUntil,now+holdMs);
+          }
+        });
+      },
+
+      sensePosition(pos,holdMs=1400){
+        if(!pos) return;
+        const now=performance.now();
+        autoDoors.forEach(d=>{
+          const dx=Math.abs(pos.x-d.x);
+          const dz=Math.abs(pos.z-d.z);
+          if(dx<(d.width/2+1.20) && dz<2.55){
+            d.isOpen=true;
+            d.holdUntil=Math.max(d.holdUntil,now+holdMs);
+          }
+        });
+      },
+
+      openAll(holdMs=1800){
+        const until=performance.now()+holdMs;
+        autoDoors.forEach(d=>{d.isOpen=true;d.holdUntil=Math.max(d.holdUntil,until);});
       }
     };
 
     function ui(){
-      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.40';
+      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.41';
       const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · automatische Glasschiebetüren mit Annäherungssensor · Pathfinding V2';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.40 · AUTO DOORS V2';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.41 · AUTO DOORS V3';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
-    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.40 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
+    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.41 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
     return true;
   }
 
