@@ -356,6 +356,8 @@
       const sign=new BABYLON.TransformNode('v17JamesNexusSign',scene);
       sign.parent=root;
       sign.position.set(jamesRoom.cx,1.94,BACK+.34);
+      // Face the 3D wordmark toward the office/camera instead of showing its mirrored back side.
+      sign.rotation.y=Math.PI;
 
       const signBack=pbr('v17JamesSignBackM','#07121c',.22,.40);
       const neon=std('v17JamesSignNeonM','#08333b','#00eaff',1);
@@ -604,13 +606,13 @@
     // Door animation is driven by app.js in the same render loop that moves James.
     // This avoids a separate animation observer getting out of sync with pathfinding.
     function ui(){
-      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.52';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · 3D NEXUS Schild wieder am bewiesen sichtbaren Aufbaupunkt';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.52 · EARLY 3D SIGN';
+      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.53';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · 3D NEXUS Schild korrekt zur Büroseite ausgerichtet';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.53 · NEXUS SIGN FIXED';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
-    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.52 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
+    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.53 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
     return true;
   }
 
