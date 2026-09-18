@@ -208,6 +208,146 @@
     box('v17TowerAccentFrontA',.06,5.35,.075,-6.10,-3.12,6.49,towerAccent,root);
     box('v17TowerAccentFrontB',.06,5.35,.075,6.10,-3.12,6.49,towerAccent,root);
 
+    // High-altitude city far below the office.
+    // Kept deliberately low-poly so the iPhone can rotate the camera smoothly.
+    try{
+      const city=new BABYLON.TransformNode('v17CityRoot',scene);
+      city.parent=root;
+
+      const cityGroundY=-22.0;
+      const cityGround=pbr('v17CityGroundM','#151c22',.80,.04);
+      const cityRoad=pbr('v17CityRoadM','#252d33',.74,.05);
+      const cityRoof=pbr('v17CityRoofM','#34414b',.48,.28);
+      const cityGlassA=pbr('v17CityGlassAM','#1c3443',.26,.22);
+      const cityGlassB=pbr('v17CityGlassBM','#243e4d',.30,.18);
+      const cityGlassC=pbr('v17CityGlassCM','#2c4653',.34,.14);
+      const cityLitWarm=std('v17CityLitWarmM','#4d402f','#e7bb77',1);
+      const cityLitCool=std('v17CityLitCoolM','#18394a','#60b9d8',1);
+      const cityBeacon=std('v17CityBeaconM','#3b1010','#ff6b63',1);
+
+      // Large city slab, intentionally much lower than the office.
+      box('v17CityGround',148,.38,148,0,cityGroundY-.22,0,cityGround,city);
+
+      // Simple road grid seen from far above.
+      const roadCoords=[-54,-36,-18,18,36,54];
+      roadCoords.forEach((p,i)=>{
+        box('v17CityRoadX'+i,146,.05,2.4,0,cityGroundY+.02,p,cityRoad,city);
+        box('v17CityRoadZ'+i,2.4,.05,146,p,cityGroundY+.025,0,cityRoad,city);
+      });
+
+      // A wider cross-axis boulevard around our tower.
+      box('v17CityBoulevardX',146,.06,4.2,0,cityGroundY+.04,0,cityRoad,city);
+      box('v17CityBoulevardZ',4.2,.06,146,0,cityGroundY+.045,0,cityRoad,city);
+
+      // Extend the host tower down toward the city without adding hundreds of façade meshes.
+      box('v17TowerLowerCore',18.55,15.7,12.05,0,-13.85,.05,towerCore,city);
+      for(let r=0;r<9;r++){
+        const y=-7.1-r*1.62;
+        box('v17TowerLowerBandF'+r,18.72,.075,.08,0,y,6.10,towerFrame,city);
+        box('v17TowerLowerBandR'+r,.08,.075,11.90,9.31,y,.05,towerFrame,city);
+        box('v17TowerLowerBandL'+r,.08,.075,11.90,-9.31,y,.05,towerFrame,city);
+      }
+      box('v17TowerLowerAccentF1',.07,14.9,.09,-5.80,-13.85,6.16,towerAccent,city);
+      box('v17TowerLowerAccentF2',.07,14.9,.09,5.80,-13.85,6.16,towerAccent,city);
+
+      // Deterministic pseudo-random generator so the city remains stable between loads.
+      let citySeed=157031;
+      const rnd=()=>{
+        citySeed=(citySeed*1664525+1013904223)>>>0;
+        return citySeed/4294967296;
+      };
+
+      const buildingMats=[cityGlassA,cityGlassB,cityGlassC];
+      let bi=0;
+
+      // City blocks in a broad square around the central tower.
+      for(let gx=-3;gx<=3;gx++){
+        for(let gz=-3;gz<=3;gz++){
+          // Keep a wide empty plaza around the NEXUS skyscraper.
+          if(Math.abs(gx)<=1 && Math.abs(gz)<=1) continue;
+
+          const cellX=gx*17.5;
+          const cellZ=gz*17.5;
+
+          // 1–2 towers per city block, with taller landmarks mixed in.
+          const count=(rnd()>.50)?2:1;
+          for(let k=0;k<count;k++){
+            const x=cellX+(rnd()-.5)*8.5;
+            const z=cellZ+(rnd()-.5)*8.5;
+            const landmark=rnd()>.88;
+            const h=landmark?(13+rnd()*12):(4.5+rnd()*10.5);
+            const w=3.0+rnd()*5.0;
+            const d=3.0+rnd()*5.0;
+            const y=cityGroundY+h/2;
+
+            const mat=buildingMats[Math.floor(rnd()*buildingMats.length)];
+            box('v17CityBuilding'+bi,w,h,d,x,y,z,mat,city);
+
+            // Roof cap / mechanical penthouse gives silhouettes more detail.
+            box('v17CityRoof'+bi,w*.72,.22,d*.72,x,cityGroundY+h+.12,z,cityRoof,city);
+
+            // One glowing façade strip per building is enough at this distance.
+            const lit=(rnd()>.58)?cityLitWarm:cityLitCool;
+            if(rnd()>.28){
+              box(
+                'v17CityLightStrip'+bi,
+                Math.max(.16,w*.06),
+                Math.max(.9,h*.68),
+                .035,
+                x+w*.32,
+                y,
+                z+d/2+.03,
+                lit,
+                city
+              );
+            }
+
+            // Occasional aviation beacon on taller towers.
+            if(h>14 && rnd()>.45){
+              const b=box('v17CityBeacon'+bi,.16,.16,.16,x,cityGroundY+h+.42,z,cityBeacon,city);
+              b.isPickable=false;
+            }
+            bi++;
+          }
+        }
+      }
+
+      // A few distant signature towers make the skyline interesting at every camera angle.
+      const landmarks=[
+        [-48,-10,7.5,20], [45,13,8.5,24], [-18,50,6.8,19], [23,-51,7.8,22],
+        [-55,43,6.5,17], [54,-42,7.2,21]
+      ];
+      landmarks.forEach((v,i)=>{
+        const [x,z,w,h]=v;
+        box('v17CityLandmark'+i,w,h,w*.72,x,cityGroundY+h/2,z,i%2?cityGlassA:cityGlassB,city);
+        box('v17CityLandmarkRoof'+i,w*.62,.28,w*.42,x,cityGroundY+h+.15,z,cityRoof,city);
+        box('v17CityLandmarkGlow'+i,.18,h*.72,.05,x-w*.28,cityGroundY+h*.52,z+w*.36+.03,i%2?cityLitCool:cityLitWarm,city);
+      });
+
+      // Subtle atmospheric plane softens the city and exaggerates the height.
+      const hazeMat=new BABYLON.StandardMaterial('v17CityHazeM',scene);
+      hazeMat.diffuseColor=C('#8fb5ca');
+      hazeMat.emissiveColor=C('#58798c');
+      hazeMat.alpha=.085;
+      hazeMat.disableLighting=true;
+      hazeMat.backFaceCulling=false;
+      const haze=BABYLON.MeshBuilder.CreatePlane(
+        'v17CityHaze',
+        {width:155,height:155,sideOrientation:BABYLON.Mesh.DOUBLESIDE},
+        scene
+      );
+      haze.parent=city;
+      haze.rotation.x=Math.PI/2;
+      haze.position.set(0,cityGroundY+8.0,0);
+      haze.material=hazeMat;
+      haze.isPickable=false;
+
+      window.NEXUS_CITY_READY=true;
+    }catch(err){
+      window.NEXUS_CITY_READY=false;
+      console.error('City skyline failed safely:',err);
+    }
+
     const winMat=std('v17Win','#a8d5ef',null,.26);
     for(let i=0;i<6;i++){
       const x=-8.8+i*3.15;
@@ -741,13 +881,13 @@
     // Door animation is driven by app.js in the same render loop that moves James.
     // This avoids a separate animation observer getting out of sync with pathfinding.
     function ui(){
-      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.56';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · Premium-Tageshimmel · atmosphärischer Horizont · zarte Wolken';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.56 · PREMIUM DAYLIGHT SKY';
+      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.57';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · High-Rise City weit unter dem Office · 360° Skyline · atmosphärischer Dunst';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.57 · HIGH-RISE CITY';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
-    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.56 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
+    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.57 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
     return true;
   }
 
