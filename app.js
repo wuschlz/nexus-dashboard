@@ -147,14 +147,14 @@
     const mid=map.objects.filter(o=>(o.layer||0)===1);
     const high=map.objects.filter(o=>(o.layer||0)>=2);
 
-    low.forEach(o=>sprites.drawObject(ctx,o,map.tile));
-    mid.forEach(o=>sprites.drawObject(ctx,o,map.tile));
+    low.forEach(o=>sprites.drawObject(ctx,o,map.tile,elapsed));
+    mid.forEach(o=>sprites.drawObject(ctx,o,map.tile,elapsed));
 
     [...team]
       .sort((a,b)=>a.y-b.y)
       .forEach(actor=>sprites.drawCharacter(ctx,actor,map.tile,false,elapsed));
 
-    high.forEach(o=>sprites.drawObject(ctx,o,map.tile));
+    high.forEach(o=>sprites.drawObject(ctx,o,map.tile,elapsed));
   }
 
   function loop(now){

@@ -29,7 +29,7 @@
     {type:'sofa',x:1,y:24.2,w:4,h:2.5,layer:1,side:'left'},
     {type:'sofa',x:19,y:24.2,w:4,h:2.5,layer:1,side:'right'},
     {type:'entry',x:9.2,y:29,w:5.6,h:3,layer:1},
-    {type:'server',x:18.6,y:14.2,w:1.8,h:3.5,layer:1},
+    {type:'server',x:18.25,y:13.9,w:2.2,h:4.5,layer:1},
     {type:'plant',x:2.3,y:9.2,w:1,h:1,layer:2},
     {type:'plant',x:6.1,y:9.0,w:1,h:1,layer:2},
     {type:'plant',x:11.8,y:8.9,w:1,h:1,layer:2},
@@ -52,7 +52,7 @@
   ];
 
   window.NEXUS_MAP={
-    version:'2.4',tile:T,cols:24,rows:32,width:24*T,height:32*T,
+    version:'2.6',tile:T,cols:24,rows:32,width:24*T,height:32*T,
     floor:{base:'#ebcb8b',alt:'#f2d79c',line:'#d7b675',highlight:'#fae9c3'},
     team,objects,collisions,meetingSpot:[12,27],doorSpot:[12,8]
   };

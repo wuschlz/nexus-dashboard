@@ -1,16 +1,17 @@
-# NEXUS Retro Office 2.5
+# NEXUS Retro Office 2.6
 
-Fullscreen-Framing für die Scene-only-Version.
+Detail-Pass auf Basis der Scene-only-Version.
 
 ## Änderungen
 
-- Office nutzt auf iPhone/Safari jetzt fast die komplette sichtbare Höhe
-- Szene bleibt proportional und wird nicht verzerrt
-- auf sehr schmalen Hochformat-Displays werden die äußersten Seiten leicht beschnitten statt große schwarze Balken zu zeigen
-- Dashboard-Hülle bleibt vollständig entfernt
+- Framing von 2.5 zurückgenommen
+- Darstellung wieder wie 2.4 mit schwarzen Bereichen oben/unten
+- Server-Rack größer und deutlich detaillierter gestaltet
+- sechs einzelne Rack-Units mit Lüftung, Modulen, Rails und Statusanzeigen
+- animierte cyan-, blau- und grün blinkende LEDs mit unterschiedlichen Rhythmen
+- übrige Szene strukturell unverändert
 - alle 8 Charaktere, Pathfinding und Tap-Steuerung bleiben erhalten
-- Map und Sprite-Art selbst bleiben gegenüber 2.4 unverändert
 
 ## Version
 
-Office 2.5 · Cache 250
+Office 2.6 · Cache 260

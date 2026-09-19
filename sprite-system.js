@@ -121,8 +121,99 @@
     const X=o.x*T,Y=o.y*T,W=o.w*T,H=o.h*T;rr(ctx,X,Y,W,H,6,'#1d2634','#101720',3);rr(ctx,X+16,Y+18,W-32,H-36,4,'#d3d0c8','#6e6d6a',2);rr(ctx,X+W/2-46,Y+H-28,92,20,5,'#d84d3a','#8d3226',2);
   }
 
-  function server(ctx,o,T){
-    const X=o.x*T,Y=o.y*T,W=o.w*T,H=o.h*T;shadow(ctx,X,Y,W,H,14,.16);rr(ctx,X,Y,W,H,5,'#132538','#2b455d',3);for(let i=0;i<6;i++){line(ctx,X+8,Y+12+i*15,X+W-8,Y+12+i*15,i%2?P.cyan:'#5e8eff',2);ctx.fillStyle='#50d98c';ctx.fillRect(X+W-12,Y+10+i*15,3,3);}
+  function server(ctx,o,T,elapsed=0){
+    const X=o.x*T,Y=o.y*T,W=o.w*T,H=o.h*T;
+    const pulseA=Math.sin(elapsed*7.0)>0;
+    const pulseB=Math.sin(elapsed*5.2+1.3)>0;
+    const pulseC=Math.sin(elapsed*8.7+2.1)>0;
+
+    shadow(ctx,X,Y,W,H,18,.22);
+
+    // heavy outer rack + inset chassis
+    rr(ctx,X,Y,W,H,6,'#0b1826','#2f4d68',3);
+    rr(ctx,X+4,Y+4,W-8,H-8,4,'#13283a','#3a5a77',2);
+    rr(ctx,X+8,Y+8,W-16,H-16,3,'#08131d','#1b3145',1);
+
+    // top status panel
+    rr(ctx,X+10,Y+10,W-20,18,3,'#10283b','#24435d',1);
+    rr(ctx,X+14,Y+14,W-28,10,2,'#07131d');
+
+    ctx.save();
+    ctx.shadowBlur=pulseA?10:0;
+    ctx.shadowColor=pulseA?'#35d6e9':'transparent';
+    rr(ctx,X+18,Y+17,22,4,2,pulseA?'#35d6e9':'rgba(53,214,233,.20)');
+    ctx.restore();
+
+    ctx.save();
+    ctx.shadowBlur=pulseB?9:0;
+    ctx.shadowColor=pulseB?'#5e8eff':'transparent';
+    rr(ctx,X+46,Y+17,Math.max(10,W-64),4,2,pulseB?'#5e8eff':'rgba(94,142,255,.18)');
+    ctx.restore();
+
+    // six individual rack units
+    const unitCount=6;
+    const gap=4;
+    const unitsTop=34;
+    const unitsBottom=22;
+    const unitH=(H-unitsTop-unitsBottom-gap*(unitCount-1))/unitCount;
+
+    for(let i=0;i<unitCount;i++){
+      const uy=Y+unitsTop+i*(unitH+gap);
+      rr(ctx,X+10,uy,W-20,unitH,3,'#102030','#243b50',1);
+
+      // metallic highlight
+      ctx.fillStyle='rgba(255,255,255,.055)';
+      ctx.fillRect(X+13,uy+2,W-26,2);
+
+      // vents
+      for(let v=0;v<4;v++){
+        ctx.fillStyle=v%2?'#183047':'#1e394f';
+        ctx.fillRect(X+15,uy+5+v*4,Math.max(12,W*.27),2);
+      }
+
+      // drive / compute module
+      const moduleX=X+W*.44;
+      const moduleW=Math.max(15,W*.28);
+      rr(ctx,moduleX,uy+4,moduleW,Math.max(8,unitH-8),2,'#091722','#1b3144',1);
+      ctx.fillStyle='#29445a';
+      ctx.fillRect(moduleX+4,uy+7,Math.max(6,moduleW-8),2);
+      ctx.fillRect(moduleX+4,uy+12,Math.max(4,moduleW-13),2);
+
+      // asynchronous status LEDs
+      const led1=(i%2===0)?pulseA:pulseB;
+      const led2=(i%3===0)?pulseC:pulseA;
+      const ledY=uy+Math.max(5,unitH/2-2);
+
+      ctx.save();
+      ctx.shadowBlur=led1?8:0;
+      ctx.shadowColor=led1?'#35d6e9':'transparent';
+      rr(ctx,X+W-26,ledY,7,4,2,led1?'#35d6e9':'rgba(53,214,233,.18)');
+      ctx.restore();
+
+      ctx.save();
+      ctx.shadowBlur=led2?8:0;
+      ctx.shadowColor=led2?'#4de28b':'transparent';
+      rr(ctx,X+W-16,ledY,7,4,2,led2?'#4de28b':'rgba(77,226,139,.16)');
+      ctx.restore();
+    }
+
+    // structural rails + screws
+    ctx.fillStyle='#1d3145';
+    ctx.fillRect(X+6,Y+12,2,H-24);
+    ctx.fillRect(X+W-8,Y+12,2,H-24);
+    for(const sy of [Y+18,Y+H-18]){
+      ctx.fillStyle='#8393a1';
+      ctx.fillRect(X+6,sy,2,2);
+      ctx.fillRect(X+W-8,sy,2,2);
+    }
+
+    // lower power / network strip
+    rr(ctx,X+10,Y+H-18,W-20,10,3,'#101f2d','#22394e',1);
+    ctx.save();
+    ctx.shadowBlur=pulseC?9:0;
+    ctx.shadowColor=pulseC?'#35d6e9':'transparent';
+    rr(ctx,X+W/2-18,Y+H-14,36,3,2,pulseC?'#35d6e9':'rgba(53,214,233,.18)');
+    ctx.restore();
   }
 
   function plantMini(ctx,x,y,s=1){rr(ctx,x+4*s,y+16*s,20*s,16*s,5*s,P.pot,'#603a2e',1);rr(ctx,x+7*s,y+17*s,14*s,5*s,3*s,P.potHi);rr(ctx,x+2*s,y+6*s,15*s,11*s,7*s,P.plant2);rr(ctx,x+12*s,y+1*s,14*s,13*s,7*s,P.plantHi);rr(ctx,x+18*s,y+8*s,11*s,10*s,6*s,P.plant);}
@@ -152,5 +243,5 @@
   }
 
   const drawers={frame,brandWall,glassOffice,doorBank,poster,counterDesk,stairs,techPod,reception,logo,sofa,entry,server,plant};
-  window.NEXUS_SPRITES={drawFloor,drawObject(ctx,o,T){const fn=drawers[o.type];if(fn)fn(ctx,o,T);},drawCharacter:character};
+  window.NEXUS_SPRITES={drawFloor,drawObject(ctx,o,T,elapsed=0){const fn=drawers[o.type];if(fn)fn(ctx,o,T,elapsed);},drawCharacter:character};
 })();
