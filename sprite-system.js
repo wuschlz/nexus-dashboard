@@ -114,7 +114,148 @@
   }
 
   function sofa(ctx,o,T){
-    const X=o.x*T,Y=o.y*T,W=o.w*T,H=o.h*T;shadow(ctx,X,Y+4,W,H-4,16,.16);rr(ctx,X,Y+5,W,H-5,10,P.sofa,'#182431',3);rr(ctx,X+6,Y+10,W-12,30,8,P.sofa2,'#26394f',2);rr(ctx,X+6,Y+43,W-12,H-51,6,'#304a64','#1b2938',2);ctx.fillStyle=P.sofaHi;ctx.fillRect(X+10,Y+15,W-20,3);
+    const X=o.x*T,Y=o.y*T,W=o.w*T,H=o.h*T;
+    const left=o.side!=='right';
+
+    // broad contact shadow + softer ambient falloff
+    shadow(ctx,X+1,Y+7,W-2,H-8,22,.24);
+    ctx.save();
+    ctx.fillStyle='rgba(29,24,28,.11)';
+    ctx.beginPath();
+    ctx.ellipse(X+W/2,Y+H-3,W*.43,6,0,0,Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+
+    // structural shell
+    rr(ctx,X,Y+8,W,H-10,13,'#172431','#101821',3);
+    rr(ctx,X+4,Y+10,W-8,H-16,11,'#223448','#152431',2);
+
+    // lower plinth / recessed base
+    rr(ctx,X+8,Y+48,W-16,H-55,7,'#182734','#111b24',2);
+    rr(ctx,X+12,Y+51,W-24,H-61,5,'#263b4f','#16222e',1);
+    ctx.fillStyle='rgba(255,255,255,.06)';
+    ctx.fillRect(X+15,Y+53,W-30,2);
+
+    // back frame behind cushions
+    rr(ctx,X+6,Y+9,W-12,30,10,'#263a50','#172533',2);
+    ctx.fillStyle='rgba(255,255,255,.055)';
+    ctx.fillRect(X+13,Y+13,W-26,3);
+
+    // pronounced armrests
+    rr(ctx,X+1,Y+20,18,H-30,8,'#1f3042','#121d28',2);
+    rr(ctx,X+4,Y+23,12,H-36,6,'#30485f','#1a2836',1);
+    rr(ctx,X+W-19,Y+20,18,H-30,8,'#1f3042','#121d28',2);
+    rr(ctx,X+W-16,Y+23,12,H-36,6,'#30485f','#1a2836',1);
+
+    // armrest top pads
+    rr(ctx,X+3,Y+18,15,11,6,'#415d77','#223548',1.5);
+    rr(ctx,X+W-18,Y+18,15,11,6,'#415d77','#223548',1.5);
+    ctx.fillStyle='rgba(255,255,255,.11)';
+    ctx.fillRect(X+6,Y+20,9,2);
+    ctx.fillRect(X+W-15,Y+20,9,2);
+
+    // two large back cushions
+    const backGap=5;
+    const backW=(W-30-backGap)/2;
+    const backY=Y+13;
+    const backH=27;
+
+    rr(ctx,X+12,backY,backW,backH,9,'#456580','#213446',2);
+    rr(ctx,X+13+backW+backGap,backY,backW,backH,9,'#456580','#213446',2);
+
+    // back-cushion gradients / raised centers
+    rr(ctx,X+16,backY+4,backW-8,backH-8,7,'#4f718d');
+    rr(ctx,X+17+backW+backGap,backY+4,backW-8,backH-8,7,'#4f718d');
+    ctx.fillStyle='rgba(255,255,255,.11)';
+    ctx.fillRect(X+19,backY+5,backW-14,3);
+    ctx.fillRect(X+20+backW+backGap,backY+5,backW-14,3);
+
+    // cushion piping
+    ctx.strokeStyle='rgba(175,205,225,.35)';
+    ctx.lineWidth=1;
+    ctx.strokeRect(X+16,backY+4,backW-8,backH-8);
+    ctx.strokeRect(X+17+backW+backGap,backY+4,backW-8,backH-8);
+
+    // subtle tufting buttons
+    for(const cx of [X+12+backW*.5, X+13+backW+backGap+backW*.5]){
+      for(const cy of [backY+10,backY+19]){
+        ctx.save();
+        ctx.shadowColor='rgba(9,17,24,.45)';
+        ctx.shadowBlur=2;
+        ctx.fillStyle='#2d4358';
+        ctx.beginPath();
+        ctx.arc(cx,cy,1.8,0,Math.PI*2);
+        ctx.fill();
+        ctx.restore();
+        ctx.fillStyle='rgba(255,255,255,.12)';
+        ctx.fillRect(cx-1,cy-1,1,1);
+      }
+    }
+
+    // seat deck
+    rr(ctx,X+10,Y+38,W-20,19,8,'#263b50','#162431',2);
+
+    // two separate seat cushions
+    const seatGap=5;
+    const seatW=(W-31-seatGap)/2;
+    rr(ctx,X+13,Y+35,seatW,19,7,'#3b5872','#213344',2);
+    rr(ctx,X+13+seatW+seatGap,Y+35,seatW,19,7,'#3b5872','#213344',2);
+
+    rr(ctx,X+16,Y+38,seatW-6,12,6,'#46647f');
+    rr(ctx,X+16+seatW+seatGap,Y+38,seatW-6,12,6,'#46647f');
+
+    // seat highlights and seams
+    ctx.fillStyle='rgba(255,255,255,.10)';
+    ctx.fillRect(X+19,Y+39,seatW-12,2);
+    ctx.fillRect(X+19+seatW+seatGap,Y+39,seatW-12,2);
+    ctx.fillStyle='rgba(13,23,31,.28)';
+    ctx.fillRect(X+W/2-1,Y+38,2,14);
+
+    // front cushion edge / depth
+    rr(ctx,X+12,Y+52,W-24,8,4,'#2a4258','#182736',1);
+    ctx.fillStyle='rgba(255,255,255,.065)';
+    ctx.fillRect(X+17,Y+53,W-34,1);
+
+    // decorative pillows: one warm accent + one matching blue
+    const p1x=left?X+17:X+W-35;
+    const p2x=left?X+W-34:X+16;
+    rr(ctx,p1x,Y+26,18,14,5,'#b46b4c','#6f4437',1);
+    rr(ctx,p1x+3,Y+28,12,4,3,'#d78a65');
+    rr(ctx,p2x,Y+27,17,13,5,'#5d7892','#2b4358',1);
+    rr(ctx,p2x+3,Y+29,11,3,2,'#8199ad');
+
+    // folded throw blanket draped over the outer arm
+    const bx=left?X+4:X+W-24;
+    rr(ctx,bx,Y+33,20,22,5,'#8a654e','#5b4638',1);
+    ctx.fillStyle='#b38a6d';
+    ctx.fillRect(bx+4,Y+36,12,3);
+    ctx.fillStyle='#6f5545';
+    ctx.fillRect(bx+4,Y+43,12,2);
+    ctx.fillRect(bx+4,Y+49,12,2);
+    for(let i=0;i<4;i++){
+      ctx.fillStyle=i%2?'#a67d62':'#8d6b56';
+      ctx.fillRect(bx+3+i*4,Y+53,2,5);
+    }
+
+    // small side seam / upholstery stitches
+    ctx.strokeStyle='rgba(194,214,230,.20)';
+    ctx.lineWidth=1;
+    ctx.setLineDash([2,2]);
+    line(ctx,X+11,Y+46,X+11,Y+55,'rgba(194,214,230,.20)',1);
+    line(ctx,X+W-11,Y+46,X+W-11,Y+55,'rgba(194,214,230,.20)',1);
+    ctx.setLineDash([]);
+
+    // feet: dark metal with tiny specular edge
+    const footY=Y+H-9;
+    for(const fx of [X+12,X+W-20]){
+      rr(ctx,fx,footY,8,5,2,'#10171e','#080d12',1);
+      ctx.fillStyle='rgba(255,255,255,.12)';
+      ctx.fillRect(fx+2,footY+1,4,1);
+    }
+
+    // tiny floor reflection under front edge
+    ctx.fillStyle='rgba(255,255,255,.04)';
+    ctx.fillRect(X+16,Y+H-2,W-32,1);
   }
 
   function entry(ctx,o,T){

@@ -1,17 +1,19 @@
-# NEXUS Retro Office 2.6
+# NEXUS Retro Office 2.7
 
-Detail-Pass auf Basis der Scene-only-Version.
+Detail-Pass für die Scene-only-Version.
 
 ## Änderungen
 
-- Framing von 2.5 zurückgenommen
-- Darstellung wieder wie 2.4 mit schwarzen Bereichen oben/unten
-- Server-Rack größer und deutlich detaillierter gestaltet
-- sechs einzelne Rack-Units mit Lüftung, Modulen, Rails und Statusanzeigen
-- animierte cyan-, blau- und grün blinkende LEDs mit unterschiedlichen Rhythmen
+- Framing und Server aus 2.6 unverändert
+- Sofas links und rechts komplett neu gezeichnet
+- separate Rücken- und Sitzkissen
+- Armlehnen mit Polsterauflagen
+- Paspeln, Nähte, Mitteltrennung und Tufting-Details
+- dekorative Kissen mit Akzentfarben
+- gefaltete Decke über einer Armlehne
+- mehrstufiger Sockel, Metallfüße, Tiefenschatten und Bodenreflex
 - übrige Szene strukturell unverändert
-- alle 8 Charaktere, Pathfinding und Tap-Steuerung bleiben erhalten
 
 ## Version
 
-Office 2.6 · Cache 260
+Office 2.7 · Cache 270
