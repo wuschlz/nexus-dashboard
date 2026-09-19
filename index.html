@@ -5,23 +5,33 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0a0e17">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <title>NEXUS Retro Office 2.1</title>
-  <link rel="stylesheet" href="./styles.css?v=210">
+  <title>NEXUS Retro Office 2.2</title>
+  <link rel="stylesheet" href="./styles.css?v=220">
 </head>
 <body>
   <header class="topbar">
-    <div class="brand"><span class="brand-mark">N</span><div><strong>NEXUS OFFICE</strong><small>RETRO OPERATIONS</small></div></div>
+    <div class="brand">
+      <span class="brand-mark">N</span>
+      <div><strong>NEXUS OFFICE</strong><small>RETRO OPERATIONS</small></div>
+    </div>
     <div class="status"><span></span> READ-ONLY PREVIEW</div>
   </header>
 
   <nav class="tabs" aria-label="Bereiche">
-    <button class="active">Office</button><button>Cases</button><button>Tasks</button><button>Meetings</button><button>System</button>
+    <button class="active">Office</button>
+    <button>Cases</button>
+    <button>Tasks</button>
+    <button>Meetings</button>
+    <button>System</button>
   </nav>
 
   <main>
     <section class="stage">
       <div class="stage-head">
-        <div><strong>Office 2.1</strong><span> · HD Pixel-Art · 8/8 Charakter-Slots</span></div>
+        <div>
+          <strong>Office 2.2</strong>
+          <span> · Modular Sprite Office · 8/8 Charaktere</span>
+        </div>
         <div class="actions">
           <button id="idleBtn">Idle</button>
           <button id="waveBtn">Wave</button>
@@ -31,9 +41,8 @@
       </div>
 
       <div class="game-shell">
-        <canvas id="game" width="768" height="512" aria-label="NEXUS Retro Office"></canvas>
-        <div class="scanline"></div>
-        <div class="game-badge"><i></i> NEXUS RETRO · 2.1</div>
+        <canvas id="game" width="960" height="640" aria-label="NEXUS Retro Office"></canvas>
+        <div class="game-badge"><i></i> NEXUS RETRO · 2.2</div>
       </div>
 
       <div class="hint">Figur auswählen · dann ins Büro tippen, um sie zu bewegen</div>
@@ -42,20 +51,29 @@
     <aside class="team-panel">
       <div class="eyebrow">TEAM</div>
       <div id="teamList" class="team-list"></div>
+
       <div class="selected-card">
         <div class="eyebrow">AUSGEWÄHLT</div>
         <strong id="selectedName">James</strong>
         <span id="selectedRole">Leitung</span>
-        <div class="selected-state"><b id="selectedState">Idle</b><small id="selectedPos">—</small></div>
+        <div class="selected-state">
+          <b id="selectedState">Idle</b>
+          <small id="selectedPos">—</small>
+        </div>
       </div>
     </aside>
   </main>
 
   <section class="activity">
-    <div class="activity-head"><strong>Live Activity</strong><span>Preview · Backend bleibt unangetastet</span></div>
+    <div class="activity-head">
+      <strong>Live Activity</strong>
+      <span>Preview · Backend bleibt unangetastet</span>
+    </div>
     <div id="feed"></div>
   </section>
 
-  <script src="./app.js?v=210"></script>
+  <script src="./map-data.js?v=220"></script>
+  <script src="./sprite-system.js?v=220"></script>
+  <script src="./app.js?v=220"></script>
 </body>
 </html>
