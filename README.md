@@ -1,36 +1,38 @@
-# NEXUS Retro Office 2.16
+# NEXUS Retro Office 2.17
 
-Meeting Room Geometry Fix: Whiteboard wirklich an der Wand.
+Room Portal Rebuild: Archiv links, Meeting Mitte, Server rechts.
 
 ## Änderungen
 
-- Whiteboard aus der rechten Boden-/Laufzone vollständig entfernt
-- Whiteboard sitzt jetzt oben an der Präsentationswand direkt neben dem NEXUS-Screen
-- Screen dafür etwas schmaler proportioniert; beide bilden jetzt eine gemeinsame Medienwand
-- Whiteboard-Kollision vollständig entfernt, weil es ein Wandobjekt ist und keine Bodenfläche belegt
-- oberes rechtes Pflanzenobjekt entfernt, damit die Medienwand ruhig bleibt
-- Sitzordnung auf 4 + 4 Executive-Stühle an den beiden Längsseiten geändert
-- beide Tischenden bleiben offen; keine Kopfstühle mehr
-- dadurch kann kein Stuhl mehr optisch oder geometrisch mit dem Whiteboard kollidieren
-- Meetingraum-Zoom, Tischdetails, Türanimation und Scene-Wechsel bleiben unverändert
+- die beiden Glasbüros sind aus dem aktiven Hauptoffice entfernt
+- oben ist jetzt eine durchgehende geschlossene Rückwand
+- drei gleichartige animierte NEXUS-Türen sitzen direkt in dieser Wand
+- links: ARCHIV / WISSEN
+- mitte: MEETING / ROOM
+- rechts: SERVER / TECHNIK
+- alle drei Türen nutzen denselben Öffnungs-, Durchgangs-, Fade- und Schließmechanismus
+- Archiv und Server sind echte eigene Scenes mit Rückweg ins Hauptoffice
+- der einzelne Server-Rack im Hauptoffice wurde entfernt und in den Serverraum verlagert
+- bestehende Charaktere, Hauptoffice, Meetingraum und Bewegungslogik bleiben erhalten
 
-## Whiteboard
+## Archiv
 
-- weiterhin ultra-detailliertes Smart-Glass-Board
-- jetzt kompakt und horizontal passend zur Wandarchitektur
-- klare Wand-Rückplatte und flacher Wand-Schatten
-- vier Edelstahl-Abstandshalter
-- NEXUS-Smart-Header mit LEDs und Sensor
-- OPEN / DECIDE / NEXT
-- sechs Mini-Stickies mit Faltkante
-- Entscheidungs-Pfeile
-- KPI-Chart
-- Relationship-Map
-- Checkliste
-- magnetische Markerleiste mit vier Markern
-- Touch-/NFC-Puck
-- deutliche Glasreflexion und Metall-Unterkante
+- warme, geschlossene Archiv-Scene
+- hohe Regalwände mit Ordnern, Boxen und Dokumenten
+- eigener zentraler Arbeitsbereich
+- detaillierter Schreibtisch für Gisela
+- Beschilderung GISELA / WISSEN & ARCHIV
+- Monitor, Archivordner, Ablagen und Arbeitsstuhl
+
+## Server
+
+- dunkle Technik-Scene mit Raised-Floor-Paneelen und cyanfarbenen Service-Trassen
+- vier große animierte Server-Racks
+- zentraler Anti-Statik-Arbeitsbereich
+- detaillierter Schreibtisch für Walter
+- Beschilderung WALTER / TECHNIK
+- Dual-Monitor-Setup und Diagnosekonsole
 
 ## Version
 
-Office 2.16 · Cache 360
+Office 2.17 · Cache 370

@@ -30,7 +30,7 @@
   let transition=null;
   let fadeAlpha=0;
 
-  const doors={mainMeetingDoor:0,meetingExitDoor:0};
+  const doors={mainArchiveDoor:0,archiveExitDoor:0,mainMeetingDoor:0,meetingExitDoor:0,mainServerDoor:0,serverExitDoor:0};
 
   function cameraFor(scene){
     return scene.camera||{scale:1,center:[map.cols/2,map.rows/2]};
@@ -355,7 +355,9 @@
       transition,
       occupants:{
         main:team.filter(a=>a.scene==='main').length,
-        meeting:team.filter(a=>a.scene==='meeting').length
+        archive:team.filter(a=>a.scene==='archive').length,
+        meeting:team.filter(a=>a.scene==='meeting').length,
+        server:team.filter(a=>a.scene==='server').length
       }
     };
 

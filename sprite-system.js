@@ -246,6 +246,19 @@
     }
   }
 
+  function doorWall(ctx,o,T){
+    const X=o.x*T,Y=o.y*T,W=o.w*T,H=o.h*T;
+    const g=ctx.createLinearGradient(X,Y,X,Y+H);
+    g.addColorStop(0,'#1d2a35');g.addColorStop(.55,'#253744');g.addColorStop(1,'#1a2731');
+    rr(ctx,X,Y,W,H,6,g,'#0f181f',3);
+    for(let i=1;i<12;i++) line(ctx,X+i*W/12,Y+9,X+i*W/12,Y+H-12,'rgba(145,169,183,.13)',1);
+    ctx.fillStyle='#75513a';ctx.fillRect(X+7,Y+7,W-14,6);
+    ctx.fillStyle='rgba(255,255,255,.12)';ctx.fillRect(X+10,Y+8,W-20,1);
+    ctx.fillStyle='#52616a';ctx.fillRect(X+6,Y+H-12,W-12,7);
+    ctx.save();ctx.shadowColor=P.cyan;ctx.shadowBlur=5;ctx.fillStyle='rgba(53,214,233,.42)';
+    ctx.fillRect(X+20,Y+H-19,W-40,2);ctx.restore();
+  }
+
   function embeddedOffice(ctx,o,T){
     const X=o.x*T,Y=o.y*T,W=o.w*T,H=o.h*T;
     const left=o.variant!=='right';
@@ -355,13 +368,14 @@
       line(ctx,X+8+i*(W-16)/5,Y+8,X+8+i*(W-16)/5,Y+H-8,'rgba(151,174,187,.16)',1);
     }
 
+    const labelTop=o.labelTop||'MEETING',labelBottom=o.labelBottom||'ROOM';
     rr(ctx,X+W/2-43,Y+12,86,28,6,'#112b3a','#315b6e',2);
     ctx.save();
     ctx.shadowColor=P.cyan;
     ctx.shadowBlur=7;
-    txt(ctx,'MEETING',X+W/2,Y+22,9,'#d9fbff','center',800);
+    txt(ctx,labelTop,X+W/2,Y+22,9,'#d9fbff','center',800);
     ctx.restore();
-    txt(ctx,'ROOM',X+W/2,Y+32,6,'#86a9b7','center',700);
+    txt(ctx,labelBottom,X+W/2,Y+32,6,'#86a9b7','center',700);
 
     const fw=W*.70;
     const fh=H*.64;
@@ -447,6 +461,83 @@
     for(let x=X+28;x<X+W-20;x+=72){
       rr(ctx,x,Y+H*.20,30,4,2,'rgba(135,148,154,.55)','rgba(230,235,233,.45)',1);
     }
+  }
+
+  function archiveShell(ctx,o,T){
+    const W=o.w*T,H=o.h*T;
+    ctx.fillStyle='#090d11';ctx.fillRect(0,0,W,H);
+    rr(ctx,18,18,W-36,H-36,8,'#cbc4b6','#20282d',3);
+    for(let y=22;y<H-20;y+=80) line(ctx,20,y,W-20,y,'rgba(110,100,88,.18)',1);
+    rr(ctx,2*T,1.9*T,20*T,1.75*T,8,'#17252d','#0d151a',2);
+    txt(ctx,'ARCHIV',12*T,2.45*T,16,'#d9fbff','center',800);
+    txt(ctx,'WISSEN  //  DOKUMENTE',12*T,3.02*T,7,'#9ab1b8','center',700);
+
+    function bank(x){
+      const y=4*T,w=3.7*T,h=19.4*T;
+      shadow(ctx,x,y,w,h,14,.18);rr(ctx,x,y,w,h,6,'#533c30','#241c18',2);
+      for(let r=0;r<8;r++){
+        const yy=y+12+r*(h-24)/8;
+        ctx.fillStyle='#9b7355';ctx.fillRect(x+8,yy+((h-24)/8)-4,w-16,4);
+        for(let c=0;c<5;c++){
+          const bx=x+12+c*(w-28)/5,bw=Math.max(9,(w-42)/5);
+          const colors=['#b98b60','#805d78','#607987','#a66d58','#d0b57d'];
+          rr(ctx,bx,yy+5+(c%2)*3,bw,(h-24)/8-13-(c%2)*3,2,colors[(r+c)%5],'rgba(40,30,25,.4)',1);
+          if((r+c)%3===0){ctx.fillStyle='#ead9ae';ctx.fillRect(bx+2,yy+10+(c%2)*3,Math.max(4,bw-4),2);}
+        }
+      }
+    }
+    bank(2.05*T);bank(18.25*T);
+    rr(ctx,6.2*T,13.7*T,11.6*T,10.0*T,18,'#3b4144','rgba(91,101,101,.42)',2);
+    rr(ctx,2*T,25.2*T,20*T,4.7*T,8,'#1b262d','#10171c',2);
+  }
+
+  function serverShell(ctx,o,T){
+    const W=o.w*T,H=o.h*T;
+    ctx.fillStyle='#060b10';ctx.fillRect(0,0,W,H);
+    rr(ctx,18,18,W-36,H-36,8,'#17242d','#0a1117',3);
+    for(let y=20;y<H-20;y+=64) for(let x=20;x<W-20;x+=64){
+      ctx.fillStyle=((x+y)/64)%2?'#1b2a34':'#182730';ctx.fillRect(x+1,y+1,62,62);
+      ctx.fillStyle='rgba(255,255,255,.04)';ctx.fillRect(x+6,y+6,50,1);
+    }
+    for(const x of [5.8,10.9,13.0,18.1]){
+      ctx.fillStyle='rgba(7,15,21,.72)';ctx.fillRect(x*T,3.8*T,5,21.4*T);
+      ctx.save();ctx.shadowColor=P.cyan;ctx.shadowBlur=6;ctx.fillStyle='rgba(53,214,233,.28)';
+      ctx.fillRect(x*T+1,4.2*T,2,20.6*T);ctx.restore();
+    }
+    rr(ctx,2*T,1.9*T,20*T,1.75*T,8,'#0c1c28','#26485d',2);
+    txt(ctx,'SERVER',12*T,2.45*T,16,'#d9fbff','center',800);
+    txt(ctx,'NEXUS CORE  //  TECHNIK',12*T,3.02*T,7,'#74b8c9','center',700);
+    rr(ctx,6.4*T,15.7*T,11.2*T,8.4*T,18,'#202e37','rgba(77,102,115,.62)',2);
+    rr(ctx,2*T,25.2*T,20*T,4.7*T,8,'#111d25','#0a1217',2);
+  }
+
+  function personalDesk(ctx,o,T){
+    const X=o.x*T,Y=o.y*T,W=o.w*T,H=o.h*T,isServer=o.variant==='server';
+    shadow(ctx,X,Y+8,W,H-8,20,.24);
+    if(isServer){
+      rr(ctx,X,Y+12,W,H-20,10,'#172630','#0b141b',3);
+      rr(ctx,X+4,Y+5,W-8,30,8,'#304552','#15232c',2);
+      monitor(ctx,X+W*.23,Y+35,.95);monitor(ctx,X+W*.57,Y+35,.95);
+      rr(ctx,X+W*.44,Y+48,40,26,5,'#0d202c','#33566a',2);
+      ctx.save();ctx.shadowColor=P.cyan;ctx.shadowBlur=5;ctx.fillStyle=P.cyan;ctx.fillRect(X+W*.46,Y+54,20,2);ctx.restore();
+      rr(ctx,X+W*.34,Y+H-33,W*.32,22,6,'#102733','#315a6d',2);
+      txt(ctx,o.owner||'WALTER',X+W/2,Y+H-24,9,'#d9fbff','center',800);
+      txt(ctx,o.subtitle||'TECHNIK',X+W/2,Y+H-15,5,'#83afbc','center',700);
+    }else{
+      rr(ctx,X,Y+12,W,H-20,10,'#684a38','#30251f',3);
+      rr(ctx,X+4,Y+5,W-8,30,8,'#a77a58','#5c4232',2);
+      monitor(ctx,X+W*.42,Y+34,.92);
+      for(let i=0;i<3;i++){rr(ctx,X+18+i*17,Y+45-i*3,14,30+i*3,2,['#b7885f','#7a5d76','#657b87'][i],'#46382f',1);}
+      rr(ctx,X+W-76,Y+46,50,10,3,'#d9c6a1','#8a7156',1);
+      rr(ctx,X+W*.32,Y+H-33,W*.36,22,6,'#4f3946','#7d5b70',2);
+      txt(ctx,o.owner||'GISELA',X+W/2,Y+H-24,9,'#f4ece5','center',800);
+      txt(ctx,o.subtitle||'WISSEN & ARCHIV',X+W/2,Y+H-15,5,'#d8c7d4','center',700);
+    }
+    const cx=X+W/2,cy=Y+H+8;
+    rr(ctx,cx-22,cy-20,44,18,9,'#31434f','#17232b',2);
+    rr(ctx,cx-17,cy-4,34,14,7,'#455d6b','#1f2d35',2);
+    line(ctx,cx,cy+10,cx,cy+19,'#4e6069',3);
+    line(ctx,cx,cy+19,cx-16,cy+24,'#4e6069',2);line(ctx,cx,cy+19,cx+16,cy+24,'#4e6069',2);
   }
 
   function meetingShell(ctx,o,T){
@@ -2558,6 +2649,6 @@
     return detailedRoleCharacter(ctx,a,T,selected,elapsed);
   }
 
-  const drawers={frame,brandWall,topBackWall,embeddedOffice,wallCore,topTransition,meetingShell,meetingScreen,meetingWhiteboard,meetingTable,meetingDoor,glassOffice,doorBank,poster,counterDesk,stairs,techPod,reception,logo,sofa,entry,server,plant};
+  const drawers={frame,brandWall,topBackWall,doorWall,embeddedOffice,wallCore,topTransition,archiveShell,serverShell,personalDesk,meetingShell,meetingScreen,meetingWhiteboard,meetingTable,meetingDoor,glassOffice,doorBank,poster,counterDesk,stairs,techPod,reception,logo,sofa,entry,server,plant};
   window.NEXUS_SPRITES={drawFloor,drawObject(ctx,o,T,elapsed=0,state=null){const fn=drawers[o.type];if(fn)fn(ctx,o,T,elapsed,state);},drawCharacter:character};
 })();

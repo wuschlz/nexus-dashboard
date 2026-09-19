@@ -13,14 +13,12 @@
 
   const objects=[
     {type:'frame',x:0,y:0,w:24,h:32,layer:0},
-
-    // One continuous back wall: the upper rooms are embedded in this same floor.
     {type:'topBackWall',x:1,y:1,w:22,h:2.25,layer:0},
-    {type:'embeddedOffice',x:2,y:3.15,w:7.4,h:5.15,layer:1,variant:'left'},
-    {type:'wallCore',x:9.7,y:3.15,w:4.6,h:5.15,layer:1,doorId:'mainMeetingDoor'},
-    {type:'embeddedOffice',x:14.6,y:3.15,w:7.4,h:5.15,layer:1,variant:'right'},
+    {type:'doorWall',x:1.6,y:3.15,w:20.8,h:5.15,layer:0},
+    {type:'wallCore',x:2.0,y:3.15,w:5.3,h:5.15,layer:1,doorId:'mainArchiveDoor',labelTop:'ARCHIV',labelBottom:'WISSEN'},
+    {type:'wallCore',x:9.35,y:3.15,w:5.3,h:5.15,layer:1,doorId:'mainMeetingDoor',labelTop:'MEETING',labelBottom:'ROOM'},
+    {type:'wallCore',x:16.7,y:3.15,w:5.3,h:5.15,layer:1,doorId:'mainServerDoor',labelTop:'SERVER',labelBottom:'TECHNIK'},
     {type:'topTransition',x:1.6,y:8.3,w:20.8,h:1.05,layer:1},
-
     {type:'counterDesk',x:5,y:10,w:6,h:2.8,layer:1,variant:0},
     {type:'counterDesk',x:13,y:10,w:6,h:2.8,layer:1,variant:1},
     {type:'techPod',x:5.5,y:14,w:13,h:4,layer:1},
@@ -29,31 +27,43 @@
     {type:'sofa',x:1,y:24.2,w:4,h:2.5,layer:1,side:'left'},
     {type:'sofa',x:19,y:24.2,w:4,h:2.5,layer:1,side:'right'},
     {type:'entry',x:9.2,y:29,w:5.6,h:3,layer:1},
-    {type:'server',x:18.25,y:13.9,w:2.2,h:4.5,layer:1},
-
-    {type:'plant',x:2.3,y:9.2,w:1,h:1,layer:2},
-    {type:'plant',x:6.1,y:9.0,w:1,h:1,layer:2},
-    {type:'plant',x:18.7,y:9.0,w:1,h:1,layer:2},
-    {type:'plant',x:20.8,y:9.2,w:1,h:1,layer:2},
-    {type:'plant',x:4.1,y:23.0,w:1,h:1,layer:2},
-    {type:'plant',x:18.8,y:23.0,w:1,h:1,layer:2},
     {type:'plant',x:4.0,y:27.0,w:1,h:1,layer:2},
     {type:'plant',x:19.5,y:27.3,w:1,h:1,layer:2}
   ];
 
   const collisions=[
     [0,0,24,1],[0,31,24,1],[0,0,1,32],[23,0,1,32],
+    [1,1,22,2],[1,3,22,5],
+    [5,10,6,3],[13,10,6,3],[5,14,14,4],[8,18,8,4],
+    [1,24,4,3],[19,24,4,3],[9,29,6,3]
+  ];
 
-    // Back wall and embedded same-level offices. Door gaps remain walkable.
-    [1,1,22,2],
-    [2,3,7,1],[2,3,1,5],[8,3,1,5],[2,7,3,1],[6,7,3,1],
-    [10,3,4,5],
-    [15,3,7,1],[15,3,1,5],[21,3,1,5],[15,7,3,1],[19,7,3,1],
+  const archiveObjects=[
+    {type:'archiveShell',x:0,y:0,w:24,h:32,layer:0},
+    {type:'personalDesk',x:7.2,y:16.0,w:9.6,h:5.0,layer:1,variant:'archive',owner:'GISELA',subtitle:'WISSEN & ARCHIV'},
+    {type:'meetingDoor',x:9.6,y:27.65,w:4.8,h:3.25,layer:1,doorId:'archiveExitDoor'},
+    {type:'plant',x:5.45,y:23.4,w:1,h:1,layer:2},
+    {type:'plant',x:17.5,y:23.4,w:1,h:1,layer:2}
+  ];
 
-    [5,10,6,3],[13,10,6,3],
-    [5,14,14,4],[8,18,8,4],
-    [1,24,4,3],[19,24,4,3],
-    [9,29,6,3],[18,14,3,4]
+  const archiveCollisions=[
+    [0,0,24,2],[0,30,24,2],[0,0,2,32],[22,0,2,32],
+    [2,4,4,20],[18,4,4,20],[7,15,10,7]
+  ];
+
+  const serverObjects=[
+    {type:'serverShell',x:0,y:0,w:24,h:32,layer:0},
+    {type:'server',x:2.45,y:4.5,w:3.15,h:9.4,layer:1},
+    {type:'server',x:6.15,y:4.5,w:3.15,h:9.4,layer:1},
+    {type:'server',x:14.7,y:4.5,w:3.15,h:9.4,layer:1},
+    {type:'server',x:18.4,y:4.5,w:3.15,h:9.4,layer:1},
+    {type:'personalDesk',x:7.25,y:17.0,w:9.5,h:5.2,layer:1,variant:'server',owner:'WALTER',subtitle:'TECHNIK'},
+    {type:'meetingDoor',x:9.6,y:27.65,w:4.8,h:3.25,layer:1,doorId:'serverExitDoor'}
+  ];
+
+  const serverCollisions=[
+    [0,0,24,2],[0,30,24,2],[0,0,2,32],[22,0,2,32],
+    [2,4,4,11],[6,4,4,11],[14,4,4,11],[18,4,4,11],[7,16,10,7]
   ];
 
   const meetingObjects=[
@@ -74,46 +84,29 @@
 
   const scenes={
     main:{
-      id:'main',
-      objects,
-      collisions,
+      id:'main',objects,collisions,
       portals:[
-        {
-          id:'main-to-meeting',
-          doorId:'mainMeetingDoor',
-          target:'meeting',
-          targetDoorId:'meetingExitDoor',
-          clickRect:[9.6,3.0,4.8,6.2],
-          approach:[12,8],
-          sourceFacing:'up',
-          targetFacing:'up',
-          exitVector:[0,-1]
-        }
+        {id:'main-to-archive',doorId:'mainArchiveDoor',target:'archive',targetDoorId:'archiveExitDoor',clickRect:[1.7,3.0,5.9,6.2],approach:[5,8],sourceFacing:'up',targetFacing:'up',exitVector:[0,-1]},
+        {id:'main-to-meeting',doorId:'mainMeetingDoor',target:'meeting',targetDoorId:'meetingExitDoor',clickRect:[9.0,3.0,6.0,6.2],approach:[12,8],sourceFacing:'up',targetFacing:'up',exitVector:[0,-1]},
+        {id:'main-to-server',doorId:'mainServerDoor',target:'server',targetDoorId:'serverExitDoor',clickRect:[16.4,3.0,5.9,6.2],approach:[19,8],sourceFacing:'up',targetFacing:'up',exitVector:[0,-1]}
       ]
     },
+    archive:{
+      id:'archive',camera:{scale:1.08,center:[12,16.3]},objects:archiveObjects,collisions:archiveCollisions,
+      portals:[{id:'archive-to-main',doorId:'archiveExitDoor',target:'main',targetDoorId:'mainArchiveDoor',clickRect:[9.2,27.0,5.6,5.0],approach:[12,27],sourceFacing:'down',targetFacing:'down',exitVector:[0,1]}]
+    },
     meeting:{
-      id:'meeting',
-      camera:{scale:1.20,center:[12,16.8]},
-      objects:meetingObjects,
-      collisions:meetingCollisions,
-      portals:[
-        {
-          id:'meeting-to-main',
-          doorId:'meetingExitDoor',
-          target:'main',
-          targetDoorId:'mainMeetingDoor',
-          clickRect:[9.2,27.0,5.6,5.0],
-          approach:[12,27],
-          sourceFacing:'down',
-          targetFacing:'down',
-          exitVector:[0,1]
-        }
-      ]
+      id:'meeting',camera:{scale:1.20,center:[12,16.8]},objects:meetingObjects,collisions:meetingCollisions,
+      portals:[{id:'meeting-to-main',doorId:'meetingExitDoor',target:'main',targetDoorId:'mainMeetingDoor',clickRect:[9.2,27.0,5.6,5.0],approach:[12,27],sourceFacing:'down',targetFacing:'down',exitVector:[0,1]}]
+    },
+    server:{
+      id:'server',camera:{scale:1.08,center:[12,16.3]},objects:serverObjects,collisions:serverCollisions,
+      portals:[{id:'server-to-main',doorId:'serverExitDoor',target:'main',targetDoorId:'mainServerDoor',clickRect:[9.2,27.0,5.6,5.0],approach:[12,27],sourceFacing:'down',targetFacing:'down',exitVector:[0,1]}]
     }
   };
 
   window.NEXUS_MAP={
-    version:'2.16',tile:T,cols:24,rows:32,width:24*T,height:32*T,
+    version:'2.17',tile:T,cols:24,rows:32,width:24*T,height:32*T,
     floor:{stone:'#d7d9d6',stoneAlt:'#cfd3d1',stoneWarm:'#ddd9d1',grout:'#b7bfbd',highlight:'#f3f5f2',graphite:'#1f2b36',graphiteAlt:'#273642',oak:'#a97f5c',oakAlt:'#bc9169',oakDark:'#765944',metal:'#8f9ba2',cyan:'#35d6e9'},
     team,objects,collisions,scenes,meetingSpot:[12,27],doorSpot:[12,8]
   };
