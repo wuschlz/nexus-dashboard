@@ -18,13 +18,152 @@
   function glow(ctx,x,y,r,c,a=.25){const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,c.replace(')',','+a+')').replace('rgb','rgba'));g.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=g;ctx.fillRect(x-r,y-r,r*2,r*2);}
 
   function drawFloor(ctx,map){
-    const T=map.tile;
-    for(let y=0;y<map.rows;y++)for(let x=0;x<map.cols;x++){
-      const X=x*T,Y=y*T;ctx.fillStyle=((x+y)&1)?map.floor.base:map.floor.alt;ctx.fillRect(X,Y,T,T);
-      line(ctx,X,Y+T,X+T,Y+T,map.floor.line,1);line(ctx,X+T,Y,X+T,Y+T,map.floor.line,1);
-      ctx.fillStyle='rgba(255,255,255,.11)';ctx.fillRect(X+4,Y+4,T-8,1);
-      if((x*7+y*5)%17===0){ctx.fillStyle=map.floor.highlight;ctx.fillRect(X+23,Y+20,2,2);}
+    const T=map.tile,W=map.width,H=map.height,f=map.floor;
+
+    // Premium large-format stone / microcement base.
+    ctx.fillStyle=f.stone;
+    ctx.fillRect(0,0,W,H);
+
+    const slabW=T*4;
+    const slabH=T*2;
+    for(let row=0,y=0;y<H;row++,y+=slabH){
+      const offset=(row%2)*slabW*.5;
+      for(let col=-1,x=-offset;x<W;x+=slabW,col++){
+        const hash=Math.abs(((row+11)*73856093)^((col+17)*19349663));
+        const tone=hash%5;
+        ctx.fillStyle=tone===0?f.stoneWarm:(tone===1?f.stoneAlt:f.stone);
+        ctx.fillRect(x+1,y+1,slabW-2,slabH-2);
+
+        // Soft polished edge: enough detail to read as premium stone, not retro tiles.
+        ctx.fillStyle='rgba(255,255,255,.14)';
+        ctx.fillRect(x+5,y+5,slabW-10,1);
+        ctx.fillStyle='rgba(53,65,69,.055)';
+        ctx.fillRect(x+slabW-2,y+5,1,slabH-10);
+
+        // Deterministic micro-terrazzo / mineral flecks.
+        for(let i=0;i<5;i++){
+          const sx=x+10+((hash>>(i*3))%(slabW-20));
+          const sy=y+9+((hash>>(i*4+2))%(slabH-18));
+          ctx.fillStyle=i%3===0?'rgba(70,82,82,.12)':(i%3===1?'rgba(255,255,255,.25)':'rgba(169,127,92,.12)');
+          ctx.fillRect(sx,sy,i%2?2:1,i%2?1:2);
+        }
+      }
     }
+
+    // Hairline joints between oversized slabs.
+    ctx.strokeStyle=f.grout;
+    ctx.lineWidth=1;
+    for(let y=0,row=0;y<=H;y+=slabH,row++){
+      line(ctx,0,y,W,y,'rgba(132,143,142,.38)',1);
+      const offset=(row%2)*slabW*.5;
+      for(let x=-offset;x<=W;x+=slabW){
+        line(ctx,x,y,x,Math.min(H,y+slabH),'rgba(132,143,142,.30)',1);
+      }
+    }
+
+    // Soft architectural reflections from ceiling lights.
+    ctx.save();
+    const wash=ctx.createLinearGradient(0,0,W,0);
+    wash.addColorStop(0,'rgba(255,255,255,0)');
+    wash.addColorStop(.18,'rgba(255,255,255,.10)');
+    wash.addColorStop(.28,'rgba(255,255,255,0)');
+    wash.addColorStop(.66,'rgba(255,255,255,0)');
+    wash.addColorStop(.78,'rgba(255,255,255,.08)');
+    wash.addColorStop(.88,'rgba(255,255,255,0)');
+    ctx.fillStyle=wash;
+    ctx.fillRect(0,0,W,H);
+    ctx.restore();
+
+    // Central operations zone: flush acoustic carpet inset, not a platform.
+    const ox=4.35*T,oy=13.15*T,ow=15.3*T,oh=8.85*T;
+    rr(ctx,ox,oy,ow,oh,16,f.graphite,'rgba(91,110,123,.55)',2);
+    const carpet=ctx.createLinearGradient(ox,oy,ox+ow,oy+oh);
+    carpet.addColorStop(0,'rgba(255,255,255,.025)');
+    carpet.addColorStop(.5,'rgba(255,255,255,0)');
+    carpet.addColorStop(1,'rgba(0,0,0,.09)');
+    ctx.fillStyle=carpet;
+    rr(ctx,ox+3,oy+3,ow-6,oh-6,13,carpet);
+
+    // Fine textile grain.
+    for(let yy=oy+10;yy<oy+oh-8;yy+=7){
+      for(let xx=ox+10;xx<ox+ow-8;xx+=11){
+        const n=((xx*13+yy*7)|0)%5;
+        ctx.fillStyle=n===0?'rgba(142,164,177,.08)':'rgba(255,255,255,.025)';
+        ctx.fillRect(xx+(n%3),yy,2,1);
+      }
+    }
+
+    // Warm lounge wood islands under both sofas.
+    function loungeWood(x,y,w,h,flip=false){
+      rr(ctx,x,y,w,h,12,'#9f7757','rgba(99,76,59,.48)',2);
+      ctx.save();
+      rr(ctx,x+3,y+3,w-6,h-6,10,'#a97f5c');
+      ctx.clip();
+
+      const plankH=12;
+      for(let py=y-10,row=0;py<y+h+10;py+=plankH,row++){
+        const start=x-32+(row%2)*34;
+        for(let px=start;px<x+w+40;px+=68){
+          const warm=((row+Math.floor(px/68))%3);
+          ctx.fillStyle=warm===0?f.oak: warm===1?f.oakAlt:'#b28763';
+          ctx.fillRect(px,py,66,plankH-1);
+          ctx.fillStyle='rgba(255,255,255,.10)';
+          ctx.fillRect(px+4,py+2,52,1);
+          ctx.fillStyle='rgba(92,64,45,.14)';
+          ctx.fillRect(px+65,py+1,1,plankH-3);
+        }
+      }
+
+      // Subtle linear grain.
+      for(let gy=y+8;gy<y+h-5;gy+=17){
+        ctx.fillStyle='rgba(79,55,42,.12)';
+        ctx.fillRect(x+10,gy,w-20,1);
+      }
+      ctx.restore();
+
+      // Brushed metal transition strip.
+      ctx.strokeStyle='rgba(139,151,157,.72)';
+      ctx.lineWidth=2;
+      rr(ctx,x,y,w,h,12,null,'rgba(139,151,157,.72)',2);
+      ctx.fillStyle='rgba(255,255,255,.22)';
+      ctx.fillRect(x+13,y+4,w-26,1);
+    }
+    loungeWood(1.0*T,23.45*T,5.25*T,4.55*T,false);
+    loungeWood(17.75*T,23.45*T,5.25*T,4.55*T,true);
+
+    // Brushed-metal circulation spine with thin NEXUS cyan inlays.
+    const spineX=10.9*T,spineW=2.2*T;
+    ctx.fillStyle='rgba(100,113,120,.10)';
+    ctx.fillRect(spineX,9.35*T,spineW,20.3*T);
+    ctx.fillStyle='rgba(255,255,255,.11)';
+    ctx.fillRect(spineX+3,9.55*T,1,19.9*T);
+    ctx.fillStyle='rgba(72,87,95,.13)';
+    ctx.fillRect(spineX+spineW-4,9.55*T,1,19.9*T);
+
+    for(const lx of [spineX+6,spineX+spineW-8]){
+      ctx.save();
+      ctx.shadowColor=f.cyan;
+      ctx.shadowBlur=5;
+      ctx.fillStyle='rgba(53,214,233,.62)';
+      ctx.fillRect(lx,9.65*T,2,4.5*T);
+      ctx.fillRect(lx,27.0*T,2,2.15*T);
+      ctx.restore();
+    }
+
+    // Discreet stainless thresholds at the main entrance.
+    const ey=29.0*T;
+    ctx.fillStyle='rgba(91,105,112,.64)';
+    ctx.fillRect(9.1*T,ey,5.8*T,3);
+    ctx.fillStyle='rgba(255,255,255,.45)';
+    ctx.fillRect(9.2*T,ey+1,5.6*T,1);
+
+    // A final very soft global sheen makes the floor feel polished without becoming glossy.
+    const sheen=ctx.createLinearGradient(0,H*.10,0,H*.85);
+    sheen.addColorStop(0,'rgba(255,255,255,.045)');
+    sheen.addColorStop(.45,'rgba(255,255,255,0)');
+    sheen.addColorStop(1,'rgba(17,31,40,.035)');
+    ctx.fillStyle=sheen;
+    ctx.fillRect(0,0,W,H);
   }
 
   function frame(ctx,o,T){
@@ -245,19 +384,29 @@
   function topTransition(ctx,o,T){
     const X=o.x*T,Y=o.y*T,W=o.w*T,H=o.h*T;
 
-    // A flat architectural threshold, not a step.
-    ctx.fillStyle='rgba(116,86,59,.16)';
+    // Flush contemporary threshold: brushed aluminium + a thin cyan identity line.
+    const g=ctx.createLinearGradient(X,Y,X,Y+H);
+    g.addColorStop(0,'rgba(205,211,211,.30)');
+    g.addColorStop(.5,'rgba(111,125,132,.20)');
+    g.addColorStop(1,'rgba(223,226,222,.16)');
+    ctx.fillStyle=g;
     ctx.fillRect(X,Y,W,H);
-    ctx.fillStyle='#a27d59';
-    ctx.fillRect(X,Y+H*.35,W,3);
-    ctx.fillStyle='#e6c895';
-    ctx.fillRect(X+4,Y+H*.35+3,W-8,2);
 
-    // Repeated small floor inlays visually continue the main room.
-    for(let x=X+18;x<X+W-12;x+=42){
-      rr(ctx,x,Y+H*.62,22,5,2,'#c19c69','#8d704d',1);
-      ctx.fillStyle='rgba(255,255,255,.16)';
-      ctx.fillRect(x+4,Y+H*.62+1,14,1);
+    ctx.fillStyle='rgba(104,118,125,.52)';
+    ctx.fillRect(X,Y+H*.44,W,2);
+    ctx.fillStyle='rgba(255,255,255,.48)';
+    ctx.fillRect(X+5,Y+H*.44+2,W-10,1);
+
+    ctx.save();
+    ctx.shadowColor=P.cyan;
+    ctx.shadowBlur=6;
+    ctx.fillStyle='rgba(53,214,233,.58)';
+    ctx.fillRect(X+18,Y+H*.69,W-36,2);
+    ctx.restore();
+
+    // Small stainless service markers instead of decorative retro blocks.
+    for(let x=X+28;x<X+W-20;x+=72){
+      rr(ctx,x,Y+H*.20,30,4,2,'rgba(135,148,154,.55)','rgba(230,235,233,.45)',1);
     }
   }
 
@@ -324,8 +473,57 @@
   }
 
   function logo(ctx,o,T){
-    const X=o.x*T,Y=o.y*T,W=o.w*T,H=o.h*T;shadow(ctx,X,Y,W,H,14,.12);rr(ctx,X,Y,W,H,24,'#26374a','#304a60',3);
-    ctx.strokeStyle=P.cyan;ctx.lineWidth=7;ctx.beginPath();ctx.ellipse(X+W/2,Y+H/2,W*.32,H*.30,0,0,Math.PI*2);ctx.stroke();rr(ctx,X+W/2-34,Y+H/2-22,68,44,8,'#193346',P.cyan,4);txt(ctx,'N',X+W/2,Y+H/2,23,'#d4fbff','center',800);
+    const X=o.x*T,Y=o.y*T,W=o.w*T,H=o.h*T;
+
+    // Recessed smoked-glass floor emblem instead of a raised rug.
+    ctx.save();
+    ctx.shadowColor='rgba(18,30,39,.24)';
+    ctx.shadowBlur=16;
+    ctx.shadowOffsetY=3;
+    rr(ctx,X+4,Y+4,W-8,H-8,28,'rgba(28,42,52,.16)');
+    ctx.restore();
+
+    rr(ctx,X,Y,W,H,28,'rgba(26,39,50,.88)','rgba(118,137,148,.60)',2);
+    rr(ctx,X+6,Y+6,W-12,H-12,23,'rgba(34,51,63,.78)','rgba(225,235,235,.12)',1);
+
+    // Brushed metallic perimeter.
+    ctx.strokeStyle='rgba(156,171,178,.55)';
+    ctx.lineWidth=2;
+    ctx.beginPath();
+    ctx.ellipse(X+W/2,Y+H/2,W*.37,H*.35,0,0,Math.PI*2);
+    ctx.stroke();
+
+    // Thin cyan illuminated ring.
+    ctx.save();
+    ctx.shadowColor=P.cyan;
+    ctx.shadowBlur=11;
+    ctx.strokeStyle='rgba(53,214,233,.82)';
+    ctx.lineWidth=4;
+    ctx.beginPath();
+    ctx.ellipse(X+W/2,Y+H/2,W*.30,H*.27,0,0,Math.PI*2);
+    ctx.stroke();
+    ctx.restore();
+
+    // Central glass N plaque.
+    rr(ctx,X+W/2-30,Y+H/2-20,60,40,10,'rgba(14,35,47,.92)','rgba(75,180,195,.82)',2);
+    ctx.save();
+    ctx.shadowColor=P.cyan;
+    ctx.shadowBlur=8;
+    txt(ctx,'N',X+W/2,Y+H/2,22,'#d8fbff','center',800);
+    ctx.restore();
+
+    // Long soft reflection across the smoked glass.
+    ctx.save();
+    ctx.globalAlpha=.20;
+    ctx.fillStyle='#ffffff';
+    ctx.beginPath();
+    ctx.moveTo(X+W*.20,Y+H*.18);
+    ctx.lineTo(X+W*.60,Y+H*.18);
+    ctx.lineTo(X+W*.46,Y+H*.34);
+    ctx.lineTo(X+W*.14,Y+H*.34);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
   }
 
   function sofa(ctx,o,T){

@@ -58,8 +58,8 @@
   ];
 
   window.NEXUS_MAP={
-    version:'2.11',tile:T,cols:24,rows:32,width:24*T,height:32*T,
-    floor:{base:'#ebcb8b',alt:'#f2d79c',line:'#d7b675',highlight:'#fae9c3'},
+    version:'2.12',tile:T,cols:24,rows:32,width:24*T,height:32*T,
+    floor:{stone:'#d7d9d6',stoneAlt:'#cfd3d1',stoneWarm:'#ddd9d1',grout:'#b7bfbd',highlight:'#f3f5f2',graphite:'#1f2b36',graphiteAlt:'#273642',oak:'#a97f5c',oakAlt:'#bc9169',oakDark:'#765944',metal:'#8f9ba2',cyan:'#35d6e9'},
     team,objects,collisions,meetingSpot:[12,27],doorSpot:[12,8]
   };
 })();
