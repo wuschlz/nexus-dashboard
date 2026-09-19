@@ -585,7 +585,7 @@
     else {rr(ctx,x+7*s,y+1*s,22*s,11*s,6*s,a.hair);rr(ctx,x+5*s,y+7*s,5*s,13*s,3*s,a.hair);rr(ctx,x+26*s,y+7*s,5*s,13*s,3*s,a.hair);rr(ctx,x+11*s,y+1*s,12*s,3*s,2*s,a.hairHi);}
   }
 
-  function characterJames(ctx,a,T,selected,elapsed){
+  function characterJamesFront(ctx,a,T,selected,elapsed){
     const s=.86;
     const X=Math.round(a.x*T-2);
     const Y=Math.round(a.y*T-28);
@@ -783,6 +783,249 @@
       ctx.fill();
     }
   }
+
+
+  function jamesMarker(ctx,X,y,s){
+    ctx.fillStyle=P.cyan;
+    ctx.beginPath();
+    ctx.moveTo(X+22*s,y-7*s);
+    ctx.lineTo(X+17*s,y-1*s);
+    ctx.lineTo(X+27*s,y-1*s);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  function characterJamesBack(ctx,a,T,selected,elapsed){
+    const s=.86;
+    const X=Math.round(a.x*T-2);
+    const Y=Math.round(a.y*T-28);
+    const walk=a.state==='Walk';
+    const phase=walk?Math.sin(a.step*18):0;
+    const stepA=walk?phase*1.7:0;
+    const stepB=walk?-phase*1.7:0;
+    const breath=walk?0:Math.sin(elapsed*1.75+a.phase)*.45;
+    const sway=walk?Math.sin(a.step*9)*.35:Math.sin(elapsed*.68+a.phase)*.22;
+    const y=Y+breath;
+    const trouser=a.trouser||'#1b293a';
+    const shoe=a.shoe||'#3a2b27';
+    const folio=a.folio||'#162432';
+
+    // Ground contact.
+    ctx.save();
+    ctx.fillStyle='rgba(31,25,28,.22)';
+    ctx.beginPath();
+    ctx.ellipse(X+22*s,y+58*s,14*s,4.3*s,0,0,Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+
+    // Shoes and trouser legs.
+    rr(ctx,X+8*s,y+(53+stepA)*s,11*s,5*s,2*s,'#241c1b','#151113',1);
+    rr(ctx,X+25*s,y+(53+stepB)*s,11*s,5*s,2*s,'#241c1b','#151113',1);
+    ctx.fillStyle=shoe;
+    ctx.fillRect(X+10*s,y+(52+stepA)*s,8*s,2*s);
+    ctx.fillRect(X+27*s,y+(52+stepB)*s,8*s,2*s);
+
+    rr(ctx,X+10*s,y+(40+stepA*.25)*s,10*s,14*s,3*s,trouser,'#111c28',1);
+    rr(ctx,X+24*s,y+(40+stepB*.25)*s,10*s,14*s,3*s,trouser,'#111c28',1);
+    ctx.fillStyle='rgba(255,255,255,.06)';
+    ctx.fillRect(X+14*s,y+(42+stepA*.25)*s,1*s,8*s);
+    ctx.fillRect(X+28*s,y+(42+stepB*.25)*s,1*s,8*s);
+
+    // Belt line and jacket from the rear.
+    rr(ctx,X+10*s,y+38*s,24*s,6*s,2*s,'#182638','#101925',1);
+    rr(ctx,X+6*s+sway,y+25*s,32*s,17*s,6*s,'#121d2b','#0c141e',1.3*s);
+    rr(ctx,X+8*s+sway,y+26*s,28*s,16*s,5*s,a.body,'#16273a',1);
+    rr(ctx,X+11*s+sway,y+27*s,22*s,5*s,3*s,a.bodyHi);
+
+    // Jacket center seam, shoulder shaping and rear vents.
+    ctx.fillStyle='rgba(255,255,255,.07)';
+    ctx.fillRect(X+12*s+sway,y+28*s,20*s,2*s);
+    ctx.fillStyle='#17283c';
+    ctx.fillRect(X+21.5*s+sway,y+28*s,1.5*s,11*s);
+    ctx.fillRect(X+17*s+sway,y+37*s,1*s,4*s);
+    ctx.fillRect(X+27*s+sway,y+37*s,1*s,4*s);
+
+    // Arms; folio is tucked against his right side.
+    const armSwing=walk?-phase*1.1:0;
+    rr(ctx,X+3*s+sway,y+(28+armSwing)*s,8*s,15*s,4*s,'#142238','#0d1723',1);
+    rr(ctx,X+34*s+sway,y+(28-armSwing)*s,8*s,15*s,4*s,'#142238','#0d1723',1);
+    rr(ctx,X+4*s+sway,y+(41+armSwing)*s,6*s,5*s,3*s,a.skin,'#9a6954',1);
+    rr(ctx,X+35*s+sway,y+(41-armSwing)*s,6*s,5*s,3*s,a.skin,'#9a6954',1);
+    rr(ctx,X+36*s+sway,y+34*s,8*s,15*s,2*s,folio,'#0d151e',1);
+    ctx.fillStyle='rgba(53,214,233,.34)';
+    ctx.fillRect(X+38*s+sway,y+37*s,4*s,2*s);
+
+    // Neck and head from behind.
+    rr(ctx,X+18*s,y+21*s,9*s,7*s,3*s,a.skin,'#9a6954',1);
+    rr(ctx,X+8*s,y+3*s,28*s,20*s,8*s,'#241a1b');
+    rr(ctx,X+9*s,y+4*s,26*s,19*s,8*s,a.skin,'#9a6954',1);
+
+    // Hair carries the same clean side-part silhouette, now visible from the back.
+    rr(ctx,X+8*s,y+2*s,28*s,11*s,7*s,a.hair);
+    rr(ctx,X+7*s,y+7*s,6*s,12*s,3*s,a.hair);
+    rr(ctx,X+32*s,y+6*s,5*s,12*s,3*s,a.hair);
+    rr(ctx,X+11*s,y+8*s,22*s,10*s,5*s,a.hair);
+    ctx.fillStyle=a.hairHi;
+    ctx.fillRect(X+13*s,y+4*s,13*s,2*s);
+    ctx.fillRect(X+14*s,y+9*s,12*s,2*s);
+
+    // Ear edges and nape make the rear view unmistakable.
+    ctx.fillStyle='#b77860';
+    ctx.fillRect(X+9*s,y+15*s,2*s,4*s);
+    ctx.fillRect(X+34*s,y+14*s,2*s,4*s);
+    ctx.fillStyle=a.skin;
+    ctx.fillRect(X+19*s,y+20*s,7*s,3*s);
+
+    if(selected) jamesMarker(ctx,X,y,s);
+  }
+
+  function characterJamesSideRight(ctx,a,T,selected,elapsed){
+    const s=.86;
+    const X=Math.round(a.x*T-2);
+    const Y=Math.round(a.y*T-28);
+    const walk=a.state==='Walk';
+    const phase=walk?Math.sin(a.step*18):0;
+    const stepA=walk?phase*1.9:0;
+    const stepB=walk?-phase*1.9:0;
+    const breath=walk?0:Math.sin(elapsed*1.75+a.phase)*.45;
+    const sway=walk?Math.sin(a.step*9)*.4:Math.sin(elapsed*.68+a.phase)*.2;
+    const blink=((elapsed+a.phase*1.9)%4.9)<.10;
+    const y=Y+breath;
+    const trouser=a.trouser||'#1b293a';
+    const shoe=a.shoe||'#3a2b27';
+    const beard=a.beard||'#4b352e';
+    const folio=a.folio||'#162432';
+
+    ctx.save();
+    ctx.fillStyle='rgba(31,25,28,.22)';
+    ctx.beginPath();
+    ctx.ellipse(X+22*s,y+58*s,14*s,4.3*s,0,0,Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+
+    // Side-on legs have stronger fore/aft separation while walking.
+    rr(ctx,X+(9+stepA*.5)*s,y+52*s,12*s,5*s,2*s,'#241c1b','#151113',1);
+    rr(ctx,X+(23+stepB*.5)*s,y+52*s,12*s,5*s,2*s,'#241c1b','#151113',1);
+    ctx.fillStyle=shoe;
+    ctx.fillRect(X+(12+stepA*.5)*s,y+51*s,9*s,2*s);
+    ctx.fillRect(X+(26+stepB*.5)*s,y+51*s,9*s,2*s);
+
+    rr(ctx,X+(12+stepA*.35)*s,y+39*s,9*s,14*s,3*s,trouser,'#111c28',1);
+    rr(ctx,X+(23+stepB*.35)*s,y+39*s,9*s,14*s,3*s,trouser,'#111c28',1);
+
+    // Slim tailored jacket in profile.
+    rr(ctx,X+10*s+sway,y+25*s,25*s,18*s,6*s,'#121d2b','#0c141e',1.2*s);
+    rr(ctx,X+12*s+sway,y+26*s,22*s,16*s,5*s,a.body,'#16273a',1);
+    rr(ctx,X+14*s+sway,y+27*s,17*s,4*s,3*s,a.bodyHi);
+
+    // Shirt, tie edge and lapel remain visible from the side.
+    ctx.fillStyle=a.accent;
+    ctx.beginPath();
+    ctx.moveTo(X+27*s+sway,y+27*s);
+    ctx.lineTo(X+33*s+sway,y+28*s);
+    ctx.lineTo(X+31*s+sway,y+38*s);
+    ctx.lineTo(X+26*s+sway,y+36*s);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle='#2b4a6b';
+    ctx.beginPath();
+    ctx.moveTo(X+24*s+sway,y+27*s);
+    ctx.lineTo(X+30*s+sway,y+28*s);
+    ctx.lineTo(X+25*s+sway,y+36*s);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle='#1b2c42';
+    ctx.fillRect(X+29*s+sway,y+29*s,2*s,8*s);
+    ctx.fillStyle=a.pin||P.cyan;
+    ctx.fillRect(X+23*s+sway,y+31*s,2*s,2*s);
+
+    // Rear arm swings; forward arm keeps the folio under control.
+    const armSwing=walk?phase*1.35:0;
+    rr(ctx,X+8*s+sway,y+(29+armSwing)*s,7*s,14*s,4*s,'#142238','#0d1723',1);
+    rr(ctx,X+9*s+sway,y+(41+armSwing)*s,6*s,5*s,3*s,a.skin,'#9a6954',1);
+
+    rr(ctx,X+31*s+sway,y+(29-armSwing*.35)*s,7*s,14*s,4*s,'#142238','#0d1723',1);
+    rr(ctx,X+33*s+sway,y+40*s,6*s,5*s,3*s,a.skin,'#9a6954',1);
+    rr(ctx,X+35*s+sway,y+34*s,9*s,15*s,2*s,folio,'#0d151e',1);
+    ctx.fillStyle='rgba(53,214,233,.42)';
+    ctx.fillRect(X+37*s+sway,y+37*s,5*s,2*s);
+
+    // Neck.
+    rr(ctx,X+20*s,y+20*s,9*s,7*s,3*s,a.skin,'#9a6954',1);
+
+    // Profile head: forehead -> nose -> mouth -> chin.
+    ctx.fillStyle='#241a1b';
+    rr(ctx,X+10*s,y+3*s,27*s,20*s,8*s,'#241a1b');
+    rr(ctx,X+12*s,y+4*s,23*s,19*s,8*s,a.skin,'#9a6954',1);
+    rr(ctx,X+15*s,y+5*s,16*s,4*s,3*s,a.skinHi);
+
+    // Nose projects beyond the facial oval in profile.
+    ctx.fillStyle=a.skin;
+    ctx.beginPath();
+    ctx.moveTo(X+33*s,y+12*s);
+    ctx.lineTo(X+38*s,y+15*s);
+    ctx.lineTo(X+33*s,y+17*s);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle='#bc8065';
+    ctx.fillRect(X+35*s,y+15*s,2*s,1*s);
+
+    // Hair / side part.
+    rr(ctx,X+10*s,y+2*s,26*s,9*s,6*s,a.hair);
+    rr(ctx,X+9*s,y+7*s,6*s,12*s,3*s,a.hair);
+    ctx.fillStyle=a.hairHi;
+    ctx.fillRect(X+15*s,y+3*s,12*s,2*s);
+    ctx.fillRect(X+14*s,y+5*s,7*s,1*s);
+    ctx.fillStyle='#786056';
+    ctx.fillRect(X+11*s,y+9*s,2*s,3*s);
+
+    // One eyebrow and eye are visible in profile.
+    ctx.fillStyle='#46302b';
+    ctx.fillRect(X+26*s,y+11*s,6*s,1.4*s);
+    if(blink){
+      ctx.fillStyle='#5a4037';
+      ctx.fillRect(X+28*s,y+14*s,4*s,1.2*s);
+    }else{
+      rr(ctx,X+28*s,y+13*s,4*s,3*s,1.5*s,'#302428');
+      ctx.fillStyle='#f8f3ea';
+      ctx.fillRect(X+29*s,y+13*s,1*s,1*s);
+    }
+
+    // Ear, beard line and restrained smile.
+    rr(ctx,X+12*s,y+12*s,5*s,7*s,3*s,a.skin,'#9a6954',1);
+    ctx.fillStyle=beard;
+    ctx.globalAlpha=.72;
+    ctx.fillRect(X+17*s,y+19*s,16*s,3*s);
+    ctx.fillRect(X+30*s,y+17*s,4*s,3*s);
+    ctx.globalAlpha=1;
+    ctx.fillStyle='#7e4f49';
+    ctx.fillRect(X+31*s,y+18*s,5*s,1*s);
+
+    if(selected) jamesMarker(ctx,X,y,s);
+  }
+
+  function characterJamesSide(ctx,a,T,selected,elapsed,left){
+    if(!left) return characterJamesSideRight(ctx,a,T,selected,elapsed);
+
+    // Mirror the complete right-facing profile around James' visual center.
+    const s=.86;
+    const X=Math.round(a.x*T-2);
+    const center=X+22*s;
+    ctx.save();
+    ctx.translate(center*2,0);
+    ctx.scale(-1,1);
+    characterJamesSideRight(ctx,a,T,selected,elapsed);
+    ctx.restore();
+  }
+
+  function characterJames(ctx,a,T,selected,elapsed){
+    const facing=a.facing||'down';
+    if(facing==='up') return characterJamesBack(ctx,a,T,selected,elapsed);
+    if(facing==='left') return characterJamesSide(ctx,a,T,selected,elapsed,true);
+    if(facing==='right') return characterJamesSide(ctx,a,T,selected,elapsed,false);
+    return characterJamesFront(ctx,a,T,selected,elapsed);
+  }
+
 
   function character(ctx,a,T,selected,elapsed){
     if(a.id==='james') return characterJames(ctx,a,T,selected,elapsed);

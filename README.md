@@ -1,22 +1,22 @@
-# NEXUS Retro Office 2.9
+# NEXUS Retro Office 2.10
 
-Character Detail Pass 1: James.
+Character Detail Pass 2: James directional views.
 
 ## Änderungen
 
-- James ist der erste Charakter auf dem neuen Detailniveau
-- eigene, deutlich detailliertere Silhouette und Proportionen
-- ruhige aufrechte Körpersprache passend zur Teamleitung
-- maßgeschneiderter Navy-Blazer mit Hemd, Krawatte, Revers und Einstecktuch
-- dezenter cyanfarbener NEXUS-Pin
-- detaillierter Kopf mit Seitenscheitel, Schläfen, Augenbrauen, Augen, Nase und Bartschatten
-- ruhiger Gesichtsausdruck mit kleiner Mimik
-- eigenes Folio/Tablet als sichtbares Leitungs-/Koordinationsdetail
-- subtilere Idle-Atmung, leichter Körpersway und eigenständiger Blink-Zyklus
-- detailliertere Schuhe, Hosenfalten, Gürtel, Manschetten und Material-Highlights
-- die übrigen sieben Charaktere bleiben in 2.9 bewusst unverändert und werden danach einzeln auf dieses Qualitätsniveau gebracht
-- Architektur aus 2.8, Sofas aus 2.7 und Server aus 2.6 bleiben unverändert
+- James reagiert jetzt vollständig auf seine tatsächliche Laufrichtung
+- Frontansicht bei Bewegung nach unten
+- detaillierte Rückansicht bei Bewegung nach oben
+- echtes Seitenprofil bei Bewegung nach rechts
+- gespiegeltes Seitenprofil bei Bewegung nach links
+- Kopf, Nase, Auge, Bart, Haare und Ohren drehen sichtbar mit der Perspektive
+- Blazer, Revers, Hemd, NEXUS-Pin und Folio bleiben auch im Profil erkennbar
+- Rückansicht zeigt Jackennaht, Schulterform, Nacken, Hinterkopf und das seitlich getragene Folio
+- Beinstellung und Armschwung sind an die jeweilige Ansicht angepasst
+- nach dem Anhalten bleibt James in seiner zuletzt gelaufenen Blickrichtung stehen
+- bestehendes Pathfinding und Bewegungsmodell bleiben unverändert
+- die übrigen sieben Charaktere bleiben für diesen Qualitätscheck noch unverändert
 
 ## Version
 
-Office 2.9 · Cache 290
+Office 2.10 · Cache 300

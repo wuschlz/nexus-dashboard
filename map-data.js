@@ -58,7 +58,7 @@
   ];
 
   window.NEXUS_MAP={
-    version:'2.9',tile:T,cols:24,rows:32,width:24*T,height:32*T,
+    version:'2.10',tile:T,cols:24,rows:32,width:24*T,height:32*T,
     floor:{base:'#ebcb8b',alt:'#f2d79c',line:'#d7b675',highlight:'#fae9c3'},
     team,objects,collisions,meetingSpot:[12,27],doorSpot:[12,8]
   };
