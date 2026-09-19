@@ -1,10 +1,17 @@
 (() => {
   const loading = document.getElementById('loading');
   const feed = document.getElementById('activityFeed');
-  const team = [
-    ['James','Leitung',true],['Nora','Mail',false],['Kevin','Recherche',false],['Gisela','Wissen',false],
-    ['Lina','Kalender',false],['Walter','Technik',false],['Sarah','Kontakte',false],['Finn','Follow-ups',false]
-  ];
+  const characterCatalog=window.NEXUS_CHARACTER_CATALOG;
+  const team=(characterCatalog?.list||[
+    {name:'James',role:'Leitung',assetReady:true},
+    {name:'Nora',role:'Mail',assetReady:false},
+    {name:'Kevin',role:'Recherche',assetReady:false},
+    {name:'Gisela',role:'Wissen & Archiv',assetReady:false},
+    {name:'Lina',role:'Kalender',assetReady:false},
+    {name:'Walter',role:'Technik',assetReady:false},
+    {name:'Sarah',role:'Kontakte',assetReady:false},
+    {name:'Finn',role:'Follow-ups',assetReady:false}
+  ]).map(def=>[def.name,def.role,!!def.assetReady]);
 
   function log(text){
     const item=document.createElement('div'); item.className='activity-item';
@@ -366,19 +373,78 @@
     meeting:new BABYLON.Vector3(3.35,0,-3.45)
   };
 
-  let jamesRoot=null,groups={},travel=null;
+  let jamesRoot=null,travel=null;
+  const actors=new Map();
 
   function setActiveButton(id){ document.querySelectorAll('.scene-actions .chip').forEach(x=>x.classList.remove('active')); const b=document.getElementById(id); if(b)b.classList.add('active'); }
-  function play(name,loop=true){ const g=groups[name]; if(!g)return; Object.values(groups).forEach(q=>{if(q!==g)q.stop();}); g.loopAnimation=!!loop; g.start(!!loop,1,g.from,g.to,false); document.getElementById('currentAnim').textContent=name; log('James → '+name); }
-  function resolveAnimations(arr){ arr.forEach(g=>{groups[g.name]=g;g.stop();}); if(!groups['Neutral Idle']&&arr[0])groups['Neutral Idle']=arr[0]; if(!groups['Standard Walk']&&arr[1])groups['Standard Walk']=arr[1]; if(!groups['Waving']&&arr[2])groups['Waving']=arr[2]; }
+
+  function resolveAnimations(arr){
+    const groups={};
+    arr.forEach(g=>{groups[g.name]=g;g.stop();});
+    if(!groups['Neutral Idle']&&arr[0])groups['Neutral Idle']=arr[0];
+    if(!groups['Standard Walk']&&arr[1])groups['Standard Walk']=arr[1];
+    if(!groups['Waving']&&arr[2])groups['Waving']=arr[2];
+    return groups;
+  }
+
+  function registerActor(name,root,animationGroups=[]){
+    const def=characterCatalog?.byName?.[name]||{name,role:'',assetReady:true};
+    const actor={
+      id:def.id||name.toLowerCase(),
+      name,
+      def,
+      root,
+      groups:resolveAnimations(animationGroups),
+      state:'idle',
+      travel:null
+    };
+    actors.set(name,actor);
+    return actor;
+  }
+
+  function playActor(actorOrName,animationName,loop=true,{silent=false}={}){
+    const actor=typeof actorOrName==='string'?actors.get(actorOrName):actorOrName;
+    if(!actor)return false;
+    const g=actor.groups[animationName];
+    if(!g)return false;
+
+    Object.values(actor.groups).forEach(q=>{if(q!==g)q.stop();});
+    g.loopAnimation=!!loop;
+    g.start(!!loop,1,g.from,g.to,false);
+    actor.state=animationName;
+
+    if(actor.name==='James'){
+      const current=document.getElementById('currentAnim');
+      if(current)current.textContent=animationName;
+    }
+    if(!silent)log(actor.name+' → '+animationName);
+    return true;
+  }
+
+  // Temporary compatibility wrapper while the movement buttons still control James.
+  function play(name,loop=true){ return playActor('James',name,loop); }
+
+  window.NEXUS_CHARACTER_SYSTEM={
+    catalog:characterCatalog,
+    actors,
+    registerActor,
+    play:(name,action,loop=true)=>playActor(name,action,loop),
+    get:name=>actors.get(name)||null,
+    availableActions:name=>{
+      const actor=actors.get(name);
+      return actor?Object.keys(actor.groups):[];
+    }
+  };
 
   loading.textContent='James wird geladen …';
   BABYLON.SceneLoader.ImportMeshAsync('','./assets/','James_NEXUS_Animated.glb',scene).then(result=>{
     jamesRoot=new BABYLON.TransformNode('JamesRoot',scene); result.meshes.forEach(m=>{if(!m.parent)m.parent=jamesRoot;});
     jamesRoot.position.copyFrom(locations.desk); jamesRoot.scaling.setAll(1.38); jamesRoot.rotation.y=-.35;
-    resolveAnimations(result.animationGroups||[]); play('Neutral Idle',true); loading.style.display='none';
+    registerActor('James',jamesRoot,result.animationGroups||[]);
+    play('Neutral Idle',true);
+    loading.style.display='none';
     document.getElementById('assetState').textContent='geladen'; document.getElementById('inspectorStatus').textContent='Ready';
-    log('Office 1.75 · scharf · halos visible through glass, blocked by opaque walls');
+    log('Office 1.76 · scharf · unified character system foundation · James 1/8');
   }).catch(err=>{ console.error(err); loading.textContent='James konnte nicht geladen werden.'; document.getElementById('assetState').textContent='GLB-Fehler'; log('GLB-Ladefehler'); });
 
   function travelTo(targetName){
