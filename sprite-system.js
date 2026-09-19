@@ -1027,18 +1027,612 @@
   }
 
 
+  const ROLE_PROFILES={
+    nora:{
+      key:'mail',body:'#263f67',body2:'#3b5e8e',lower:'#28364e',shoe:'#2a2430',
+      accent:'#f3f5f7',signature:'#d85e55',prop:'#f4ead7',propEdge:'#b79c7d',
+      posture:0,width:0,hair:'bob',glasses:false,headset:false
+    },
+    kevin:{
+      key:'research',body:'#426852',body2:'#5d886d',lower:'#263b34',shoe:'#34413b',
+      accent:'#deeadf',signature:'#35d6e9',prop:'#173548',propEdge:'#2d6f86',
+      posture:-1,width:-1,hair:'spiky',glasses:false,headset:true
+    },
+    gisela:{
+      key:'archive',body:'#67465a',body2:'#845e74',lower:'#493d47',shoe:'#49372f',
+      accent:'#eee5dc',signature:'#d2ab68',prop:'#8b5b3d',propEdge:'#d7b474',
+      posture:1,width:1,hair:'graybob',glasses:true,headset:false
+    },
+    lina:{
+      key:'calendar',body:'#744b3a',body2:'#97684f',lower:'#564039',shoe:'#412f2c',
+      accent:'#efdfca',signature:'#e1af62',prop:'#e9d8b4',propEdge:'#b88b56',
+      posture:0,width:-1,hair:'long',glasses:false,headset:false
+    },
+    walter:{
+      key:'tech',body:'#3a4e59',body2:'#58717c',lower:'#313d43',shoe:'#293136',
+      accent:'#d7e4e8',signature:'#55dce8',prop:'#102d3d',propEdge:'#3f8296',
+      posture:1.5,width:2,hair:'grayshort',glasses:true,headset:false
+    },
+    sarah:{
+      key:'contacts',body:'#65527a',body2:'#826b99',lower:'#493e59',shoe:'#352b3e',
+      accent:'#ece0f2',signature:'#d48ad9',prop:'#202f48',propEdge:'#705889',
+      posture:-.5,width:0,hair:'bun',glasses:false,headset:true
+    },
+    finn:{
+      key:'followup',body:'#4a5878',body2:'#66779c',lower:'#34425e',shoe:'#293242',
+      accent:'#e1e7ef',signature:'#8fc4e8',prop:'#e8e1d2',propEdge:'#8e806c',
+      posture:.5,width:0,hair:'short2',glasses:false,headset:false
+    }
+  };
+
+  function roleMarker(ctx,X,y,s){
+    ctx.fillStyle=P.cyan;
+    ctx.beginPath();
+    ctx.moveTo(X+22*s,y-7*s);
+    ctx.lineTo(X+17*s,y-1*s);
+    ctx.lineTo(X+27*s,y-1*s);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  function roleHairFront(ctx,a,p,X,y,s){
+    if(p.hair==='bob'||p.hair==='graybob'){
+      rr(ctx,X+8*s,y+2*s,28*s,9*s,6*s,a.hair);
+      rr(ctx,X+7*s,y+7*s,6*s,16*s,4*s,a.hair);
+      rr(ctx,X+32*s,y+7*s,6*s,16*s,4*s,a.hair);
+      ctx.fillStyle=a.hairHi;
+      ctx.fillRect(X+13*s,y+3*s,13*s,2*s);
+      if(p.hair==='graybob'){
+        ctx.fillStyle='rgba(255,255,255,.22)';
+        ctx.fillRect(X+11*s,y+6*s,3*s,11*s);
+        ctx.fillRect(X+31*s,y+7*s,2*s,10*s);
+      }
+    }else if(p.hair==='spiky'){
+      rr(ctx,X+9*s,y+4*s,27*s,7*s,5*s,a.hair);
+      for(const [dx,dy] of [[9,2],[15,-1],[22,1],[29,0],[34,3]]){
+        ctx.beginPath();
+        ctx.moveTo(X+dx*s,y+7*s);
+        ctx.lineTo(X+(dx+4)*s,y+dy*s);
+        ctx.lineTo(X+(dx+7)*s,y+8*s);
+        ctx.closePath();
+        ctx.fillStyle=a.hair;
+        ctx.fill();
+      }
+      ctx.fillStyle=a.hairHi;
+      ctx.fillRect(X+16*s,y+3*s,11*s,2*s);
+    }else if(p.hair==='long'){
+      rr(ctx,X+8*s,y+2*s,28*s,10*s,6*s,a.hair);
+      rr(ctx,X+6*s,y+8*s,7*s,24*s,4*s,a.hair);
+      rr(ctx,X+31*s,y+8*s,7*s,24*s,4*s,a.hair);
+      ctx.fillStyle=a.hairHi;
+      ctx.fillRect(X+13*s,y+3*s,13*s,2*s);
+    }else if(p.hair==='bun'){
+      rr(ctx,X+15*s,y-5*s,15*s,11*s,6*s,a.hair);
+      rr(ctx,X+8*s,y+2*s,28*s,10*s,6*s,a.hair);
+      rr(ctx,X+7*s,y+8*s,6*s,13*s,3*s,a.hair);
+      rr(ctx,X+32*s,y+8*s,6*s,13*s,3*s,a.hair);
+      ctx.fillStyle=a.hairHi;
+      ctx.fillRect(X+17*s,y-3*s,9*s,2*s);
+    }else{
+      rr(ctx,X+8*s,y+2*s,28*s,9*s,6*s,a.hair);
+      rr(ctx,X+7*s,y+7*s,6*s,11*s,3*s,a.hair);
+      rr(ctx,X+32*s,y+7*s,6*s,11*s,3*s,a.hair);
+      ctx.fillStyle=a.hairHi;
+      ctx.fillRect(X+14*s,y+3*s,12*s,2*s);
+    }
+  }
+
+  function roleHairBack(ctx,a,p,X,y,s){
+    if(p.hair==='bun'){
+      rr(ctx,X+15*s,y-5*s,15*s,11*s,6*s,a.hair);
+      rr(ctx,X+8*s,y+2*s,28*s,12*s,7*s,a.hair);
+      rr(ctx,X+10*s,y+9*s,24*s,13*s,6*s,a.hair);
+    }else if(p.hair==='long'){
+      rr(ctx,X+8*s,y+2*s,28*s,11*s,7*s,a.hair);
+      rr(ctx,X+6*s,y+8*s,32*s,27*s,8*s,a.hair);
+      ctx.fillStyle=a.hairHi;
+      ctx.fillRect(X+13*s,y+4*s,13*s,2*s);
+      ctx.fillRect(X+11*s,y+14*s,3*s,14*s);
+    }else if(p.hair==='bob'||p.hair==='graybob'){
+      rr(ctx,X+8*s,y+2*s,28*s,11*s,7*s,a.hair);
+      rr(ctx,X+7*s,y+8*s,31*s,16*s,7*s,a.hair);
+      ctx.fillStyle=a.hairHi;
+      ctx.fillRect(X+13*s,y+4*s,13*s,2*s);
+      if(p.hair==='graybob'){
+        ctx.fillStyle='rgba(255,255,255,.22)';
+        ctx.fillRect(X+10*s,y+9*s,3*s,10*s);
+      }
+    }else if(p.hair==='spiky'){
+      roleHairFront(ctx,a,p,X,y,s);
+      rr(ctx,X+10*s,y+9*s,25*s,12*s,6*s,a.hair);
+    }else{
+      rr(ctx,X+8*s,y+2*s,28*s,11*s,7*s,a.hair);
+      rr(ctx,X+10*s,y+8*s,24*s,11*s,5*s,a.hair);
+      ctx.fillStyle=a.hairHi;
+      ctx.fillRect(X+13*s,y+4*s,13*s,2*s);
+    }
+  }
+
+  function roleHairSide(ctx,a,p,X,y,s){
+    if(p.hair==='bun'){
+      rr(ctx,X+13*s,y-4*s,14*s,10*s,6*s,a.hair);
+      rr(ctx,X+10*s,y+2*s,26*s,10*s,6*s,a.hair);
+      rr(ctx,X+9*s,y+8*s,7*s,14*s,4*s,a.hair);
+    }else if(p.hair==='long'){
+      rr(ctx,X+10*s,y+2*s,26*s,10*s,6*s,a.hair);
+      rr(ctx,X+8*s,y+8*s,11*s,25*s,6*s,a.hair);
+      ctx.fillStyle=a.hairHi;
+      ctx.fillRect(X+15*s,y+3*s,11*s,2*s);
+    }else if(p.hair==='bob'||p.hair==='graybob'){
+      rr(ctx,X+10*s,y+2*s,26*s,10*s,6*s,a.hair);
+      rr(ctx,X+9*s,y+8*s,9*s,17*s,5*s,a.hair);
+      ctx.fillStyle=a.hairHi;
+      ctx.fillRect(X+15*s,y+3*s,11*s,2*s);
+    }else if(p.hair==='spiky'){
+      rr(ctx,X+10*s,y+4*s,25*s,7*s,5*s,a.hair);
+      for(const [dx,dy] of [[11,1],[18,-2],[26,0],[33,2]]){
+        ctx.beginPath();
+        ctx.moveTo(X+dx*s,y+7*s);
+        ctx.lineTo(X+(dx+5)*s,y+dy*s);
+        ctx.lineTo(X+(dx+8)*s,y+8*s);
+        ctx.closePath();
+        ctx.fillStyle=a.hair;
+        ctx.fill();
+      }
+    }else{
+      rr(ctx,X+10*s,y+2*s,26*s,9*s,6*s,a.hair);
+      rr(ctx,X+9*s,y+7*s,7*s,12*s,4*s,a.hair);
+      ctx.fillStyle=a.hairHi;
+      ctx.fillRect(X+15*s,y+3*s,10*s,2*s);
+    }
+  }
+
+  function roleFaceFront(ctx,a,p,X,y,s,blink){
+    // Brows tuned by personality: Kevin/Sarah more open, Finn/Walter calmer and flatter.
+    const browY=(p.key==='research'||p.key==='contacts')?11.5:11;
+    ctx.fillStyle='#4a342f';
+    ctx.fillRect(X+13*s,y+browY*s,6*s,1.3*s);
+    ctx.fillRect(X+26*s,y+browY*s,6*s,1.3*s);
+
+    if(blink){
+      ctx.fillStyle='#6a4940';
+      ctx.fillRect(X+14*s,y+14*s,5*s,1.2*s);
+      ctx.fillRect(X+27*s,y+14*s,5*s,1.2*s);
+    }else{
+      rr(ctx,X+14*s,y+13*s,5*s,3*s,1.5*s,'#33262a');
+      rr(ctx,X+27*s,y+13*s,5*s,3*s,1.5*s,'#33262a');
+      ctx.fillStyle='#fff6eb';
+      ctx.fillRect(X+15*s,y+13*s,2*s,1*s);
+      ctx.fillRect(X+28*s,y+13*s,2*s,1*s);
+    }
+
+    ctx.fillStyle='#b77861';
+    ctx.fillRect(X+22*s,y+15*s,2*s,3*s);
+
+    // Different mouths give each role a different resting energy.
+    ctx.fillStyle='#87554d';
+    if(p.key==='contacts'||p.key==='research'){
+      ctx.fillRect(X+18*s,y+19*s,8*s,1*s);
+      ctx.fillStyle='#d9a18a';
+      ctx.fillRect(X+20*s,y+18*s,4*s,1*s);
+    }else if(p.key==='archive'){
+      ctx.fillRect(X+19*s,y+19*s,7*s,1*s);
+    }else{
+      ctx.fillRect(X+19*s,y+19*s,6*s,1*s);
+    }
+
+    if(p.glasses){
+      ctx.strokeStyle='#4a5860';
+      ctx.lineWidth=1.2*s;
+      ctx.strokeRect(X+12*s,y+12*s,8*s,6*s);
+      ctx.strokeRect(X+25*s,y+12*s,8*s,6*s);
+      line(ctx,X+20*s,y+14*s,X+25*s,y+14*s,'#4a5860',1*s);
+    }
+
+    if(p.headset){
+      ctx.strokeStyle='#253848';
+      ctx.lineWidth=1.8*s;
+      ctx.beginPath();
+      ctx.arc(X+22*s,y+11*s,15*s,Math.PI*1.05,Math.PI*1.95);
+      ctx.stroke();
+      rr(ctx,X+7*s,y+12*s,4*s,8*s,2*s,'#253848');
+      line(ctx,X+9*s,y+18*s,X+15*s,y+21*s,'#253848',1.5*s);
+      rr(ctx,X+14*s,y+20*s,4*s,3*s,1.5*s,p.signature);
+    }
+  }
+
+  function rolePropFront(ctx,a,p,X,y,s,sway){
+    if(p.key==='mail'){
+      // Two envelopes: immediately says Nora / mail.
+      rr(ctx,X+34*s+sway,y+34*s,12*s,10*s,2*s,p.prop,p.propEdge,1);
+      line(ctx,X+35*s+sway,y+35*s,X+40*s+sway,y+39*s,'#b79c7d',1);
+      line(ctx,X+45*s+sway,y+35*s,X+40*s+sway,y+39*s,'#b79c7d',1);
+      rr(ctx,X+31*s+sway,y+40*s,11*s,9*s,2*s,'#efe3cc','#b79c7d',1);
+      ctx.fillStyle=p.signature;
+      ctx.fillRect(X+36*s+sway,y+42*s,3*s,3*s);
+    }else if(p.key==='research'){
+      // Kevin's search tablet + bright cyan scan line.
+      rr(ctx,X+34*s+sway,y+33*s,11*s,17*s,3*s,p.prop,p.propEdge,1);
+      rr(ctx,X+36*s+sway,y+35*s,7*s,11*s,2*s,'#17475c');
+      ctx.fillStyle=p.signature;
+      ctx.fillRect(X+37*s+sway,y+37*s,5*s,2*s);
+      ctx.fillRect(X+38*s+sway,y+41*s,3*s,1*s);
+    }else if(p.key==='archive'){
+      // Gisela carries a thick archive folder / book stack.
+      rr(ctx,X+33*s+sway,y+34*s,13*s,16*s,2*s,p.prop,'#5c3d2c',1);
+      ctx.fillStyle=p.propEdge;
+      ctx.fillRect(X+35*s+sway,y+36*s,9*s,2*s);
+      ctx.fillStyle='#eadbb9';
+      ctx.fillRect(X+36*s+sway,y+40*s,7*s,6*s);
+      ctx.fillStyle=p.signature;
+      ctx.fillRect(X+34*s+sway,y+47*s,10*s,2*s);
+    }else if(p.key==='calendar'){
+      // Lina's cream planner with visible colored tabs.
+      rr(ctx,X+34*s+sway,y+33*s,12*s,17*s,3*s,p.prop,p.propEdge,1);
+      ctx.fillStyle='#fff7df';
+      ctx.fillRect(X+36*s+sway,y+35*s,8*s,12*s);
+      ctx.fillStyle=p.signature;
+      ctx.fillRect(X+36*s+sway,y+37*s,8*s,2*s);
+      ctx.fillRect(X+43*s+sway,y+41*s,3*s,2*s);
+      ctx.fillStyle='#b96959';
+      ctx.fillRect(X+43*s+sway,y+44*s,3*s,2*s);
+    }else if(p.key==='tech'){
+      // Walter's chunky diagnostic meter and amber tool accent.
+      rr(ctx,X+33*s+sway,y+32*s,13*s,18*s,3*s,p.prop,p.propEdge,1);
+      rr(ctx,X+35*s+sway,y+34*s,9*s,8*s,2*s,'#173e4e');
+      ctx.save();
+      ctx.shadowColor=p.signature;
+      ctx.shadowBlur=5;
+      ctx.fillStyle=p.signature;
+      ctx.fillRect(X+37*s+sway,y+36*s,5*s,2*s);
+      ctx.restore();
+      ctx.fillStyle='#e0a657';
+      ctx.fillRect(X+35*s+sway,y+45*s,3*s,3*s);
+      ctx.fillRect(X+40*s+sway,y+45*s,3*s,3*s);
+    }else if(p.key==='contacts'){
+      // Sarah: phone in one hand; headset already frames her face.
+      rr(ctx,X+35*s+sway,y+34*s,8*s,15*s,3*s,p.prop,p.propEdge,1);
+      ctx.fillStyle='#283f62';
+      ctx.fillRect(X+37*s+sway,y+36*s,4*s,8*s);
+      ctx.save();
+      ctx.shadowColor=p.signature;
+      ctx.shadowBlur=4;
+      ctx.fillStyle=p.signature;
+      ctx.fillRect(X+38*s+sway,y+37*s,2*s,2*s);
+      ctx.restore();
+    }else if(p.key==='followup'){
+      // Finn's checklist clipboard has unmistakable tick marks.
+      rr(ctx,X+33*s+sway,y+33*s,13*s,18*s,3*s,p.prop,p.propEdge,1);
+      rr(ctx,X+37*s+sway,y+31*s,6*s,4*s,2*s,'#7c6f5e');
+      ctx.strokeStyle='#446d78';
+      ctx.lineWidth=1.2*s;
+      for(let i=0;i<3;i++){
+        const yy=y+(37+i*4)*s;
+        ctx.beginPath();
+        ctx.moveTo(X+35*s+sway,yy);
+        ctx.lineTo(X+37*s+sway,yy+2*s);
+        ctx.lineTo(X+40*s+sway,yy-1*s);
+        ctx.stroke();
+        ctx.fillStyle='#9c8f7d';
+        ctx.fillRect(X+41*s+sway,yy-1*s,3*s,1*s);
+      }
+    }
+  }
+
+  function rolePropBack(ctx,a,p,X,y,s,sway){
+    if(p.key==='mail'){
+      // Nora's cross-body mail satchel is even clearer from behind.
+      line(ctx,X+12*s+sway,y+28*s,X+33*s+sway,y+43*s,p.signature,2*s);
+      rr(ctx,X+27*s+sway,y+39*s,14*s,12*s,3*s,'#9f4f49','#623638',1);
+      rr(ctx,X+29*s+sway,y+41*s,10*s,4*s,2*s,'#c76a5d');
+    }else if(p.key==='research'){
+      // Headphones around Kevin's neck/back.
+      ctx.strokeStyle='#24333b';
+      ctx.lineWidth=3*s;
+      ctx.beginPath();
+      ctx.arc(X+22*s,y+27*s,9*s,0,Math.PI);
+      ctx.stroke();
+      rr(ctx,X+11*s,y+25*s,5*s,8*s,2*s,'#1d2b31');
+      rr(ctx,X+28*s,y+25*s,5*s,8*s,2*s,'#1d2b31');
+    }else if(p.key==='archive'){
+      rr(ctx,X+34*s+sway,y+34*s,12*s,17*s,2*s,p.prop,'#5c3d2c',1);
+      ctx.fillStyle=p.signature;
+      ctx.fillRect(X+35*s+sway,y+47*s,9*s,2*s);
+    }else if(p.key==='calendar'){
+      rr(ctx,X+34*s+sway,y+34*s,11*s,17*s,3*s,p.prop,p.propEdge,1);
+      ctx.fillStyle=p.signature;
+      ctx.fillRect(X+42*s+sway,y+38*s,3*s,2*s);
+    }else if(p.key==='tech'){
+      // Tool belt and meter make Walter instantly technical from behind.
+      rr(ctx,X+9*s+sway,y+39*s,27*s,5*s,2*s,'#766044','#3f352b',1);
+      ctx.fillStyle='#e0a657';
+      ctx.fillRect(X+12*s+sway,y+41*s,5*s,5*s);
+      ctx.fillRect(X+28*s+sway,y+41*s,5*s,6*s);
+      rr(ctx,X+35*s+sway,y+34*s,10*s,16*s,3*s,p.prop,p.propEdge,1);
+    }else if(p.key==='contacts'){
+      // Headset band is visible behind Sarah's bun.
+      ctx.strokeStyle='#283848';
+      ctx.lineWidth=2*s;
+      ctx.beginPath();
+      ctx.arc(X+22*s,y+12*s,15*s,Math.PI*1.05,Math.PI*1.95);
+      ctx.stroke();
+      rr(ctx,X+35*s+sway,y+35*s,8*s,14*s,3*s,p.prop,p.propEdge,1);
+    }else if(p.key==='followup'){
+      rr(ctx,X+34*s+sway,y+34*s,12*s,17*s,3*s,p.prop,p.propEdge,1);
+      ctx.fillStyle='#446d78';
+      ctx.fillRect(X+36*s+sway,y+38*s,7*s,2*s);
+      ctx.fillRect(X+36*s+sway,y+43*s,7*s,2*s);
+    }
+  }
+
+  function rolePropSide(ctx,a,p,X,y,s,sway){
+    // Side view keeps one oversized signature prop readable.
+    rolePropFront(ctx,a,p,X,y,s,sway);
+  }
+
+  function detailedRoleFront(ctx,a,p,T,selected,elapsed){
+    const s=.84;
+    const X=Math.round(a.x*T-2);
+    const Y=Math.round(a.y*T-28+p.posture);
+    const walk=a.state==='Walk';
+    const phase=walk?Math.sin(a.step*18):0;
+    const stepA=walk?phase*1.7:0;
+    const stepB=walk?-phase*1.7:0;
+    const breath=walk?0:Math.sin(elapsed*1.8+a.phase)*.45;
+    const sway=walk?Math.sin(a.step*9)*.35:Math.sin(elapsed*.72+a.phase)*.22;
+    const blink=((elapsed+a.phase*1.7)%4.5)<.10;
+    const y=Y+breath;
+    const bw=28+p.width;
+
+    ctx.save();
+    ctx.fillStyle='rgba(31,25,28,.20)';
+    ctx.beginPath();
+    ctx.ellipse(X+22*s,y+58*s,14*s,4*s,0,0,Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+
+    // Feet and legs.
+    rr(ctx,X+9*s,y+(53+stepA)*s,10*s,5*s,2*s,p.shoe,'#17151a',1);
+    rr(ctx,X+25*s,y+(53+stepB)*s,10*s,5*s,2*s,p.shoe,'#17151a',1);
+    rr(ctx,X+10*s,y+(40+stepA*.25)*s,9*s,14*s,3*s,p.lower,'#1a2028',1);
+    rr(ctx,X+25*s,y+(40+stepB*.25)*s,9*s,14*s,3*s,p.lower,'#1a2028',1);
+
+    // Torso with role-specific tailoring.
+    rr(ctx,X+(22-bw/2)*s+sway,y+25*s,bw*s,18*s,6*s,'#161d28','#10161f',1);
+    rr(ctx,X+(23-bw/2)*s+sway,y+26*s,(bw-2)*s,16*s,5*s,p.body,'#182435',1);
+    rr(ctx,X+(26-bw/2)*s+sway,y+27*s,(bw-8)*s,4*s,3*s,p.body2);
+
+    // Shirt/blouse center and signature accent.
+    ctx.fillStyle=p.accent;
+    ctx.beginPath();
+    ctx.moveTo(X+18*s+sway,y+27*s);
+    ctx.lineTo(X+27*s+sway,y+27*s);
+    ctx.lineTo(X+28*s+sway,y+38*s);
+    ctx.lineTo(X+17*s+sway,y+38*s);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle=p.signature;
+    if(p.key==='mail'){
+      rr(ctx,X+19*s+sway,y+29*s,7*s,5*s,2*s,p.signature);
+    }else if(p.key==='research'){
+      ctx.fillRect(X+20*s+sway,y+29*s,5*s,8*s);
+    }else if(p.key==='archive'){
+      rr(ctx,X+18*s+sway,y+30*s,9*s,3*s,1.5*s,p.signature);
+    }else if(p.key==='calendar'){
+      ctx.fillRect(X+20*s+sway,y+28*s,4*s,10*s);
+    }else if(p.key==='tech'){
+      ctx.fillRect(X+13*s+sway,y+29*s,3*s,9*s);
+      ctx.fillRect(X+29*s+sway,y+29*s,3*s,9*s);
+    }else if(p.key==='contacts'){
+      rr(ctx,X+19*s+sway,y+30*s,8*s,3*s,2*s,p.signature);
+    }else{
+      ctx.fillRect(X+20*s+sway,y+29*s,5*s,7*s);
+    }
+
+    // Arms.
+    const armSwing=walk?-phase*1.2:0;
+    rr(ctx,X+5*s+sway,y+(29+armSwing)*s,7*s,14*s,4*s,p.body,'#111925',1);
+    rr(ctx,X+33*s+sway,y+(29-armSwing*.4)*s,7*s,14*s,4*s,p.body,'#111925',1);
+    rr(ctx,X+6*s+sway,y+(41+armSwing)*s,6*s,5*s,3*s,a.skin,'#9a6954',1);
+    rr(ctx,X+34*s+sway,y+41*s,6*s,5*s,3*s,a.skin,'#9a6954',1);
+
+    // Neck/head.
+    rr(ctx,X+18*s,y+21*s,9*s,7*s,3*s,a.skin,'#9a6954',1);
+    rr(ctx,X+8*s,y+3*s,28*s,20*s,8*s,'#241a1b');
+    rr(ctx,X+9*s,y+4*s,26*s,19*s,8*s,a.skin,'#9a6954',1);
+    rr(ctx,X+12*s,y+5*s,20*s,5*s,4*s,a.skinHi);
+    roleHairFront(ctx,a,p,X,y,s);
+    roleFaceFront(ctx,a,p,X,y,s,blink);
+    rolePropFront(ctx,a,p,X,y,s,sway);
+
+    if(selected) roleMarker(ctx,X,y,s);
+  }
+
+  function detailedRoleBack(ctx,a,p,T,selected,elapsed){
+    const s=.84;
+    const X=Math.round(a.x*T-2);
+    const Y=Math.round(a.y*T-28+p.posture);
+    const walk=a.state==='Walk';
+    const phase=walk?Math.sin(a.step*18):0;
+    const stepA=walk?phase*1.7:0;
+    const stepB=walk?-phase*1.7:0;
+    const breath=walk?0:Math.sin(elapsed*1.8+a.phase)*.45;
+    const sway=walk?Math.sin(a.step*9)*.35:Math.sin(elapsed*.72+a.phase)*.22;
+    const y=Y+breath;
+    const bw=28+p.width;
+
+    ctx.save();
+    ctx.fillStyle='rgba(31,25,28,.20)';
+    ctx.beginPath();
+    ctx.ellipse(X+22*s,y+58*s,14*s,4*s,0,0,Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+
+    rr(ctx,X+9*s,y+(53+stepA)*s,10*s,5*s,2*s,p.shoe,'#17151a',1);
+    rr(ctx,X+25*s,y+(53+stepB)*s,10*s,5*s,2*s,p.shoe,'#17151a',1);
+    rr(ctx,X+10*s,y+(40+stepA*.25)*s,9*s,14*s,3*s,p.lower,'#1a2028',1);
+    rr(ctx,X+25*s,y+(40+stepB*.25)*s,9*s,14*s,3*s,p.lower,'#1a2028',1);
+
+    rr(ctx,X+(22-bw/2)*s+sway,y+25*s,bw*s,18*s,6*s,'#161d28','#10161f',1);
+    rr(ctx,X+(23-bw/2)*s+sway,y+26*s,(bw-2)*s,16*s,5*s,p.body,'#182435',1);
+    rr(ctx,X+(26-bw/2)*s+sway,y+27*s,(bw-8)*s,4*s,3*s,p.body2);
+
+    // Rear seams / role cues.
+    ctx.fillStyle='rgba(255,255,255,.07)';
+    ctx.fillRect(X+14*s+sway,y+28*s,17*s,2*s);
+    ctx.fillStyle=p.signature;
+    if(p.key==='tech'){
+      ctx.fillRect(X+11*s+sway,y+31*s,3*s,8*s);
+      ctx.fillRect(X+31*s+sway,y+31*s,3*s,8*s);
+    }else if(p.key==='contacts'){
+      ctx.fillRect(X+20*s+sway,y+38*s,5*s,2*s);
+    }else if(p.key==='mail'){
+      ctx.fillRect(X+20*s+sway,y+27*s,5*s,3*s);
+    }
+
+    const armSwing=walk?-phase*1.1:0;
+    rr(ctx,X+5*s+sway,y+(29+armSwing)*s,7*s,14*s,4*s,p.body,'#111925',1);
+    rr(ctx,X+33*s+sway,y+(29-armSwing)*s,7*s,14*s,4*s,p.body,'#111925',1);
+    rr(ctx,X+6*s+sway,y+(41+armSwing)*s,6*s,5*s,3*s,a.skin,'#9a6954',1);
+    rr(ctx,X+34*s+sway,y+(41-armSwing)*s,6*s,5*s,3*s,a.skin,'#9a6954',1);
+
+    rr(ctx,X+18*s,y+21*s,9*s,7*s,3*s,a.skin,'#9a6954',1);
+    rr(ctx,X+8*s,y+3*s,28*s,20*s,8*s,'#241a1b');
+    rr(ctx,X+9*s,y+4*s,26*s,19*s,8*s,a.skin,'#9a6954',1);
+    roleHairBack(ctx,a,p,X,y,s);
+    rolePropBack(ctx,a,p,X,y,s,sway);
+
+    if(selected) roleMarker(ctx,X,y,s);
+  }
+
+  function detailedRoleSideRight(ctx,a,p,T,selected,elapsed){
+    const s=.84;
+    const X=Math.round(a.x*T-2);
+    const Y=Math.round(a.y*T-28+p.posture);
+    const walk=a.state==='Walk';
+    const phase=walk?Math.sin(a.step*18):0;
+    const stepA=walk?phase*1.8:0;
+    const stepB=walk?-phase*1.8:0;
+    const breath=walk?0:Math.sin(elapsed*1.8+a.phase)*.45;
+    const sway=walk?Math.sin(a.step*9)*.38:Math.sin(elapsed*.72+a.phase)*.20;
+    const blink=((elapsed+a.phase*1.7)%4.5)<.10;
+    const y=Y+breath;
+
+    ctx.save();
+    ctx.fillStyle='rgba(31,25,28,.20)';
+    ctx.beginPath();
+    ctx.ellipse(X+22*s,y+58*s,14*s,4*s,0,0,Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+
+    rr(ctx,X+(9+stepA*.5)*s,y+52*s,12*s,5*s,2*s,p.shoe,'#17151a',1);
+    rr(ctx,X+(23+stepB*.5)*s,y+52*s,12*s,5*s,2*s,p.shoe,'#17151a',1);
+    rr(ctx,X+(12+stepA*.35)*s,y+39*s,9*s,14*s,3*s,p.lower,'#1a2028',1);
+    rr(ctx,X+(23+stepB*.35)*s,y+39*s,9*s,14*s,3*s,p.lower,'#1a2028',1);
+
+    rr(ctx,X+10*s+sway,y+25*s,25*s,18*s,6*s,'#161d28','#10161f',1);
+    rr(ctx,X+12*s+sway,y+26*s,22*s,16*s,5*s,p.body,'#182435',1);
+    rr(ctx,X+14*s+sway,y+27*s,17*s,4*s,3*s,p.body2);
+
+    // Side-visible role color and shirt.
+    ctx.fillStyle=p.accent;
+    ctx.beginPath();
+    ctx.moveTo(X+27*s+sway,y+27*s);
+    ctx.lineTo(X+33*s+sway,y+28*s);
+    ctx.lineTo(X+31*s+sway,y+38*s);
+    ctx.lineTo(X+26*s+sway,y+36*s);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle=p.signature;
+    ctx.fillRect(X+24*s+sway,y+30*s,3*s,7*s);
+
+    const armSwing=walk?phase*1.25:0;
+    rr(ctx,X+8*s+sway,y+(29+armSwing)*s,7*s,14*s,4*s,p.body,'#111925',1);
+    rr(ctx,X+31*s+sway,y+(29-armSwing*.35)*s,7*s,14*s,4*s,p.body,'#111925',1);
+    rr(ctx,X+9*s+sway,y+(41+armSwing)*s,6*s,5*s,3*s,a.skin,'#9a6954',1);
+    rr(ctx,X+33*s+sway,y+40*s,6*s,5*s,3*s,a.skin,'#9a6954',1);
+
+    rr(ctx,X+20*s,y+20*s,9*s,7*s,3*s,a.skin,'#9a6954',1);
+    rr(ctx,X+10*s,y+3*s,27*s,20*s,8*s,'#241a1b');
+    rr(ctx,X+12*s,y+4*s,23*s,19*s,8*s,a.skin,'#9a6954',1);
+    rr(ctx,X+15*s,y+5*s,16*s,4*s,3*s,a.skinHi);
+
+    // Profile nose.
+    ctx.fillStyle=a.skin;
+    ctx.beginPath();
+    ctx.moveTo(X+33*s,y+12*s);
+    ctx.lineTo(X+38*s,y+15*s);
+    ctx.lineTo(X+33*s,y+17*s);
+    ctx.closePath();
+    ctx.fill();
+
+    roleHairSide(ctx,a,p,X,y,s);
+
+    ctx.fillStyle='#4a342f';
+    ctx.fillRect(X+26*s,y+11*s,6*s,1.3*s);
+    if(blink){
+      ctx.fillStyle='#6a4940';
+      ctx.fillRect(X+28*s,y+14*s,4*s,1.2*s);
+    }else{
+      rr(ctx,X+28*s,y+13*s,4*s,3*s,1.5*s,'#33262a');
+      ctx.fillStyle='#fff6eb';
+      ctx.fillRect(X+29*s,y+13*s,1*s,1*s);
+    }
+
+    rr(ctx,X+12*s,y+12*s,5*s,7*s,3*s,a.skin,'#9a6954',1);
+    ctx.fillStyle='#87554d';
+    ctx.fillRect(X+31*s,y+18*s,5*s,1*s);
+
+    if(p.glasses){
+      ctx.strokeStyle='#4a5860';
+      ctx.lineWidth=1.2*s;
+      ctx.strokeRect(X+26*s,y+12*s,8*s,6*s);
+      line(ctx,X+34*s,y+14*s,X+37*s,y+14*s,'#4a5860',1*s);
+    }
+
+    if(p.headset){
+      ctx.strokeStyle='#253848';
+      ctx.lineWidth=1.8*s;
+      ctx.beginPath();
+      ctx.arc(X+22*s,y+11*s,14*s,Math.PI*1.05,Math.PI*1.85);
+      ctx.stroke();
+      rr(ctx,X+10*s,y+13*s,4*s,8*s,2*s,'#253848');
+      line(ctx,X+12*s,y+19*s,X+20*s,y+21*s,'#253848',1.5*s);
+      rr(ctx,X+19*s,y+20*s,4*s,3*s,1.5*s,p.signature);
+    }
+
+    rolePropSide(ctx,a,p,X,y,s,sway);
+
+    if(selected) roleMarker(ctx,X,y,s);
+  }
+
+  function detailedRoleSide(ctx,a,p,T,selected,elapsed,left){
+    if(!left) return detailedRoleSideRight(ctx,a,p,T,selected,elapsed);
+
+    const s=.84;
+    const X=Math.round(a.x*T-2);
+    const center=X+22*s;
+    ctx.save();
+    ctx.translate(center*2,0);
+    ctx.scale(-1,1);
+    detailedRoleSideRight(ctx,a,p,T,selected,elapsed);
+    ctx.restore();
+  }
+
+  function detailedRoleCharacter(ctx,a,T,selected,elapsed){
+    const p=ROLE_PROFILES[a.id];
+    if(!p) return;
+    const facing=a.facing||'down';
+    if(facing==='up') return detailedRoleBack(ctx,a,p,T,selected,elapsed);
+    if(facing==='left') return detailedRoleSide(ctx,a,p,T,selected,elapsed,true);
+    if(facing==='right') return detailedRoleSide(ctx,a,p,T,selected,elapsed,false);
+    return detailedRoleFront(ctx,a,p,T,selected,elapsed);
+  }
+
   function character(ctx,a,T,selected,elapsed){
     if(a.id==='james') return characterJames(ctx,a,T,selected,elapsed);
-    const s=.78,X=Math.round(a.x*T+1),Y=Math.round(a.y*T-21),wf=a.state==='Walk'?(Math.floor(a.step*10)%2):0,bob=a.state==='Walk'?wf*1.5:Math.sin(elapsed*2+a.phase)*.7,y=Y+bob;
-    ctx.save();ctx.fillStyle='rgba(39,29,31,.18)';ctx.beginPath();ctx.ellipse(X+18*s,y+43*s,12*s,3.8*s,0,0,Math.PI*2);ctx.fill();ctx.restore();
-    rr(ctx,X+10*s,y+31*s,7*s,13*s,2*s,a.body);rr(ctx,X+20*s,y+31*s+wf*1.5,7*s,13*s,2*s,a.body);rr(ctx,X+9*s,y+42*s,9*s,4*s,2*s,'#252832');rr(ctx,X+19*s,y+42*s+wf*1.5,10*s,4*s,2*s,'#252832');
-    rr(ctx,X+6*s,y+19*s,25*s,15*s,5*s,P.ink);rr(ctx,X+8*s,y+20*s,21*s,13*s,4*s,a.body);rr(ctx,X+10*s,y+20*s,17*s,5*s,3*s,a.bodyHi);rr(ctx,X+16*s,y+21*s,5*s,10*s,2*s,a.accent);
-    if(a.wave>0){rr(ctx,X+3*s,y+20*s,7*s,14*s,4*s,a.body);rr(ctx,X+1*s,y+4*s,7*s,19*s,4*s,a.skin);rr(ctx,X,y+2*s,9*s,7*s,4*s,a.skinHi);}
-    else {rr(ctx,X+3*s,y+21*s,7*s,14*s,4*s,a.body);rr(ctx,X+28*s,y+21*s,7*s,14*s,4*s,a.body);rr(ctx,X+4*s,y+32*s,6*s,5*s,3*s,a.skin);rr(ctx,X+29*s,y+32*s,6*s,5*s,3*s,a.skin);}
-    rr(ctx,X+15*s,y+15*s,8*s,7*s,3*s,a.skin);rr(ctx,X+5*s,y+2*s,27*s,18*s,7*s,P.ink);rr(ctx,X+7*s,y+4*s,23*s,15*s,7*s,a.skin);rr(ctx,X+10*s,y+5*s,17*s,4*s,3*s,a.skinHi);drawHair(ctx,a,X,y,s);
-    ctx.fillStyle='#34282a';ctx.fillRect(X+12*s,y+12*s,3*s,2*s);ctx.fillRect(X+24*s,y+12*s,3*s,2*s);ctx.fillStyle='#fff4e8';ctx.fillRect(X+13*s,y+12*s,1*s,1*s);ctx.fillRect(X+25*s,y+12*s,1*s,1*s);
-    ctx.fillStyle='#b87562';ctx.fillRect(X+19*s,y+14*s,2*s,2*s);rr(ctx,X+16*s,y+17*s,6*s,1.5*s,1*s,'#8c5a51');
-    if(selected){ctx.fillStyle=P.cyan;ctx.beginPath();ctx.moveTo(X+19*s,y-9*s);ctx.lineTo(X+14*s,y-3*s);ctx.lineTo(X+24*s,y-3*s);ctx.closePath();ctx.fill();}
+    return detailedRoleCharacter(ctx,a,T,selected,elapsed);
   }
 
   const drawers={frame,brandWall,topBackWall,embeddedOffice,wallCore,topTransition,glassOffice,doorBank,poster,counterDesk,stairs,techPod,reception,logo,sofa,entry,server,plant};

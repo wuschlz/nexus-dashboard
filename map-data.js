@@ -2,13 +2,13 @@
   const T=32;
   const team=[
     {id:'james',name:'James',role:'Leitung',skin:'#d8a47b',skinHi:'#efc097',hair:'#35241f',hairHi:'#5c4034',body:'#213955',bodyHi:'#3a5b82',accent:'#eef2f5',style:'short',detail:'leader',beard:'#4b352e',trouser:'#1b293a',shoe:'#3a2b27',pin:'#35d6e9',folio:'#162432',x:5,y:7,desk:[5,7]},
-    {id:'nora',name:'Nora',role:'Mail',skin:'#d9a481',skinHi:'#efbd9a',hair:'#503228',hairHi:'#7b5646',body:'#263f67',bodyHi:'#3b5e8e',accent:'#f3f5f7',style:'bob',x:18,y:7,desk:[18,7]},
-    {id:'kevin',name:'Kevin',role:'Recherche',skin:'#dcae84',skinHi:'#f2c49a',hair:'#9b5f32',hairHi:'#c98548',body:'#426852',bodyHi:'#5d886d',accent:'#deeadf',style:'spiky',x:7,y:11,desk:[7,11]},
-    {id:'gisela',name:'Gisela',role:'Wissen & Archiv',skin:'#d3a17b',skinHi:'#e8b690',hair:'#bab8ad',hairHi:'#e1ddd2',body:'#67465a',bodyHi:'#845e74',accent:'#eee5dc',style:'graybob',x:11,y:11,desk:[11,11]},
-    {id:'lina',name:'Lina',role:'Kalender',skin:'#c99070',skinHi:'#dfa889',hair:'#28211f',hairHi:'#493a35',body:'#744b3a',bodyHi:'#97684f',accent:'#efdfca',style:'long',x:15,y:11,desk:[15,11]},
-    {id:'walter',name:'Walter',role:'Technik',skin:'#ca9874',skinHi:'#dfae8a',hair:'#b5b3ac',hairHi:'#dedbd2',body:'#3a4e59',bodyHi:'#58717c',accent:'#d7e4e8',style:'grayshort',x:19,y:11,desk:[19,11]},
-    {id:'sarah',name:'Sarah',role:'Kontakte',skin:'#be8261',skinHi:'#d99d7d',hair:'#2b211f',hairHi:'#4a3833',body:'#65527a',bodyHi:'#826b99',accent:'#ece0f2',style:'bun',x:11,y:20,desk:[11,20]},
-    {id:'finn',name:'Finn',role:'Follow-ups',skin:'#d5a07b',skinHi:'#ecb991',hair:'#59402e',hairHi:'#806047',body:'#4a5878',bodyHi:'#66779c',accent:'#e1e7ef',style:'short2',x:14,y:20,desk:[14,20]}
+    {id:'nora',name:'Nora',role:'Mail',skin:'#d9a481',skinHi:'#efbd9a',hair:'#503228',hairHi:'#7b5646',body:'#263f67',bodyHi:'#3b5e8e',accent:'#f3f5f7',style:'bob',detail:'mail',x:18,y:7,desk:[18,7]},
+    {id:'kevin',name:'Kevin',role:'Recherche',skin:'#dcae84',skinHi:'#f2c49a',hair:'#9b5f32',hairHi:'#c98548',body:'#426852',bodyHi:'#5d886d',accent:'#deeadf',style:'spiky',detail:'research',x:7,y:11,desk:[7,11]},
+    {id:'gisela',name:'Gisela',role:'Wissen & Archiv',skin:'#d3a17b',skinHi:'#e8b690',hair:'#bab8ad',hairHi:'#e1ddd2',body:'#67465a',bodyHi:'#845e74',accent:'#eee5dc',style:'graybob',detail:'archive',x:11,y:11,desk:[11,11]},
+    {id:'lina',name:'Lina',role:'Kalender',skin:'#c99070',skinHi:'#dfa889',hair:'#28211f',hairHi:'#493a35',body:'#744b3a',bodyHi:'#97684f',accent:'#efdfca',style:'long',detail:'calendar',x:15,y:11,desk:[15,11]},
+    {id:'walter',name:'Walter',role:'Technik',skin:'#ca9874',skinHi:'#dfae8a',hair:'#b5b3ac',hairHi:'#dedbd2',body:'#3a4e59',bodyHi:'#58717c',accent:'#d7e4e8',style:'grayshort',detail:'tech',x:19,y:11,desk:[19,11]},
+    {id:'sarah',name:'Sarah',role:'Kontakte',skin:'#be8261',skinHi:'#d99d7d',hair:'#2b211f',hairHi:'#4a3833',body:'#65527a',bodyHi:'#826b99',accent:'#ece0f2',style:'bun',detail:'contacts',x:11,y:20,desk:[11,20]},
+    {id:'finn',name:'Finn',role:'Follow-ups',skin:'#d5a07b',skinHi:'#ecb991',hair:'#59402e',hairHi:'#806047',body:'#4a5878',bodyHi:'#66779c',accent:'#e1e7ef',style:'short2',detail:'followup',x:14,y:20,desk:[14,20]}
   ];
 
   const objects=[
@@ -58,7 +58,7 @@
   ];
 
   window.NEXUS_MAP={
-    version:'2.10',tile:T,cols:24,rows:32,width:24*T,height:32*T,
+    version:'2.11',tile:T,cols:24,rows:32,width:24*T,height:32*T,
     floor:{base:'#ebcb8b',alt:'#f2d79c',line:'#d7b675',highlight:'#fae9c3'},
     team,objects,collisions,meetingSpot:[12,27],doorSpot:[12,8]
   };

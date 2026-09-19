@@ -1,22 +1,23 @@
-# NEXUS Retro Office 2.10
+# NEXUS Retro Office 2.11
 
-Character Detail Pass 2: James directional views.
+Character Ensemble Pass: alle acht Mitarbeiter sind jetzt eigenständige Figuren.
 
 ## Änderungen
 
-- James reagiert jetzt vollständig auf seine tatsächliche Laufrichtung
-- Frontansicht bei Bewegung nach unten
-- detaillierte Rückansicht bei Bewegung nach oben
-- echtes Seitenprofil bei Bewegung nach rechts
-- gespiegeltes Seitenprofil bei Bewegung nach links
-- Kopf, Nase, Auge, Bart, Haare und Ohren drehen sichtbar mit der Perspektive
-- Blazer, Revers, Hemd, NEXUS-Pin und Folio bleiben auch im Profil erkennbar
-- Rückansicht zeigt Jackennaht, Schulterform, Nacken, Hinterkopf und das seitlich getragene Folio
-- Beinstellung und Armschwung sind an die jeweilige Ansicht angepasst
-- nach dem Anhalten bleibt James in seiner zuletzt gelaufenen Blickrichtung stehen
-- bestehendes Pathfinding und Bewegungsmodell bleiben unverändert
-- die übrigen sieben Charaktere bleiben für diesen Qualitätscheck noch unverändert
+- alle sieben restlichen Charaktere auf das neue Detailniveau gezogen
+- alle acht Figuren besitzen Front-, Rück- und Seitenansichten
+- jede Figur behält ihre wichtigsten Erkennungsmerkmale in jeder Blickrichtung
+- Nora: eleganter Navy-Look, markanter Bob, rote Mail-Akzente, Umschlag-/Post-Requisiten und rückseitige Mailtasche
+- Kevin: junger grüner Research-Look, auffällige kupferfarbene Spikes, Headset und leuchtendes Recherche-Tablet
+- Gisela: grauer Bob, große Brille, warmer Archiv-Look und dicke Archivmappe/Buchstapel
+- Lina: langes dunkles Haar, warmer Organizer-Look und heller Kalenderplaner mit farbigen Tabs
+- Walter: breitere ältere Techniker-Silhouette, graues Haar, Brille, Utility-Details, Werkzeugakzente und Diagnosegerät
+- Sarah: hoher Dutt, violetter Kontakt-Look, Headset mit Mikrofon, offene freundliche Mimik und Smartphone
+- Finn: ruhiger blau-grauer Follow-up-Look, klare sachliche Silhouette und markantes Checklist-Clipboard mit Häkchen
+- James bleibt der Leitungs-Charakter aus 2.10 mit Blazer, Folio, Bartschatten und vier Blickrichtungen
+- individuelle Mimik, Haltung, Körperbreite und kleine Idle-Bewegungen unterscheiden die Figuren zusätzlich
+- Pathfinding, Tap-Steuerung, Architektur, Sofas und Server bleiben unverändert
 
 ## Version
 
-Office 2.10 · Cache 300
+Office 2.11 · Cache 310
