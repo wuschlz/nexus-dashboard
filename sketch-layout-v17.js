@@ -847,7 +847,7 @@
             const pulse=.94+Math.sin(t*2.05+node.metadata.phase)*.035;
             node.scaling.set(pulse,pulse,pulse);
 
-            // Do not show holographic labels through office walls or glass partitions.
+            // Halo may be visible through glass. Only opaque masonry/outer walls occlude it.
             const cam=scene.activeCamera;
             let blocked=false;
             if(cam){
@@ -860,20 +860,11 @@
                 dir.normalize();
                 const ray=new BABYLON.Ray(camPos,dir,distance-.04);
 
-                const wallPrefixes=[
-                  'v17ServerFront',
-                  'v17JamesFront',
-                  'v17MeetingFront',
-                  'v17ServerJamesDivider',
-                  'v17JamesMeetingDivider'
-                ];
-
                 for(const mesh of scene.meshes){
                   if(!mesh || !mesh.isEnabled() || mesh===plane) continue;
                   const n=mesh.name||'';
-                  const isOuterWall=n==='backWall' || n==='leftWall' || n==='rightWall';
-                  const isOfficeWall=wallPrefixes.some(prefix=>n.startsWith(prefix));
-                  if(!isOuterWall && !isOfficeWall) continue;
+                  const isOpaqueWall=n==='backWall' || n==='leftWall' || n==='rightWall';
+                  if(!isOpaqueWall) continue;
 
                   const hit=ray.intersectsMesh(mesh,false);
                   if(hit && hit.hit && hit.distance<distance-.05){
@@ -1767,13 +1758,13 @@
     // Door animation is driven by app.js in the same render loop that moves James.
     // This avoids a separate animation observer getting out of sync with pathfinding.
     function ui(){
-      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.74';
-      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · Funktions-Icons außen · Halo-Namen werden von Wänden verdeckt';
-      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.74 · WALL-OCCLUDED HALOS';
+      const t=document.getElementById('viewTitle'); if(t)t.textContent='Office 1.75';
+      const m=document.querySelector('.stage-toolbar .muted'); if(m)m.textContent=' · Funktions-Icons außen · Halo sichtbar durch Glas, verdeckt nur durch Mauern';
+      const b=document.querySelector('.scene-badge'); if(b)b.innerHTML='<span class="dot live"></span>OFFICE 1.75 · GLASS-VISIBLE HALOS';
     }
     ui(); let ticks=0; const uiTimer=setInterval(()=>{ui(); if(++ticks>24)clearInterval(uiTimer);},250);
     const feed=document.getElementById('activityFeed');
-    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.74 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
+    if(feed){const item=document.createElement('div');item.className='activity-item';item.innerHTML='<div class="activity-time">Preview</div><div class="activity-text">Office 1.75 · kompletter Möbel-Neuaufbau · feste Orientierung · Glasfronten · keine Pflanzen</div>';feed.prepend(item);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
     return true;
   }
 
