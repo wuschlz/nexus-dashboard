@@ -13,16 +13,16 @@
 
   const objects=[
     {type:'frame',x:0,y:0,w:24,h:32,layer:0},
-    {type:'brandWall',x:2,y:1,w:20,h:3,layer:0},
-    {type:'glassOffice',x:2,y:4,w:7,h:5,layer:1,variant:'left'},
-    {type:'doorBank',x:10,y:4,w:4,h:4,layer:1},
-    {type:'glassOffice',x:15,y:4,w:7,h:5,layer:1,variant:'right'},
-    {type:'poster',x:.5,y:4.3,w:1.5,h:5,layer:1,side:'left'},
-    {type:'poster',x:22,y:4.2,w:1.5,h:5,layer:1,side:'right'},
+
+    // One continuous back wall: the upper rooms are embedded in this same floor.
+    {type:'topBackWall',x:1,y:1,w:22,h:2.25,layer:0},
+    {type:'embeddedOffice',x:2,y:3.15,w:7.4,h:5.15,layer:1,variant:'left'},
+    {type:'wallCore',x:9.7,y:3.15,w:4.6,h:5.15,layer:1},
+    {type:'embeddedOffice',x:14.6,y:3.15,w:7.4,h:5.15,layer:1,variant:'right'},
+    {type:'topTransition',x:1.6,y:8.3,w:20.8,h:1.05,layer:1},
+
     {type:'counterDesk',x:5,y:10,w:6,h:2.8,layer:1,variant:0},
     {type:'counterDesk',x:13,y:10,w:6,h:2.8,layer:1,variant:1},
-    {type:'stairs',x:0,y:12,w:2.5,h:8,layer:1,side:'left'},
-    {type:'stairs',x:21.5,y:12,w:2.5,h:8,layer:1,side:'right'},
     {type:'techPod',x:5.5,y:14,w:13,h:4,layer:1},
     {type:'reception',x:8,y:18,w:8,h:4,layer:1},
     {type:'logo',x:8.5,y:22.3,w:7,h:4.3,layer:0},
@@ -30,6 +30,7 @@
     {type:'sofa',x:19,y:24.2,w:4,h:2.5,layer:1,side:'right'},
     {type:'entry',x:9.2,y:29,w:5.6,h:3,layer:1},
     {type:'server',x:18.25,y:13.9,w:2.2,h:4.5,layer:1},
+
     {type:'plant',x:2.3,y:9.2,w:1,h:1,layer:2},
     {type:'plant',x:6.1,y:9.0,w:1,h:1,layer:2},
     {type:'plant',x:11.8,y:8.9,w:1,h:1,layer:2},
@@ -43,16 +44,21 @@
 
   const collisions=[
     [0,0,24,1],[0,31,24,1],[0,0,1,32],[23,0,1,32],
-    [2,4,7,5],[10,4,4,4],[15,4,7,5],
+
+    // Back wall and embedded same-level offices. Door gaps remain walkable.
+    [1,1,22,2],
+    [2,3,7,1],[2,3,1,5],[8,3,1,5],[2,7,3,1],[6,7,3,1],
+    [10,3,4,5],
+    [15,3,7,1],[15,3,1,5],[21,3,1,5],[15,7,3,1],[19,7,3,1],
+
     [5,10,6,3],[13,10,6,3],
-    [0,12,3,8],[21,12,3,8],
     [5,14,14,4],[8,18,8,4],
     [1,24,4,3],[19,24,4,3],
     [9,29,6,3],[18,14,3,4]
   ];
 
   window.NEXUS_MAP={
-    version:'2.7',tile:T,cols:24,rows:32,width:24*T,height:32*T,
+    version:'2.8',tile:T,cols:24,rows:32,width:24*T,height:32*T,
     floor:{base:'#ebcb8b',alt:'#f2d79c',line:'#d7b675',highlight:'#fae9c3'},
     team,objects,collisions,meetingSpot:[12,27],doorSpot:[12,8]
   };

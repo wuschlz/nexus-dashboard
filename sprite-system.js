@@ -46,6 +46,221 @@
     for(const lx of [X+86,X+W-118]){ctx.save();ctx.shadowColor=P.gold;ctx.shadowBlur=12;ctx.fillStyle=P.gold;ctx.fillRect(lx,Y+9,22,4);ctx.restore();}
   }
 
+  function topBackWall(ctx,o,T){
+    const X=o.x*T,Y=o.y*T,W=o.w*T,H=o.h*T;
+
+    // Flat architectural back wall, intentionally without a platform shadow.
+    const g=ctx.createLinearGradient(X,Y,X,Y+H);
+    g.addColorStop(0,'#263443');
+    g.addColorStop(.55,'#202c39');
+    g.addColorStop(1,'#18232f');
+    rr(ctx,X,Y,W,H,5,g,'#101821',3);
+
+    // Vertical wall panels establish one continuous room boundary.
+    const panelCount=11;
+    const pw=W/panelCount;
+    for(let i=1;i<panelCount;i++){
+      line(ctx,X+i*pw,Y+8,X+i*pw,Y+H-10,'rgba(116,139,157,.22)',1);
+    }
+
+    // Warm top trim + lower baseboard.
+    ctx.fillStyle='#75513a';
+    ctx.fillRect(X+5,Y+4,W-10,7);
+    ctx.fillStyle='#b9845d';
+    ctx.fillRect(X+8,Y+5,W-16,2);
+    ctx.fillStyle='#34495c';
+    ctx.fillRect(X+6,Y+H-12,W-12,7);
+    ctx.fillStyle='rgba(160,198,219,.20)';
+    ctx.fillRect(X+8,Y+H-11,W-16,2);
+
+    // Integrated NEXUS sign, flush with the wall rather than a raised mezzanine.
+    const signW=Math.min(330,W*.56);
+    const signH=Math.min(48,H*.62);
+    const sx=X+W/2-signW/2;
+    const sy=Y+H/2-signH/2+2;
+    rr(ctx,sx,sy,signW,signH,5,'#142331','#30485b',2);
+
+    rr(ctx,sx+14,sy+8,32,32,7,'#17384a',P.cyan,2);
+    txt(ctx,'N',sx+30,sy+24,17,'#d8fbff','center',800);
+    txt(ctx,'N E X U S',sx+signW*.53,sy+20,17,'#ecf7fb','center',800);
+    txt(ctx,'OPERATIONS',sx+signW*.53,sy+34,7,'#829daf','center',700);
+
+    // Wall washers point down into the same floor plane.
+    for(const lx of [X+55,X+W-77]){
+      ctx.save();
+      ctx.shadowColor='#ffc96f';
+      ctx.shadowBlur=10;
+      rr(ctx,lx,Y+14,22,4,2,'#ffc96f');
+      ctx.restore();
+
+      const lg=ctx.createLinearGradient(lx,Y+18,lx,Y+H);
+      lg.addColorStop(0,'rgba(255,201,111,.16)');
+      lg.addColorStop(1,'rgba(255,201,111,0)');
+      ctx.fillStyle=lg;
+      ctx.beginPath();
+      ctx.moveTo(lx+2,Y+18);
+      ctx.lineTo(lx+20,Y+18);
+      ctx.lineTo(lx+35,Y+H-2);
+      ctx.lineTo(lx-13,Y+H-2);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+
+  function embeddedOffice(ctx,o,T){
+    const X=o.x*T,Y=o.y*T,W=o.w*T,H=o.h*T;
+    const left=o.variant!=='right';
+
+    // Flush wall recess: no deep external shadow, no raised floor slab.
+    rr(ctx,X,Y,W,H,5,'#31404a','#18222b',3);
+    rr(ctx,X+5,Y+5,W-10,H-10,3,'#d8b98c','#745942',2);
+
+    // Back wall, same warm palette as the main floor.
+    const bg=ctx.createLinearGradient(X,Y,X,Y+H);
+    bg.addColorStop(0,'#e6c79b');
+    bg.addColorStop(1,'#cfa77a');
+    rr(ctx,X+10,Y+10,W-20,H-20,3,bg,'#9a7557',1);
+
+    // Built-in wall cabinetry and shelf details.
+    const shelfX=left?X+17:X+W-78;
+    rr(ctx,shelfX,Y+18,61,42,4,'#8b5d43','#5e4234',2);
+    for(let i=0;i<3;i++){
+      ctx.fillStyle='#c39a6d';
+      ctx.fillRect(shelfX+6,Y+27+i*10,49,2);
+    }
+    for(let i=0;i<5;i++){
+      ctx.fillStyle=i%2?'#31596b':'#a85744';
+      ctx.fillRect(shelfX+9+i*9,Y+21+(i%2)*10,5,9);
+    }
+
+    // Desk is aligned with the same floor, not sitting on a platform.
+    const deskX=left?X+W*.40:X+W*.17;
+    const deskY=Y+68;
+    rr(ctx,deskX,deskY,W*.43,27,5,'#8e4937','#633126',2);
+    rr(ctx,deskX+3,deskY+3,W*.43-6,7,3,'#d16b4b');
+    rr(ctx,deskX+5,deskY+12,W*.43-10,11,3,'#b6533d');
+
+    monitor(ctx,deskX+W*.12,deskY-24,.72);
+    rr(ctx,deskX+W*.29,deskY+8,28,4,2,'#eadab7','#a98b67',1);
+    cup(ctx,deskX+W*.36,deskY-2);
+
+    // Office chair with back, seat and five-star hint.
+    const cx=deskX+W*.21, cy=deskY+38;
+    rr(ctx,cx-17,cy-18,34,14,7,'#384957','#222d36',2);
+    rr(ctx,cx-13,cy-5,26,12,6,'#526775','#293640',2);
+    line(ctx,cx,cy+6,cx,cy+15,'#4d5962',3);
+    line(ctx,cx,cy+15,cx-13,cy+20,'#4d5962',2);
+    line(ctx,cx,cy+15,cx+13,cy+20,'#4d5962',2);
+
+    // Small side plant and framed wall print.
+    plantMini(ctx,left?X+W-43:X+15,Y+55,.65);
+    const artX=left?X+W-67:X+16;
+    rr(ctx,artX,Y+16,42,28,3,'#24394a','#77553d',2);
+    line(ctx,artX+7,Y+35,artX+18,Y+23,P.cyan,2);
+    line(ctx,artX+18,Y+23,artX+34,Y+34,'#e5b56f',2);
+
+    // Full-height glass frontage, visually thin and transparent.
+    const gy=Y+H-58;
+    ctx.save();
+    ctx.globalAlpha=.28;
+    ctx.fillStyle='#d9f6f7';
+    ctx.fillRect(X+7,gy,W-14,51);
+    ctx.restore();
+
+    line(ctx,X+7,gy,X+W-7,gy,'#47778a',2);
+    line(ctx,X+7,Y+H-7,X+W-7,Y+H-7,'#47778a',2);
+    const panes=4;
+    for(let i=1;i<panes;i++){
+      const px=X+7+i*(W-14)/panes;
+      line(ctx,px,gy,px,Y+H-7,'#47778a',1.5);
+    }
+
+    // Central doorway gap in the glass frontage.
+    const doorC=left?X+W*.48:X+W*.52;
+    const doorW=37;
+    ctx.clearRect(doorC-doorW/2,gy+2,doorW,49);
+    line(ctx,doorC-doorW/2,gy,doorC-doorW/2,Y+H-7,'#426d7f',2);
+    line(ctx,doorC+doorW/2,gy,doorC+doorW/2,Y+H-7,'#426d7f',2);
+    ctx.fillStyle='#80654c';
+    ctx.fillRect(doorC+doorW/2-4,gy+26,3,7);
+
+    // Glass reflections make it read as a wall opening, not a separate level.
+    ctx.save();
+    ctx.globalAlpha=.50;
+    ctx.fillStyle='#efffff';
+    ctx.beginPath();
+    ctx.moveTo(X+18,gy+5);
+    ctx.lineTo(X+53,gy+5);
+    ctx.lineTo(X+36,Y+H-12);
+    ctx.lineTo(X+13,Y+H-12);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    // Thin flush threshold only—specifically no stair or elevated lip.
+    ctx.fillStyle='#8a7256';
+    ctx.fillRect(X+8,Y+H-7,W-16,3);
+    ctx.fillStyle='rgba(255,255,255,.22)';
+    ctx.fillRect(X+10,Y+H-7,W-20,1);
+  }
+
+  function wallCore(ctx,o,T){
+    const X=o.x*T,Y=o.y*T,W=o.w*T,H=o.h*T;
+
+    rr(ctx,X,Y,W,H,5,'#263542','#151f29',3);
+    rr(ctx,X+7,Y+7,W-14,H-14,3,'#344858','#21303c',2);
+
+    // Vertical cladding ties directly into the back wall.
+    for(let i=1;i<5;i++){
+      line(ctx,X+8+i*(W-16)/5,Y+8,X+8+i*(W-16)/5,Y+H-8,'rgba(148,174,190,.18)',1);
+    }
+
+    // Flush access door, deliberately not styled like an elevator.
+    const dw=W*.58,dh=H*.67;
+    const dx=X+W/2-dw/2,dy=Y+H-dh-8;
+    rr(ctx,dx,dy,dw,dh,4,'#72523e','#161e26',2);
+    rr(ctx,dx+6,dy+6,dw-12,dh-12,3,'#8d684d','#5c4334',1);
+    ctx.fillStyle='#b88b67';
+    ctx.fillRect(dx+10,dy+10,dw-20,4);
+
+    // Narrow glass slit + handle instead of lift doors.
+    rr(ctx,dx+dw*.63,dy+18,13,dh-37,3,'rgba(105,177,193,.65)','#315b6d',1);
+    ctx.fillStyle='#e0c28d';
+    ctx.fillRect(dx+14,dy+dh*.58,4,15);
+
+    // NEXUS wall plaque.
+    rr(ctx,X+W/2-32,Y+13,64,27,5,'#132a3a','#356b82',2);
+    txt(ctx,'N',X+W/2,Y+26,16,P.cyan,'center',800);
+
+    // Two downlights cast light onto the same floor.
+    for(const lx of [X+20,X+W-32]){
+      ctx.save();
+      ctx.shadowColor='#ffc96f';
+      ctx.shadowBlur=8;
+      rr(ctx,lx,Y+48,12,3,2,'#ffc96f');
+      ctx.restore();
+    }
+  }
+
+  function topTransition(ctx,o,T){
+    const X=o.x*T,Y=o.y*T,W=o.w*T,H=o.h*T;
+
+    // A flat architectural threshold, not a step.
+    ctx.fillStyle='rgba(116,86,59,.16)';
+    ctx.fillRect(X,Y,W,H);
+    ctx.fillStyle='#a27d59';
+    ctx.fillRect(X,Y+H*.35,W,3);
+    ctx.fillStyle='#e6c895';
+    ctx.fillRect(X+4,Y+H*.35+3,W-8,2);
+
+    // Repeated small floor inlays visually continue the main room.
+    for(let x=X+18;x<X+W-12;x+=42){
+      rr(ctx,x,Y+H*.62,22,5,2,'#c19c69','#8d704d',1);
+      ctx.fillStyle='rgba(255,255,255,.16)';
+      ctx.fillRect(x+4,Y+H*.62+1,14,1);
+    }
+  }
+
   function glassOffice(ctx,o,T){
     const X=o.x*T,Y=o.y*T,W=o.w*T,H=o.h*T;shadow(ctx,X,Y,W,H,16,.2);
     rr(ctx,X,Y,W,H,5,'#c89b70',P.ink,3);rr(ctx,X+7,Y+7,W-14,H-14,3,'#e0bd90','#8b6148',2);
@@ -383,6 +598,6 @@
     if(selected){ctx.fillStyle=P.cyan;ctx.beginPath();ctx.moveTo(X+19*s,y-9*s);ctx.lineTo(X+14*s,y-3*s);ctx.lineTo(X+24*s,y-3*s);ctx.closePath();ctx.fill();}
   }
 
-  const drawers={frame,brandWall,glassOffice,doorBank,poster,counterDesk,stairs,techPod,reception,logo,sofa,entry,server,plant};
+  const drawers={frame,brandWall,topBackWall,embeddedOffice,wallCore,topTransition,glassOffice,doorBank,poster,counterDesk,stairs,techPod,reception,logo,sofa,entry,server,plant};
   window.NEXUS_SPRITES={drawFloor,drawObject(ctx,o,T,elapsed=0){const fn=drawers[o.type];if(fn)fn(ctx,o,T,elapsed);},drawCharacter:character};
 })();
