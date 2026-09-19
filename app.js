@@ -1,507 +1,317 @@
 (() => {
-  const loading = document.getElementById('loading');
-  const feed = document.getElementById('activityFeed');
-  const characterCatalog=window.NEXUS_CHARACTER_CATALOG;
-  const team=(characterCatalog?.list||[
-    {name:'James',role:'Leitung',assetReady:true},
-    {name:'Nora',role:'Mail',assetReady:true},
-    {name:'Kevin',role:'Recherche',assetReady:false},
-    {name:'Gisela',role:'Wissen & Archiv',assetReady:false},
-    {name:'Lina',role:'Kalender',assetReady:false},
-    {name:'Walter',role:'Technik',assetReady:false},
-    {name:'Sarah',role:'Kontakte',assetReady:false},
-    {name:'Finn',role:'Follow-ups',assetReady:false}
-  ]).map(def=>[def.name,def.role,!!def.assetReady]);
+  'use strict';
+
+  const canvas=document.getElementById('game');
+  const ctx=canvas.getContext('2d');
+  ctx.imageSmoothingEnabled=false;
+
+  const TILE=16, COLS=24, ROWS=16;
+  const palette={
+    floorA:'#d9c58f', floorB:'#cfb97d', wall:'#bd8253', wallHi:'#e0a46c',
+    trim:'#6f4936', desk:'#c45d38', deskHi:'#e8834e', deskDark:'#783629',
+    glass:'#78bdd0', glassDark:'#447b91', screen:'#162d42', screenGlow:'#35d6e9',
+    plant:'#378b63', plantHi:'#67bb7b', pot:'#9b5940', rug:'#1c6d68',
+    shadow:'rgba(31,28,34,.28)', chair:'#334659', chairHi:'#60788d',
+    outline:'#3c2c2e'
+  };
+
+  const team=[
+    {id:'james',name:'James',role:'Leitung',skin:'#d7a476',hair:'#3a271f',body:'#24364e',accent:'#d9e6f2',x:4,y:11,desk:[4,11]},
+    {id:'nora',name:'Nora',role:'Mail',skin:'#d8a27f',hair:'#4a3028',body:'#253d64',accent:'#e7edf4',x:8,y:11,desk:[8,11]},
+    {id:'kevin',name:'Kevin',role:'Recherche',skin:'#d9ad83',hair:'#aa6a37',body:'#446b56',accent:'#dcebdc',x:13,y:11,desk:[13,11]},
+    {id:'gisela',name:'Gisela',role:'Wissen & Archiv',skin:'#d0a079',hair:'#c8c4b8',body:'#6b445a',accent:'#eee4dd',x:18,y:11,desk:[18,11]},
+    {id:'lina',name:'Lina',role:'Kalender',skin:'#c99070',hair:'#27211f',body:'#744d3b',accent:'#f0dfc9',x:5,y:6,desk:[5,6]},
+    {id:'walter',name:'Walter',role:'Technik',skin:'#c99672',hair:'#b8b7b0',body:'#3c4e58',accent:'#d3e3e9',x:11,y:6,desk:[11,6]},
+    {id:'sarah',name:'Sarah',role:'Kontakte',skin:'#bd805f',hair:'#2c211f',body:'#62517a',accent:'#eadff3',x:16,y:6,desk:[16,6]},
+    {id:'finn',name:'Finn',role:'Follow-ups',skin:'#d5a17d',hair:'#59402e',body:'#495879',accent:'#e0e6f1',x:20,y:6,desk:[20,6]}
+  ].map((a,i)=>({...a,tx:a.x,ty:a.y,path:[],state:'Idle',facing:'down',step:0,wave:0,phase:i*.7}));
+
+  let selected=team[0];
+  let elapsed=0, last=performance.now(), doorOpen=0;
+  const feed=document.getElementById('feed');
+
+  // 0 walkable, 1 solid.
+  const solid=Array.from({length:ROWS},()=>Array(COLS).fill(0));
+  const block=(x,y,w,h)=>{for(let yy=y;yy<y+h;yy++)for(let xx=x;xx<x+w;xx++)if(xx>=0&&yy>=0&&xx<COLS&&yy<ROWS)solid[yy][xx]=1;};
+
+  // Outer walls are visual only along the top/edges; furniture forms obstacles.
+  block(1,1,7,3);             // meeting counter / upper office
+  block(9,1,5,2);             // archive/storage
+  block(16,1,6,2);            // server / contacts bank
+  block(3,7,4,2); block(8,7,4,2); block(13,7,4,2); block(18,7,4,2); // desks
+  block(10,11,4,2);           // central meeting table
+  block(21,10,2,4);           // plant bank
+
+  // Clear standing positions in front of desks.
+  team.forEach(a=>solid[a.desk[1]][a.desk[0]]=0);
+
+  const meetingSpot=[12,14];
 
   function log(text){
-    const item=document.createElement('div'); item.className='activity-item';
-    const t=new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    item.innerHTML=`<div class="activity-time">${t}</div><div class="activity-text">${text}</div>`;
-    feed.prepend(item); while(feed.children.length>3) feed.removeChild(feed.lastChild);
+    const d=document.createElement('div');
+    d.className='feed-item';
+    const now=new Date();
+    d.innerHTML='<time>'+now.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+'</time><div>'+text+'</div>';
+    feed.prepend(d);
+    while(feed.children.length>3) feed.removeChild(feed.lastChild);
   }
 
-  const teamList=document.getElementById('teamList');
-  team.forEach(([name,role,ready])=>{
-    const el=document.createElement('div'); el.className='person'+(name==='James'?' selected':'');
-    el.innerHTML=`<div class="avatar">${name.slice(0,2).toUpperCase()}</div><div><div class="person-name">${name}</div><div class="person-role">${role}</div></div><span class="person-state ${ready?'ready':''}"></span>`;
-    el.addEventListener('click',()=>{
-      document.querySelectorAll('.person').forEach(x=>x.classList.remove('selected')); el.classList.add('selected');
-      document.getElementById('inspectorName').textContent=name; document.getElementById('inspectorRole').textContent=role;
-      document.getElementById('assetState').textContent=ready?'geladen':'noch offen';
-      document.getElementById('inspectorStatus').textContent=ready?'Ready':'3D Asset pending';
-    }); teamList.appendChild(el);
-  });
-
-  document.querySelectorAll('.nav-item').forEach(btn=>btn.addEventListener('click',()=>{
-    document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active')); btn.classList.add('active');
-    document.getElementById('viewTitle').textContent=btn.textContent;
-  }));
-
-  if(!window.BABYLON){ loading.textContent='3D-Engine konnte nicht geladen werden.'; log('Babylon.js nicht verfügbar'); return; }
-
-  const canvas=document.getElementById('officeCanvas');
-  const engine=new BABYLON.Engine(canvas,true,{preserveDrawingBuffer:false,stencil:true},true);
-  const renderDpr=Math.min(2,window.devicePixelRatio||1);
-  engine.setHardwareScalingLevel(1/renderDpr);
-
-  const scene=new BABYLON.Scene(engine);
-  scene.clearColor=new BABYLON.Color4(0.028,0.042,0.062,1);
-  scene.imageProcessingConfiguration.toneMappingEnabled=true;
-  scene.imageProcessingConfiguration.exposure=1.12;
-  scene.imageProcessingConfiguration.contrast=1.12;
-
-  const camera=new BABYLON.ArcRotateCamera('camera',Math.PI*0.24,1.0,17.3,new BABYLON.Vector3(0,1.05,0.15),scene);
-  camera.attachControl(canvas,true); camera.lowerRadiusLimit=9; camera.upperRadiusLimit=22;
-  camera.lowerBetaLimit=.58; camera.upperBetaLimit=1.35; camera.wheelPrecision=55; camera.pinchPrecision=130;
-
-  const hemi=new BABYLON.HemisphericLight('hemi',new BABYLON.Vector3(0,1,0),scene);
-  hemi.intensity=.78; hemi.diffuse=new BABYLON.Color3(.82,.9,1); hemi.groundColor=new BABYLON.Color3(.08,.11,.16);
-  const key=new BABYLON.DirectionalLight('key',new BABYLON.Vector3(-.45,-1,-.35),scene);
-  key.position=new BABYLON.Vector3(7,10,8); key.intensity=1.15;
-
-  const glow=new BABYLON.GlowLayer('glow',scene,{blurKernelSize:12}); glow.intensity=.22;
-
-  function pbr(name,hex,rough=.68,metal=0){ const m=new BABYLON.PBRMaterial(name,scene); m.albedoColor=BABYLON.Color3.FromHexString(hex); m.roughness=rough; m.metallic=metal; return m; }
-  function emissive(name,hex){ const m=new BABYLON.StandardMaterial(name,scene); const c=BABYLON.Color3.FromHexString(hex); m.diffuseColor=c.scale(.16); m.emissiveColor=c; return m; }
-  function box(name,w,h,d,x,y,z,hex,rough=.68,metal=0,rot=0){ const m=BABYLON.MeshBuilder.CreateBox(name,{width:w,height:h,depth:d},scene); m.position.set(x,y,z); m.rotation.y=rot; m.material=pbr(name+'Mat',hex,rough,metal); return m; }
-  function cyl(name,diameter,height,x,y,z,hex,rough=.76,metal=0){ const m=BABYLON.MeshBuilder.CreateCylinder(name,{diameter,height,tessellation:28},scene); m.position.set(x,y,z); m.material=pbr(name+'Mat',hex,rough,metal); return m; }
-  function glass(name,w,h,d,x,y,z,rot=0){ const m=new BABYLON.PBRMaterial(name+'Mat',scene); m.albedoColor=new BABYLON.Color3(.3,.58,.82); m.alpha=.15; m.roughness=.08; m.metallic=.04; const g=BABYLON.MeshBuilder.CreateBox(name,{width:w,height:h,depth:d},scene); g.position.set(x,y,z); g.rotation.y=rot; g.material=m; return g; }
-  function strip(name,w,d,x,y,z,hex){ const s=BABYLON.MeshBuilder.CreateBox(name,{width:w,height:.028,depth:d},scene); s.position.set(x,y,z); s.material=emissive(name+'Mat',hex); return s; }
-  function label(name,text,x,y,z,rot=0){
-    const plane=BABYLON.MeshBuilder.CreatePlane(name,{width:1.05,height:.26},scene); plane.position.set(x,y,z); plane.rotation.y=rot;
-    const tex=new BABYLON.DynamicTexture(name+'Tex',{width:512,height:128},scene,false); tex.hasAlpha=true;
-    tex.drawText(text,null,82,'bold 42px Arial','#dcecff','transparent',true);
-    const m=new BABYLON.StandardMaterial(name+'Mat',scene); m.diffuseTexture=tex; m.opacityTexture=tex; m.emissiveColor=new BABYLON.Color3(.35,.62,1); m.disableLighting=true; plane.material=m; return plane;
-  }
-  function plant(name,x,z,s=1){ cyl(name+'Pot',.48*s,.40*s,x,.2*s,z,'#51483e',.82,0); cyl(name+'Stem',.07*s,.72*s,x,.64*s,z,'#2f684f'); for(let i=0;i<6;i++){ const l=BABYLON.MeshBuilder.CreateSphere(name+'Leaf'+i,{diameter:.31*s,segments:10},scene); l.scaling.set(.62,1.75,.44); l.position.set(x+Math.cos(i*1.05)*.16*s,.88*s+i*.045*s,z+Math.sin(i*1.05)*.15*s); l.rotation.z=i*.52; l.material=pbr(name+'LeafMat'+i,'#58a780',.88,0); } }
-  function chair(name,x,z,rot=0){ cyl(name+'Base',.47,.06,x,.33,z,'#171e28',.62,.18); box(name+'Stem',.055,.31,.055,x,.52,z,'#263443',.5,.22,rot); box(name+'Seat',.54,.09,.54,x,.72,z,'#47576b',.84,0,rot); const dx=Math.sin(rot)*.23,dz=Math.cos(rot)*.23; box(name+'Back',.57,.70,.085,x-dx,1.05,z-dz,'#52647b',.88,0,rot); }
-  function desk(name,x,z,rot=0,exec=false){
-    const w=exec?2.55:1.82,d=exec?1.08:.88; box(name+'Top',w,.085,d,x,.76,z,exec?'#745f4c':'#9f9588',exec?.45:.58,.06,rot);
-    box(name+'Beam',w*.82,.10,.12,x,.54,z,'#202b38',.44,.24,rot);
-    const off=w*.39; [-1,1].forEach((s,i)=>{ const lx=s*off, px=x+lx*Math.cos(rot), pz=z+lx*Math.sin(rot); box(name+'Leg'+i,.09,1.38,.5,px,.04,pz,'#273440',.5,.28,rot); });
-    const led=BABYLON.MeshBuilder.CreateBox(name+'Led',{width:w*.78,height:.022,depth:.035},scene); led.position.set(x,.68,z+(d*.48)*Math.cos(rot)); led.rotation.y=rot; led.material=emissive(name+'LedMat','#4aa3ff');
-  }
-  function monitor(name,x,z,rot=0){ box(name+'Frame',.82,.49,.045,x,1.18,z,'#101722',.24,.34,rot); const s=box(name+'Screen',.74,.41,.012,x,1.18,z+.031*Math.cos(rot),'#163c5e',.25,.05,rot); s.material.emissiveColor=new BABYLON.Color3(.055,.22,.38); box(name+'Stand',.055,.29,.055,x,.93,z,'#26323f',.45,.28,rot); }
-  function sofa(name,x,z,rot=0){ box(name+'Seat',1.55,.25,.68,x,.40,z,'#39495e',.9,0,rot); const dx=Math.sin(rot)*.28,dz=Math.cos(rot)*.28; box(name+'Back',1.55,.64,.12,x-dx,.73,z-dz,'#42546a',.92,0,rot); }
-  function station(name,x,z,rot=0,exec=false){ desk(name+'Desk',x,z,rot,exec); monitor(name+'Mon',x,z+(rot===0?-.15:.15),rot); chair(name+'Chair',x,z+(rot===0?.72:-.72),rot); label(name+'Label',name,x,1.52,z+(rot===0?-.46:.46),rot); }
-
-  box('floor',21,.16,14.5,0,-.08,0,'#171f2a',.95,0);
-  box('backWall',21,3.9,.16,0,1.95,-7.25,'#101720',.94,0);
-  box('leftWall',.16,3.9,14.5,-10.5,1.95,0,'#0e151e',.94,0);
-  box('rightWall',.16,3.9,7.8,10.5,1.95,-3.35,'#0e151e',.94,0);
-
-  strip('wallBlue',6.5,.035,-6.2,2.75,-7.14,'#3f8cff');
-  strip('wallBlue2',5.0,.035,1.0,2.92,-7.14,'#2f6bdc');
-  strip('wallBlue3',3.0,.035,7.25,2.65,-7.14,'#4aa3ff');
-  const brand=box('brandPanel',4.9,.92,.04,-6.4,2.05,-7.14,'#17263a',.35,.12); brand.material.emissiveColor=new BABYLON.Color3(.02,.07,.14);
-
-  box('centralPlatform',7.4,.035,5.2,.1,.02,.45,'#202c39',.96,0);
-  box('leadPlatform',4.1,.035,3.15,-6.35,.02,2.7,'#1a2533',.97,0);
-  box('loungePlatform',4.2,.035,3.35,-6.25,.02,-3.95,'#18222e',.97,0);
-  box('meetingPlatform',5.35,.035,4.45,6.05,.02,-3.55,'#182634',.97,0);
-
-  station('James',-6.35,2.75,0,true);
-  station('Nora',-2.25,-.65,0,false);
-  station('Kevin',1.05,-.65,Math.PI,false);
-  station('Gisela',-2.25,2.05,0,false);
-  station('Lina',1.05,2.05,Math.PI,false);
-  station('Walter',6.9,1.55,Math.PI,false);
-  station('Finn',6.9,4.0,Math.PI,false);
-  desk('SarahDesk',-3.85,5.0,-Math.PI/2,false); monitor('SarahMon',-3.7,5.0,-Math.PI/2); chair('SarahChair',-3.1,5.0,-Math.PI/2); label('SarahLabel','Sarah',-4.35,1.5,5.0,-Math.PI/2);
-
-  glass('receptionGlass',.05,1.55,2.65,-4.65,.8,5.0);
-  strip('receptionLed',2.0,.03,-3.85,.69,5.42,'#56b8ff');
-
-  sofa('loungeA',-6.75,-4.35,0); sofa('loungeB',-4.55,-3.3,-Math.PI/2);
-  box('coffee',1.05,.08,.62,-5.55,.34,-3.85,'#735d48',.52,.02); plant('loungePlant',-8.25,-5.65,1.08); plant('loungePlant2',-3.8,-5.55,.8);
-
-  glass('meetGlassLTop',.055,2.75,1.50,3.35,1.38,-5.05);
-  glass('meetGlassLBottom',.055,2.75,1.40,3.35,1.38,-2.00);
-  glass('meetGlassBack',5.45,2.75,.055,6.07,1.38,-5.82);
-  glass('meetGlassFront',5.45,2.75,.055,6.07,1.38,-1.28);
-  desk('meetTable',6.05,-3.55,0,true); chair('meetL',4.95,-3.55,Math.PI/2); chair('meetR',7.15,-3.55,-Math.PI/2); chair('meetT',6.05,-2.48,Math.PI); chair('meetB',6.05,-4.62,0);
-  const meetingScreen=box('meetingScreen',1.75,1.0,.055,8.75,1.65,-3.55,'#101b29',.25,.28,Math.PI/2); meetingScreen.material.emissiveColor=new BABYLON.Color3(.03,.12,.23);
-
-  plant('leadPlant',-8.55,4.95,.95); plant('teamPlant',3.2,4.85,.82); plant('rightPlant',8.85,5.45,.88);
-  [-7,-2.5,2.3,7].forEach((x,i)=>{ const p=new BABYLON.PointLight('accent'+i,new BABYLON.Vector3(x,3.1,.2),scene); p.diffuse=new BABYLON.Color3(.3,.55,1); p.intensity=.48; p.range=7; });
-
-  // Office Pathfinding V2 — rebuilt for the current v17/v37 geometry.
-  // Grid A* + exact L-desk footprints + door gaps + clearance-aware routing.
-  const NAV={minX:-9.70,maxX:9.70,minZ:-6.62,maxZ:6.55,step:.22,actorRadius:.24};
-  const obstacles=[];
-
-  function addObstacle(minX,maxX,minZ,maxZ,pad=NAV.actorRadius,label=''){
-    obstacles.push({
-      minX:minX-pad,maxX:maxX+pad,
-      minZ:minZ-pad,maxZ:maxZ+pad,
-      label
+  function teamUI(){
+    const list=document.getElementById('teamList');
+    list.innerHTML='';
+    team.forEach(a=>{
+      const b=document.createElement('button');
+      b.className='team-card'+(a===selected?' active':'');
+      b.innerHTML='<span class="avatar">▦</span><span><strong>'+a.name+'</strong><small>'+a.role+'</small></span><i class="online"></i>';
+      b.onclick=()=>{selected=a;updateUI();log(a.name+' ausgewählt');};
+      list.appendChild(b);
     });
   }
 
-  function addRect(cx,cz,w,d,rot=0,pad=NAV.actorRadius,label=''){
-    const ninety=Math.abs(Math.sin(rot))>.7;
-    const fw=ninety?d:w, fd=ninety?w:d;
-    addObstacle(cx-fw/2,cx+fw/2,cz-fd/2,cz+fd/2,pad,label);
+  function updateUI(){
+    teamUI();
+    document.getElementById('selectedName').textContent=selected.name;
+    document.getElementById('selectedRole').textContent=selected.role;
+    document.getElementById('selectedState').textContent=selected.state;
+    document.getElementById('selectedPos').textContent='['+Math.round(selected.x)+', '+Math.round(selected.y)+']';
   }
 
-  function localToWorld(cx,cz,lx,lz,rot){
-    const c=Math.cos(rot),q=Math.sin(rot);
-    return {x:cx+lx*c+lz*q,z:cz-lx*q+lz*c};
-  }
-
-  // Precise L-shaped desk footprint: main top + return, rather than one oversized rectangle.
-  function addLDesk(name,cx,cz,rot=0,exec=false,pad=.20){
-    const W=exec?2.72:2.28;
-    const D=exec?1.05:.94;
-    const RW=exec?.86:.74;
-    const RD=exec?1.22:1.10;
-    addRect(cx,cz,W,D,rot,pad,name+' main');
-    const lx=W/2-RW/2;
-    const lz=D/2+RD/2-.06;
-    const p=localToWorld(cx,cz,lx,lz,rot);
-    addRect(p.x,p.z,RW,RD,rot,pad,name+' return');
-  }
-
-  // Glass front walls with a navigable doorway cut out.
-  function addWallWithDoor(label,left,right,z,doorX,doorW){
-    const safeHalf=doorW/2-.10;
-    if(doorX-safeHalf>left) addObstacle(left,doorX-safeHalf,z-.055,z+.055,.08,label+' left glass');
-    if(doorX+safeHalf<right) addObstacle(doorX+safeHalf,right,z-.055,z+.055,.08,label+' right glass');
-  }
-
-  // Current rear rooms.
-  const ROOM={back:-7.10,front:-2.82};
-  const server={left:-10.22,right:-4.92,doorX:-6.62,doorW:1.10};
-  const jamesRoom={left:-4.92,right:1.55,doorX:-1.685,doorW:1.12};
-  const meetingRoom={left:1.55,right:10.22,doorX:3.335,doorW:1.18};
-
-  addWallWithDoor('server front',server.left,server.right,ROOM.front,server.doorX,server.doorW);
-  addWallWithDoor('James front',jamesRoom.left,jamesRoom.right,ROOM.front,jamesRoom.doorX,jamesRoom.doorW);
-  addWallWithDoor('meeting front',meetingRoom.left,meetingRoom.right,ROOM.front,meetingRoom.doorX,meetingRoom.doorW);
-
-  // Solid room dividers. Route must leave one room through its own sliding door.
-  addObstacle(-4.98,-4.86,ROOM.back,ROOM.front,.10,'server/James divider');
-  addObstacle(1.49,1.61,ROOM.back,ROOM.front,.10,'James/meeting divider');
-
-  // Current desks.
-  addLDesk('Walter',-7.55,-3.96,-Math.PI/2,false,.18);
-  addLDesk('James',-1.685,-4.62,Math.PI,true,.18);
-
-  // Central four-desk cross from v35+.
-  const islandCX=-1.05,islandCZ=2.15;
-  const islandLeftX=islandCX-1.82,islandRightX=islandCX+1.82;
-  const islandTopZ=islandCZ-1.42,islandBottomZ=islandCZ+1.42;
-  addLDesk('Gisela',islandLeftX,islandTopZ,-Math.PI/2,false,.20);
-  addLDesk('Nora',islandRightX,islandTopZ,Math.PI,false,.20);
-  addLDesk('Kevin',islandLeftX,islandBottomZ,0,false,.20);
-  addLDesk('Lina',islandRightX,islandBottomZ,Math.PI/2,false,.20);
-
-  addLDesk('Sarah',7.15,.10,Math.PI/2,false,.20);
-  addLDesk('Finn',7.15,3.45,Math.PI/2,false,.20);
-
-  // Long planter cross from v37.
-  addRect(islandCX,islandCZ,.34,5.35,0,.18,'vertical planter');
-  addRect(islandCX,islandCZ,6.10,.34,0,.18,'horizontal planter');
-
-  // Meeting table + occupied chair envelope.
-  addRect(5.885,-5.18,5.05,2.45,0,.18,'meeting table/chairs');
-
-  // Server racks against the rear wall.
-  addRect(-8.13,-6.79,3.25,.90,0,.16,'server racks');
-
-  // File cabinets along the left wall.
-  addRect(-9.58,-.91,.70,3.85,0,.12,'archive cabinets');
-
-  // Lounge: sofa, armchair and coffee table as one navigational island.
-  addRect(-6.82,5.16,4.15,2.75,0,.20,'lounge');
-
-  function isBlocked(x,z){
-    if(x<NAV.minX||x>NAV.maxX||z<NAV.minZ||z>NAV.maxZ) return true;
-    return obstacles.some(o=>x>=o.minX&&x<=o.maxX&&z>=o.minZ&&z<=o.maxZ);
-  }
-
-  // Mild penalty around obstacles keeps James centered in corridors instead of grazing furniture.
-  function clearancePenalty(x,z){
-    let p=0;
-    for(const o of obstacles){
-      if(x>=o.minX-.42&&x<=o.maxX+.42&&z>=o.minZ-.42&&z<=o.maxZ+.42){
-        if(!(x>=o.minX&&x<=o.maxX&&z>=o.minZ&&z<=o.maxZ)) p+=.20;
-      }
+  function tileFloor(){
+    for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){
+      ctx.fillStyle=((x+y)&1)?palette.floorA:palette.floorB;
+      ctx.fillRect(x*TILE,y*TILE,TILE,TILE);
+      ctx.fillStyle='rgba(255,255,255,.08)';
+      ctx.fillRect(x*TILE+2,y*TILE+2,TILE-4,1);
     }
-    return Math.min(.75,p);
   }
 
-  function toCell(v){
-    return {
-      x:Math.round((v.x-NAV.minX)/NAV.step),
-      z:Math.round((v.z-NAV.minZ)/NAV.step)
-    };
+  function pxRect(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h));}
+  function tileRect(x,y,w,h,c){pxRect(x*TILE,y*TILE,w*TILE,h*TILE,c);}
+
+  function drawWall(x,y,w,h){
+    tileRect(x,y,w,h,palette.wall);
+    pxRect(x*TILE,y*TILE,w*TILE,4,palette.wallHi);
+    pxRect(x*TILE,(y+h)*TILE-4,w*TILE,4,palette.trim);
   }
 
-  function toWorld(c){
-    return new BABYLON.Vector3(
-      NAV.minX+c.x*NAV.step,
-      0,
-      NAV.minZ+c.z*NAV.step
-    );
+  function drawDesk(x,y,w=4,h=2){
+    pxRect(x*TILE+2,y*TILE+7,w*TILE-4,h*TILE-9,palette.shadow);
+    tileRect(x,y,w,h,palette.deskDark);
+    pxRect(x*TILE+2,y*TILE+2,w*TILE-4,9,palette.deskHi);
+    pxRect(x*TILE+4,y*TILE+11,w*TILE-8,h*TILE-15,palette.desk);
+    // monitor
+    pxRect((x+1)*TILE+2,y*TILE+4,18,11,palette.screen);
+    pxRect((x+1)*TILE+4,y*TILE+6,14,7,'#24526b');
+    pxRect((x+1)*TILE+5,y*TILE+7,9,1,palette.screenGlow);
+    // keyboard
+    pxRect((x+2)*TILE+7,(y+1)*TILE+1,18,3,'#e7d9b8');
   }
 
-  function keyCell(c){return c.x+','+c.z;}
-  function blockedCell(c){
-    const p=toWorld(c);
-    return isBlocked(p.x,p.z);
+  function drawChair(cx,cy){
+    const x=cx*TILE+3,y=cy*TILE+1;
+    pxRect(x+2,y+2,10,11,palette.shadow);
+    pxRect(x,y,10,8,palette.chair);
+    pxRect(x+2,y+1,6,3,palette.chairHi);
+    pxRect(x+2,y+8,2,6,palette.chair);
+    pxRect(x+7,y+8,2,6,palette.chair);
   }
 
-  function nearestFree(cell){
-    if(!blockedCell(cell)) return cell;
-    for(let r=1;r<=12;r++){
-      for(let dx=-r;dx<=r;dx++){
-        for(let dz=-r;dz<=r;dz++){
-          if(Math.abs(dx)!==r&&Math.abs(dz)!==r) continue;
-          const c={x:cell.x+dx,z:cell.z+dz};
-          const p=toWorld(c);
-          if(p.x<NAV.minX||p.x>NAV.maxX||p.z<NAV.minZ||p.z>NAV.maxZ) continue;
-          if(!blockedCell(c)) return c;
-        }
-      }
+  function drawPlant(x,y){
+    pxRect(x*TILE+5,y*TILE+9,7,6,palette.pot);
+    pxRect(x*TILE+7,y*TILE+2,3,9,palette.plant);
+    pxRect(x*TILE+3,y*TILE+3,5,3,palette.plantHi);
+    pxRect(x*TILE+9,y*TILE+1,4,5,palette.plant);
+  }
+
+  function drawOffice(){
+    tileFloor();
+
+    // top border / walls
+    drawWall(0,0,24,1);
+    pxRect(0,15*TILE,24*TILE,5,palette.trim);
+    pxRect(0,0,5,16*TILE,palette.trim);
+    pxRect(379,0,5,16*TILE,palette.trim);
+
+    // Meeting room upper left: glass frontage.
+    tileRect(1,1,7,3,'#c99a6c');
+    for(let x=1;x<8;x++){
+      pxRect(x*TILE,4*TILE-2,TILE,2,palette.glassDark);
+      if(x!==4) pxRect(x*TILE+1,1*TILE+3,1,3*TILE-5,palette.glass);
     }
-    return null;
+    pxRect(4*TILE-2,1*TILE+3,4,3*TILE-5,doorOpen>.5?'#8ddbea':palette.glassDark);
+    pxRect(2*TILE,2*TILE+3,5*TILE,10,palette.deskDark);
+    pxRect(2*TILE+2,2*TILE+2,5*TILE-4,7,palette.deskHi);
+    pxRect(3*TILE,1*TILE+8,3*TILE,5,palette.rug);
+
+    // Archive / tech upper banks.
+    drawWall(9,1,5,2); drawWall(16,1,6,2);
+    for(let x=10;x<14;x++){pxRect(x*TILE+2,1*TILE+7,10,16,'#76533d');pxRect(x*TILE+4,1*TILE+10,6,2,'#e3c16e');}
+    for(let x=17;x<22;x++){pxRect(x*TILE+2,1*TILE+5,10,20,palette.screen);pxRect(x*TILE+4,1*TILE+8,6,2,(x%2)?palette.screenGlow:'#5f9aff');}
+
+    // Four main desks.
+    drawDesk(3,7);drawDesk(8,7);drawDesk(13,7);drawDesk(18,7);
+    drawChair(4,9);drawChair(9,9);drawChair(14,9);drawChair(19,9);
+
+    // Central meeting table.
+    pxRect(10*TILE+4,11*TILE+5,4*TILE-8,2*TILE-10,palette.shadow);
+    pxRect(10*TILE+2,11*TILE+2,4*TILE-4,18,palette.deskDark);
+    pxRect(10*TILE+4,11*TILE+4,4*TILE-8,13,'#d47a4b');
+    for(const p of [[10,13],[13,13],[9,12],[14,12]]) drawChair(p[0],p[1]);
+
+    // Floor emblem.
+    pxRect(1*TILE+3,11*TILE+3,30,30,'#276b6b');
+    pxRect(1*TILE+8,11*TILE+8,20,20,'#1e3a43');
+    pxRect(1*TILE+12,11*TILE+13,12,3,palette.screenGlow);
+    pxRect(1*TILE+12,11*TILE+20,12,3,palette.screenGlow);
+
+    // Plant bank + scattered greenery.
+    for(let y=10;y<14;y++)for(let x=21;x<23;x++) drawPlant(x,y);
+    [[7,6],[12,6],[17,6],[22,6],[8,13],[16,13]].forEach(p=>drawPlant(p[0],p[1]));
+
+    // tiny cyan floor strips
+    [[1,5,5],[9,5,4],[15,5,6],[2,14,5],[17,14,4]].forEach(s=>pxRect(s[0]*TILE,s[1]*TILE+14,s[2]*TILE,2,'#45cfe0'));
   }
 
-  function heuristic(a,b){return Math.hypot(a.x-b.x,a.z-b.z);}
+  function drawCharacter(a){
+    const sx=Math.round(a.x*TILE+2), sy=Math.round(a.y*TILE-7);
+    const bob=a.state==='Walk'?((Math.floor(a.step*8)%2)?1:0):Math.sin(elapsed*2+a.phase)*.25;
+    const y=Math.round(sy+bob);
+    const flip=a.facing==='left';
 
-  function reconstruct(came,current){
-    const out=[current];
-    let k=keyCell(current);
-    while(came.has(k)){
-      current=came.get(k);
-      out.push(current);
-      k=keyCell(current);
+    // shadow
+    pxRect(sx+2,y+22,9,3,'rgba(39,35,37,.28)');
+
+    // legs
+    const walk=(a.state==='Walk' && Math.floor(a.step*8)%2)?2:0;
+    pxRect(sx+4,y+16,3,6,a.body);
+    pxRect(sx+8,y+16+walk,3,6,a.body);
+    pxRect(sx+3,y+21,4,2,'#28272e');
+    pxRect(sx+8,y+21+walk,4,2,'#28272e');
+
+    // body + shirt/accent
+    pxRect(sx+3,y+9,9,9,a.body);
+    pxRect(sx+6,y+10,3,6,a.accent);
+
+    // arms
+    if(a.wave>0){
+      pxRect(sx+1,y+8,3,8,a.skin);
+      pxRect(sx,y+4,3,6,a.skin);
+    }else{
+      pxRect(sx+1,y+10,3,7,a.body);
+      pxRect(sx+11,y+10,3,7,a.body);
+      pxRect(sx+1,y+16,3,2,a.skin);pxRect(sx+11,y+16,3,2,a.skin);
     }
-    return out.reverse();
+
+    // head
+    pxRect(sx+4,y+2,8,8,a.skin);
+    pxRect(sx+4,y+1,8,3,a.hair);
+    pxRect(flip?sx+4:sx+10,y+3,2,5,a.hair);
+    pxRect(sx+6,y+5,1,1,'#2d2526');
+    pxRect(sx+10,y+5,1,1,'#2d2526');
+
+    // selection marker
+    if(a===selected){
+      pxRect(sx+4,y-4,8,2,'#35d6e9');
+      pxRect(sx+6,y-6,4,2,'#35d6e9');
+    }
+
+    // tiny name tag
+    ctx.font='6px monospace';
+    ctx.textAlign='center';
+    ctx.fillStyle='rgba(8,13,21,.78)';
+    const tw=Math.max(20,ctx.measureText(a.name.toUpperCase()).width+6);
+    pxRect(sx+8-tw/2,y-14,tw,7,'rgba(8,13,21,.78)');
+    ctx.fillStyle='#dffcff';
+    ctx.fillText(a.name.toUpperCase(),sx+8,y-9);
   }
 
-  function lineClear(a,b){
-    const d=BABYLON.Vector3.Distance(a,b);
-    const n=Math.max(1,Math.ceil(d/.09));
-    for(let i=1;i<n;i++){
-      const p=BABYLON.Vector3.Lerp(a,b,i/n);
-      if(isBlocked(p.x,p.z)) return false;
-    }
-    return true;
-  }
-
-  function simplifyPath(points){
-    if(points.length<3) return points;
-    const out=[points[0]];
-    let i=0;
-    while(i<points.length-1){
-      let j=points.length-1;
-      while(j>i+1&&!lineClear(points[i],points[j])) j--;
-      out.push(points[j]);
-      i=j;
-    }
+  function key(x,y){return x+','+y}
+  function neighbors(x,y){
+    const out=[];
+    [[1,0],[-1,0],[0,1],[0,-1]].forEach(([dx,dy])=>{
+      const nx=x+dx,ny=y+dy;
+      if(nx>0&&ny>0&&nx<COLS-1&&ny<ROWS-1&&!solid[ny][nx]) out.push([nx,ny]);
+    });
     return out;
   }
 
-  function findPath(start,end){
-    const rawStart=toCell(start),rawEnd=toCell(end);
-    const startCell=nearestFree(rawStart),endCell=nearestFree(rawEnd);
-    if(!startCell||!endCell) return null;
-
-    const open=[startCell];
-    const openKeys=new Set([keyCell(startCell)]);
-    const came=new Map();
-    const g=new Map([[keyCell(startCell),0]]);
-    const f=new Map([[keyCell(startCell),heuristic(startCell,endCell)]]);
-    const dirs=[
-      [1,0,1],[-1,0,1],[0,1,1],[0,-1,1],
-      [1,1,1.414],[1,-1,1.414],[-1,1,1.414],[-1,-1,1.414]
-    ];
-
-    let guard=0;
-    while(open.length&&guard++<24000){
-      let best=0;
-      for(let i=1;i<open.length;i++){
-        if((f.get(keyCell(open[i]))??Infinity)<(f.get(keyCell(open[best]))??Infinity)) best=i;
+  function findPath(sx,sy,tx,ty){
+    sx=Math.round(sx);sy=Math.round(sy);tx=Math.round(tx);ty=Math.round(ty);
+    if(tx<1||ty<1||tx>=COLS-1||ty>=ROWS-1||solid[ty][tx]) return null;
+    const q=[[sx,sy]], came=new Map(), seen=new Set([key(sx,sy)]);
+    while(q.length){
+      const [x,y]=q.shift();
+      if(x===tx&&y===ty){
+        const path=[[x,y]];let k=key(x,y);
+        while(came.has(k)){const p=came.get(k);path.push(p);k=key(p[0],p[1]);}
+        return path.reverse();
       }
-
-      const cur=open.splice(best,1)[0];
-      openKeys.delete(keyCell(cur));
-
-      if(cur.x===endCell.x&&cur.z===endCell.z){
-        const cells=reconstruct(came,cur);
-        const pts=cells.map(toWorld);
-
-        // Keep exact actor start/end positions where safe; otherwise use nearest free approach point.
-        if(!isBlocked(start.x,start.z)) pts[0]=start.clone();
-        if(!isBlocked(end.x,end.z)) pts[pts.length-1]=end.clone();
-
-        return simplifyPath(pts);
-      }
-
-      for(const [dx,dz,baseCost] of dirs){
-        const n={x:cur.x+dx,z:cur.z+dz};
-        const wp=toWorld(n);
-        if(wp.x<NAV.minX||wp.x>NAV.maxX||wp.z<NAV.minZ||wp.z>NAV.maxZ) continue;
-        if(blockedCell(n)) continue;
-
-        // Never squeeze diagonally through touching furniture corners.
-        if(dx&&dz){
-          if(blockedCell({x:cur.x+dx,z:cur.z})||blockedCell({x:cur.x,z:cur.z+dz})) continue;
-        }
-
-        const nk=keyCell(n),ck=keyCell(cur);
-        const tentative=(g.get(ck)??Infinity)+baseCost+clearancePenalty(wp.x,wp.z);
-
-        if(tentative<(g.get(nk)??Infinity)){
-          came.set(nk,cur);
-          g.set(nk,tentative);
-          f.set(nk,tentative+heuristic(n,endCell));
-          if(!openKeys.has(nk)){
-            open.push(n);
-            openKeys.add(nk);
-          }
-        }
+      for(const n of neighbors(x,y)){
+        const k=key(n[0],n[1]);
+        if(!seen.has(k)){seen.add(k);came.set(k,[x,y]);q.push(n);}
       }
     }
     return null;
   }
 
-  const locations={
-    desk:new BABYLON.Vector3(-1.985,0,-3.78),
-    meeting:new BABYLON.Vector3(3.35,0,-3.45),
-    nora:new BABYLON.Vector3(1.62,0,-.82)
-  };
-
-  let jamesRoot=null,noraRoot=null,travel=null;
-  const actors=new Map();
-
-  function setActiveButton(id){ document.querySelectorAll('.scene-actions .chip').forEach(x=>x.classList.remove('active')); const b=document.getElementById(id); if(b)b.classList.add('active'); }
-
-  function resolveAnimations(arr){
-    const groups={};
-    arr.forEach(g=>{groups[g.name]=g;g.stop();});
-    if(!groups['Neutral Idle']&&arr[0])groups['Neutral Idle']=arr[0];
-    if(!groups['Standard Walk']&&arr[1])groups['Standard Walk']=arr[1];
-    if(!groups['Waving']&&arr[2])groups['Waving']=arr[2];
-    return groups;
+  function moveActor(a,tx,ty,label=''){
+    const p=findPath(a.x,a.y,tx,ty);
+    if(!p||p.length<2){log('Kein freier Weg für '+a.name);return;}
+    a.path=p.slice(1);a.state='Walk';a.step=0;
+    if(label) log(a.name+' → '+label);
+    updateUI();
   }
 
-  function registerActor(name,root,animationGroups=[]){
-    const def=characterCatalog?.byName?.[name]||{name,role:'',assetReady:true};
-    const actor={
-      id:def.id||name.toLowerCase(),
-      name,
-      def,
-      root,
-      groups:resolveAnimations(animationGroups),
-      state:'idle',
-      travel:null
-    };
-    actors.set(name,actor);
-    return actor;
-  }
-
-  function playActor(actorOrName,animationName,loop=true,{silent=false}={}){
-    const actor=typeof actorOrName==='string'?actors.get(actorOrName):actorOrName;
-    if(!actor)return false;
-    const g=actor.groups[animationName];
-    if(!g)return false;
-
-    Object.values(actor.groups).forEach(q=>{if(q!==g)q.stop();});
-    g.loopAnimation=!!loop;
-    g.start(!!loop,1,g.from,g.to,false);
-    actor.state=animationName;
-
-    if(actor.name==='James'){
-      const current=document.getElementById('currentAnim');
-      if(current)current.textContent=animationName;
+  function update(dt){
+    elapsed+=dt;
+    let nearDoor=false;
+    for(const a of team){
+      if(a.wave>0){a.wave-=dt;if(a.wave<=0)a.state='Idle';}
+      if(!a.path.length) continue;
+      const [tx,ty]=a.path[0];
+      const dx=tx-a.x,dy=ty-a.y,d=Math.hypot(dx,dy);
+      if(Math.abs(dx)>.02) a.facing=dx>0?'right':'left';
+      else if(Math.abs(dy)>.02) a.facing=dy>0?'down':'up';
+      const speed=2.6;
+      if(d<speed*dt){a.x=tx;a.y=ty;a.path.shift();if(!a.path.length){a.state='Idle';log(a.name+' angekommen');}}
+      else{a.x+=dx/d*speed*dt;a.y+=dy/d*speed*dt;a.step+=dt;}
+      if(Math.hypot(a.x-4,a.y-4)<2.2) nearDoor=true;
     }
-    if(!silent)log(actor.name+' → '+animationName);
-    return true;
+    doorOpen+=((nearDoor?1:0)-doorOpen)*Math.min(1,dt*8);
   }
 
-  // Temporary compatibility wrapper while the movement buttons still control James.
-  function play(name,loop=true){ return playActor('James',name,loop); }
-
-  window.NEXUS_CHARACTER_SYSTEM={
-    catalog:characterCatalog,
-    actors,
-    registerActor,
-    play:(name,action,loop=true)=>playActor(name,action,loop),
-    get:name=>actors.get(name)||null,
-    availableActions:name=>{
-      const actor=actors.get(name);
-      return actor?Object.keys(actor.groups):[];
-    }
-  };
-
-  loading.textContent='James wird geladen …';
-  BABYLON.SceneLoader.ImportMeshAsync('','./assets/','James_NEXUS_Animated.glb',scene).then(result=>{
-    jamesRoot=new BABYLON.TransformNode('JamesRoot',scene); result.meshes.forEach(m=>{if(!m.parent)m.parent=jamesRoot;});
-    jamesRoot.position.copyFrom(locations.desk); jamesRoot.scaling.setAll(1.38); jamesRoot.rotation.y=-.35;
-    registerActor('James',jamesRoot,result.animationGroups||[]);
-    play('Neutral Idle',true);
-    loading.style.display='none';
-    document.getElementById('assetState').textContent='geladen'; document.getElementById('inspectorStatus').textContent='Ready';
-    log('Office 1.78 · scharf · James + Nora · character system 2/8');
-  }).catch(err=>{ console.error(err); loading.textContent='James konnte nicht geladen werden.'; document.getElementById('assetState').textContent='GLB-Fehler'; log('GLB-Ladefehler'); });
-
-  const noraDef=characterCatalog?.byName?.Nora;
-  if(noraDef?.assetReady){
-    BABYLON.SceneLoader.ImportMeshAsync('','./assets/',noraDef.asset,scene).then(result=>{
-      noraRoot=new BABYLON.TransformNode(noraDef.rootName||'NoraRoot',scene);
-      result.meshes.forEach(m=>{if(!m.parent)m.parent=noraRoot;});
-      noraRoot.position.copyFrom(locations.nora);
-      noraRoot.scaling.setAll(.82);
-      noraRoot.rotation.y=0;
-      registerActor('Nora',noraRoot,result.animationGroups||[]);
-      playActor('Nora','Neutral Idle',true,{silent:true});
-      log('Nora 2/8 · GLB geladen · Neutral Idle aktiv');
-    }).catch(err=>{
-      console.error('Nora GLB load failed',err);
-      log('Nora GLB-Ladefehler');
-    });
+  function render(){
+    drawOffice();
+    [...team].sort((a,b)=>a.y-b.y).forEach(drawCharacter);
   }
 
-  function travelTo(targetName){
-    if(!jamesRoot)return;
-    const from=jamesRoot.position.clone(),to=locations[targetName].clone();
-    const path=findPath(from,to);
-    if(!path||path.length<2){ log('Kein freier Weg zu '+targetName+' gefunden'); return; }
-    travel={path,index:1,targetName,speed:1.65};
-    const d=path[1].subtract(from); jamesRoot.rotation.y=Math.atan2(d.x,d.z);
-    play('Standard Walk',true); log('Pathfinding V2: '+(path.length-1)+' Wegsegmente');
+  function loop(now){
+    const dt=Math.min(.05,(now-last)/1000);last=now;
+    update(dt);render();
+    if((now|0)%300<17) updateUI();
+    requestAnimationFrame(loop);
   }
 
-  document.getElementById('idleBtn').addEventListener('click',()=>{travel=null;play('Neutral Idle',true);setActiveButton('idleBtn');});
-  document.getElementById('walkBtn').addEventListener('click',()=>{travel=null;play('Standard Walk',true);setActiveButton('walkBtn');});
-  document.getElementById('waveBtn').addEventListener('click',()=>{travel=null;play('Waving',false);setActiveButton('waveBtn');});
-  document.getElementById('meetingBtn').addEventListener('click',()=>{travelTo('meeting');setActiveButton('meetingBtn');});
-  document.getElementById('deskBtn').addEventListener('click',()=>{travelTo('desk');setActiveButton('deskBtn');});
-
-  scene.onBeforeRenderObservable.add(()=>{
-    if(!jamesRoot)return;
-
-    const frameDt=Math.min(.05,(engine.getDeltaTime()||16)/1000);
-
-    if(!travel)return;
-    let remaining=travel.speed*frameDt;
-    while(remaining>0&&travel){
-      const target=travel.path[travel.index];
-      const delta=target.subtract(jamesRoot.position); const dist=delta.length();
-      if(dist<.001){ travel.index++; if(travel.index>=travel.path.length){
-        const where=travel.targetName==='desk'?'Leitungsbereich':'Meetingraum'; travel=null; play('Neutral Idle',true); setActiveButton('idleBtn'); log('James angekommen: '+where); break;
-      } continue; }
-      const dir=delta.scale(1/dist); jamesRoot.rotation.y=Math.atan2(dir.x,dir.z);
-      if(dist<=remaining){ jamesRoot.position.copyFrom(target); remaining-=dist; travel.index++; if(travel.index>=travel.path.length){
-        const where=travel.targetName==='desk'?'Leitungsbereich':'Meetingraum'; travel=null; play('Neutral Idle',true); setActiveButton('idleBtn'); log('James angekommen: '+where); break;
-      }} else { jamesRoot.position.addInPlace(dir.scale(remaining)); remaining=0; }
-    }
+  canvas.addEventListener('pointerdown',e=>{
+    const r=canvas.getBoundingClientRect();
+    const x=Math.floor((e.clientX-r.left)/r.width*COLS);
+    const y=Math.floor((e.clientY-r.top)/r.height*ROWS);
+    moveActor(selected,x,y,'Ziel ['+x+', '+y+']');
   });
 
-  engine.runRenderLoop(()=>scene.render());
-  window.addEventListener('resize',()=>engine.resize());
-  setTimeout(()=>engine.resize(),120);
+  document.getElementById('idleBtn').onclick=()=>{selected.path=[];selected.state='Idle';selected.wave=0;log(selected.name+' → Idle');updateUI();};
+  document.getElementById('waveBtn').onclick=()=>{selected.path=[];selected.state='Wave';selected.wave=1.4;log(selected.name+' → Wave');updateUI();};
+  document.getElementById('deskBtn').onclick=()=>moveActor(selected,selected.desk[0],selected.desk[1],'Arbeitsplatz');
+  document.getElementById('meetingBtn').onclick=()=>moveActor(selected,meetingSpot[0],meetingSpot[1],'Meeting');
+
+  document.querySelectorAll('.tabs button').forEach((b,i)=>b.onclick=()=>{
+    document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+    if(i!==0) log(b.textContent+' · UI-Platzhalter für Backend-Projektion');
+  });
+
+  teamUI();updateUI();
+  log('NEXUS Retro Office 2.0 gestartet');
+  log('8 Charakter-Slots aktiv · eigener Pixelstil');
+  log('3D-System vollständig entfernt');
+  requestAnimationFrame(t=>{last=t;requestAnimationFrame(loop);});
 })();

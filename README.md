@@ -1,42 +1,23 @@
-# NEXUS Dashboard
+# NEXUS Retro Office 2.0
 
-Eigenständige 3D-Dashboard-Vorschau für NEXUS Office.
+Kompletter visueller Neustart des NEXUS Dashboards.
 
-## Aktueller Stand
+## Konzept
 
-- echtes Three.js/WebGL-Office
-- geriggter James
-- Neutral Idle / Standard Walk / Waving
-- James kann zwischen Schreibtisch und Meetingraum laufen
-- Team-, Inspector- und Activity-Shell
-- noch kein Backend-Zugriff
+- eigener Retro-RPG-/Pixel-Art-Stil
+- feste Top-down / leicht schräge Office-Perspektive
+- 8 NEXUS-Charakter-Slots: James, Nora, Kevin, Gisela, Lina, Walter, Sarah, Finn
+- Canvas mit pixelgenauem Rendering
+- A*-ähnliches Grid-Pathfinding (BFS auf kleinem Office-Raster)
+- klick-/touchbasierte Bewegung
+- Idle / Wave / Arbeitsplatz / Meeting
+- responsive für iPhone und Desktop
+- kein Babylon.js, keine GLB-Modelle, keine 3D-Abhängigkeiten
 
-## Architektur
+Das bestehende NEXUS-Backend wird nicht verändert. Diese Oberfläche bleibt eine reine Read-only-Preview und ist für eine spätere Projektion von Backend-Zuständen vorbereitet.
 
-```text
-Existing NEXUS Backend
-  -> READ ONLY Dashboard Projection Layer
-  -> Dashboard UI
-```
+## Version
 
-Der bestehende NEXUS-Backend-Code wird von diesem Repository nicht verändert.
+Office 2.0 · Cache 200
 
-## Lokal starten
-
-```bash
-python3 -m http.server 8787
-```
-
-Dann im Browser öffnen:
-
-```text
-http://localhost:8787
-```
-
-## Nächste Schritte
-
-- 3D-Assets für Nora, Kevin, Gisela, Lina, Walter, Sarah und Finn
-- Read-only Projection Layer anbinden
-- Actor-State auf Animationen und Positionen abbilden
-- Cases, Tasks, Meetings, Consultations und Handoffs im Inspector darstellen
-- Action Flow Requested -> Authorized -> Gateway -> Executed -> Verified visualisieren
+Der vorherige 3D-Stand Office 1.78 bleibt vollständig in der Git-Historie erhalten.
