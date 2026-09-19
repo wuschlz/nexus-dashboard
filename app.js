@@ -4,7 +4,7 @@
   const characterCatalog=window.NEXUS_CHARACTER_CATALOG;
   const team=(characterCatalog?.list||[
     {name:'James',role:'Leitung',assetReady:true},
-    {name:'Nora',role:'Mail',assetReady:false},
+    {name:'Nora',role:'Mail',assetReady:true},
     {name:'Kevin',role:'Recherche',assetReady:false},
     {name:'Gisela',role:'Wissen & Archiv',assetReady:false},
     {name:'Lina',role:'Kalender',assetReady:false},
@@ -370,10 +370,11 @@
 
   const locations={
     desk:new BABYLON.Vector3(-1.985,0,-3.78),
-    meeting:new BABYLON.Vector3(3.35,0,-3.45)
+    meeting:new BABYLON.Vector3(3.35,0,-3.45),
+    nora:new BABYLON.Vector3(1.62,0,-.82)
   };
 
-  let jamesRoot=null,travel=null;
+  let jamesRoot=null,noraRoot=null,travel=null;
   const actors=new Map();
 
   function setActiveButton(id){ document.querySelectorAll('.scene-actions .chip').forEach(x=>x.classList.remove('active')); const b=document.getElementById(id); if(b)b.classList.add('active'); }
@@ -444,8 +445,25 @@
     play('Neutral Idle',true);
     loading.style.display='none';
     document.getElementById('assetState').textContent='geladen'; document.getElementById('inspectorStatus').textContent='Ready';
-    log('Office 1.76 · scharf · unified character system foundation · James 1/8');
+    log('Office 1.77 · scharf · James + Nora · character system 2/8');
   }).catch(err=>{ console.error(err); loading.textContent='James konnte nicht geladen werden.'; document.getElementById('assetState').textContent='GLB-Fehler'; log('GLB-Ladefehler'); });
+
+  const noraDef=characterCatalog?.byName?.Nora;
+  if(noraDef?.assetReady){
+    BABYLON.SceneLoader.ImportMeshAsync('','./assets/',noraDef.asset,scene).then(result=>{
+      noraRoot=new BABYLON.TransformNode(noraDef.rootName||'NoraRoot',scene);
+      result.meshes.forEach(m=>{if(!m.parent)m.parent=noraRoot;});
+      noraRoot.position.copyFrom(locations.nora);
+      noraRoot.scaling.setAll(.73);
+      noraRoot.rotation.y=0;
+      registerActor('Nora',noraRoot,result.animationGroups||[]);
+      playActor('Nora','Neutral Idle',true,{silent:true});
+      log('Nora 2/8 · GLB geladen · Neutral Idle aktiv');
+    }).catch(err=>{
+      console.error('Nora GLB load failed',err);
+      log('Nora GLB-Ladefehler');
+    });
+  }
 
   function travelTo(targetName){
     if(!jamesRoot)return;
