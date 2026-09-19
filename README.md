@@ -1,39 +1,48 @@
-# NEXUS Retro Office 2.14
+# NEXUS Retro Office 2.15
 
-Executive Meeting Room Rebuild.
-
-## Leitidee
-
-Der Türdurchgang aus 2.13 bleibt erhalten. Der Meetingraum wurde dagegen vollständig neu aufgebaut und erhält als erste NEXUS-Scene eine eigene Kameradistanz.
+Meeting Room Detail Pass: Tisch & Whiteboard.
 
 ## Änderungen
 
-- Meetingraum visuell komplett verworfen und neu gebaut
-- eigene Meetingraum-Kamera mit 1.20× Zoom
-- Figuren, Möbel und sämtliche Raumdetails wirken dadurch proportional größer
-- Touch-/Tap-Koordinaten werden korrekt durch die Scene-Kamera zurückgerechnet
-- Hauptbüro behält exakt seine bisherige Kameradistanz
-- Door-/Scene-Transition aus 2.13 bleibt unverändert
+- Hospitality-/Kaffeeelement vollständig entfernt
+- linke Stauraum-/NEXUS-Wand darüber ebenfalls vollständig entfernt
+- entsprechende Kollisionen entfernt; linke Raumseite ist jetzt offen und begehbar
+- Meetingraum-Zoom 1.20× und Tür-/Scene-System bleiben unverändert
+- Meetingtisch etwas größer und ruhiger proportioniert
+- Whiteboard vergrößert
 
-## Neuer Meetingraum
+## Ultra-detaillierter Meetingtisch
 
-- ruhiger Executive-Collaboration-Room statt vollgestopfter Spielkarte
-- hochwertiger großformatiger Mineralboden
-- eingelassener dunkler Präsentationsbereich mit Walnuss-Akustiklamellen
-- großer in die Architektur integrierter NEXUS-Screen
-- seitliche frostige Glasflächen für mehr räumliche Tiefe
-- bündige dunkle Akustikzone unter dem Tisch
-- zwei große lineare Pendelleuchten mit weichem Lichtfall
-- schlankerer massiver Konferenztisch aus dunkel geräuchertem Walnussholz
-- gebürstete Aluminiumkante und integrierter Technikkanal
-- vier Lade-/Mikrofon-Pods, Tablet, Notebook, Wasserkaraffe und Gläser
-- nur noch acht große detaillierte Executive-Stühle statt zwölf kleiner Stühle
-- linke Stauraumwand mit Walnussholz und NEXUS-Nische
-- rechts ein rahmenloses Glas-Whiteboard
-- kleine zurückhaltende Hospitality-/Getränkestation
-- deutlich mehr freie Fläche und ruhigere Symmetrie
-- Tür unten bleibt als Rückweg zum Hauptbüro erhalten
+- geräuchertes Walnussfurnier mit feiner Maserung und Materialporen
+- doppelte gebürstete Aluminiumkante mit sichtbaren Eckbefestigungen
+- skulptierter dunkler Mittelfuß mit Lichtkante
+- zentraler eingelassener Technikkanal mit animierter NEXUS-Lichtlinie
+- echte Kabelklappe mit sichtbaren USB-C-, HDMI- und Power-Details
+- vier Wireless-Charging-Flächen mit eingeätztem Ladesymbol und Statuslicht
+- vier Boundary-Mikrofone mit subtil animierten LED-Ringen
+- detailliertes Tablet mit Agenda-UI
+- Leder-Notizbuch mit Papierkante und Stift
+- Wasserkaraffe mit sichtbarer Wasserlinie und Glasreflexen
+- drei einzelne Trinkgläser
+- Kabelauslässe am Tischfuß
+- acht Executive-Stühle mit Mesh-Rücken, Lordosenstütze, Armlehnen, Gaslift, Fünfsternfuß und einzelnen Rollen
+
+## Ultra-detailliertes Smart-Glass-Whiteboard
+
+- rahmenloses laminiertes Smart Glass mit starken Materialreflexen
+- vier sichtbare Edelstahl-Wandhalter
+- dunkle Kopfzeile mit NEXUS-Status, Sensor und LEDs
+- feines Planungsgitter
+- drei Arbeitsbereiche OPEN / DECIDE / NEXT
+- sechs Haftnotizen mit umgeknickten Ecken und Mikro-Beschriftung
+- handgezeichnete Pfeile und Entscheidungsverbindungen
+- kleines Wochen-Balkendiagramm
+- Relationship-Map
+- fünfteilige Checkliste mit Häkchen
+- handschriftähnlicher Notes-Bereich
+- magnetische Markerablage
+- Eraser, vier farbige Marker und Touch-/NFC-Controller
 
 ## Version
 
-Office 2.14 · Cache 340
+Office 2.15 · Cache 350

@@ -630,243 +630,462 @@
     ctx.restore();
   }
 
-  function meetingTable(ctx,o,T){
+  function meetingTable(ctx,o,T,elapsed=0){
     const X=o.x*T,Y=o.y*T,W=o.w*T,H=o.h*T;
 
-    // Eight proper executive chairs: 3 + 3 along the sides, one at each head.
     function chair(cx,cy,rot=0){
       ctx.save();
       ctx.translate(cx,cy);
       ctx.rotate(rot);
 
-      ctx.fillStyle='rgba(13,19,23,.23)';
+      // Soft floor contact.
+      ctx.fillStyle='rgba(10,16,20,.24)';
       ctx.beginPath();
-      ctx.ellipse(0,12,19,7,0,0,Math.PI*2);
+      ctx.ellipse(0,15,21,7,0,0,Math.PI*2);
       ctx.fill();
 
-      // Polished five-star base.
-      line(ctx,0,18,0,29,'#4b5b63',3);
-      for(const a of [-.8,-.36,.36,.8]){
-        line(ctx,0,28,Math.sin(a)*16,28+Math.cos(a)*8,'#4b5b63',2);
+      // Five-star aluminium base with tiny casters.
+      line(ctx,0,19,0,32,'#56666d',3);
+      const legs=[[-17,36],[-9,39],[9,39],[17,36],[0,41]];
+      for(const [lx,ly] of legs){
+        line(ctx,0,31,lx,ly,'#56666d',2);
+        rr(ctx,lx-3,ly-1,6,4,2,'#20292e','#727f83',1);
       }
 
-      // Seat and tall ergonomic back.
-      rr(ctx,-17,3,34,17,8,'#263640','#17242b',2);
-      rr(ctx,-14,6,28,11,6,'#536a75');
-      rr(ctx,-18,-22,36,27,10,'#2f424d','#17242b',2);
-      rr(ctx,-14,-18,28,19,8,'#4b626e');
+      // Gas lift / tilt mechanism.
+      rr(ctx,-5,14,10,10,4,'#2a3439','#69777b',1);
+      ctx.fillStyle='#909ca0';
+      ctx.fillRect(-2,19,4,4);
 
-      // Lumbar panel, stitching and tiny metal arm accents.
-      rr(ctx,-9,-11,18,7,4,'#40545f');
-      ctx.fillStyle='rgba(255,255,255,.09)';
-      ctx.fillRect(-10,-16,20,2);
-      ctx.fillStyle='#88989d';
-      ctx.fillRect(-21,-2,5,2);
-      ctx.fillRect(16,-2,5,2);
+      // Seat shell + upholstered cushion.
+      rr(ctx,-19,3,38,18,9,'#1b2931','#10191f',2);
+      rr(ctx,-16,5,32,14,7,'#465f6b','#253942',1);
+      ctx.fillStyle='rgba(255,255,255,.08)';
+      ctx.fillRect(-11,7,22,2);
+
+      // Tall ergonomic mesh back.
+      rr(ctx,-20,-25,40,31,11,'#24353e','#121e24',2);
+      rr(ctx,-16,-21,32,23,9,'#425b66','#24363f',1);
+      for(let yy=-17;yy<-1;yy+=5){
+        ctx.fillStyle='rgba(206,226,230,.08)';
+        ctx.fillRect(-11,yy,22,1);
+      }
+
+      // Lumbar support and stitching.
+      rr(ctx,-10,-11,20,8,4,'#334b55','#263b43',1);
+      ctx.fillStyle='rgba(255,255,255,.11)';
+      ctx.fillRect(-9,-17,18,1);
+
+      // Armrests with brushed metal supports.
+      line(ctx,-18,-3,-23,5,'#7b898d',2);
+      line(ctx,18,-3,23,5,'#7b898d',2);
+      rr(ctx,-27,3,9,4,2,'#202d33','#59676c',1);
+      rr(ctx,18,3,9,4,2,'#202d33','#59676c',1);
 
       ctx.restore();
     }
 
-    const xs=[X+W*.25,X+W*.50,X+W*.75];
+    // Eight large executive chairs.
+    const xs=[X+W*.24,X+W*.50,X+W*.76];
     for(const cx of xs){
-      chair(cx,Y-17,0);
-      chair(cx,Y+H+17,Math.PI);
+      chair(cx,Y-20,0);
+      chair(cx,Y+H+20,Math.PI);
     }
-    chair(X-18,Y+H/2,Math.PI/2);
-    chair(X+W+18,Y+H/2,-Math.PI/2);
+    chair(X-21,Y+H/2,Math.PI/2);
+    chair(X+W+21,Y+H/2,-Math.PI/2);
 
-    // Wide soft contact shadow.
+    // Broad realistic contact shadow.
     ctx.save();
-    ctx.shadowColor='rgba(10,16,20,.34)';
-    ctx.shadowBlur=26;
-    ctx.shadowOffsetY=10;
-    rr(ctx,X,Y,W,H,48,'rgba(22,27,31,.22)');
+    ctx.shadowColor='rgba(8,13,17,.36)';
+    ctx.shadowBlur=30;
+    ctx.shadowOffsetY=11;
+    rr(ctx,X,Y,W,H,52,'rgba(17,22,26,.22)');
     ctx.restore();
 
-    // Central pedestal is recessed under the top.
-    rr(ctx,X+W*.28,Y+H*.18,W*.44,H*.64,32,'#263138','#151c21',2);
+    // Sculpted pedestal.
+    const pedX=X+W*.30,pedY=Y+H*.18,pedW=W*.40,pedH=H*.64;
+    const pg=ctx.createLinearGradient(pedX,pedY,pedX+pedW,pedY+pedH);
+    pg.addColorStop(0,'#303b41');
+    pg.addColorStop(.55,'#202b31');
+    pg.addColorStop(1,'#151e23');
+    rr(ctx,pedX,pedY,pedW,pedH,35,pg,'#11181c',2);
+    ctx.fillStyle='rgba(255,255,255,.05)';
+    rr(ctx,pedX+10,pedY+9,pedW-20,6,3,'rgba(255,255,255,.05)');
 
-    // Dark smoked walnut tabletop.
+    // Smoked walnut veneer tabletop.
     const tg=ctx.createLinearGradient(X,Y,X+W,Y+H);
-    tg.addColorStop(0,'#584238');
-    tg.addColorStop(.32,'#725443');
-    tg.addColorStop(.68,'#654a3b');
-    tg.addColorStop(1,'#49382f');
-    rr(ctx,X,Y,W,H,48,tg,'#2d2521',3);
+    tg.addColorStop(0,'#4a382f');
+    tg.addColorStop(.22,'#6f503e');
+    tg.addColorStop(.50,'#755542');
+    tg.addColorStop(.78,'#624637');
+    tg.addColorStop(1,'#43332b');
+    rr(ctx,X,Y,W,H,50,tg,'#2a211d',3);
 
-    // Wood grain.
+    // Fine veneer grain.
     ctx.save();
-    rr(ctx,X+4,Y+4,W-8,H-8,44,'#000');
+    rr(ctx,X+4,Y+4,W-8,H-8,46,'#000');
     ctx.clip();
-    for(let gy=Y+18;gy<Y+H-12;gy+=15){
-      ctx.strokeStyle=gy%30?'rgba(255,255,255,.035)':'rgba(23,16,13,.15)';
-      ctx.lineWidth=1;
+    for(let gy=Y+13,i=0;gy<Y+H-10;gy+=10,i++){
+      ctx.strokeStyle=i%3===0?'rgba(25,15,12,.18)':i%2?'rgba(255,255,255,.035)':'rgba(37,23,18,.11)';
+      ctx.lineWidth=i%4===0?1.4:1;
       ctx.beginPath();
-      ctx.moveTo(X+20,gy);
-      ctx.bezierCurveTo(X+W*.30,gy-4,X+W*.63,gy+5,X+W-20,gy-1);
+      ctx.moveTo(X+15,gy);
+      ctx.bezierCurveTo(X+W*.27,gy-4-(i%3),X+W*.63,gy+5+(i%4),X+W-15,gy-1);
       ctx.stroke();
     }
+    // Small natural veneer pores.
+    for(let i=0;i<26;i++){
+      const px=X+24+((i*47)%Math.max(40,W-48));
+      const py=Y+18+((i*29)%Math.max(30,H-36));
+      ctx.fillStyle=i%3?'rgba(24,15,12,.13)':'rgba(255,255,255,.04)';
+      ctx.fillRect(px,py,i%4===0?5:2,1);
+    }
     ctx.restore();
 
-    // Brushed aluminium edge.
-    rr(ctx,X+7,Y+7,W-14,H-14,41,null,'rgba(171,181,183,.42)',2);
-    ctx.fillStyle='rgba(255,255,255,.095)';
-    rr(ctx,X+22,Y+15,W-44,7,4,'rgba(255,255,255,.095)');
+    // Brushed aluminium perimeter with corner catches.
+    rr(ctx,X+7,Y+7,W-14,H-14,44,null,'rgba(175,184,186,.48)',2);
+    rr(ctx,X+11,Y+11,W-22,H-22,42,null,'rgba(55,66,69,.32)',1);
+    for(const [cx,cy] of [
+      [X+28,Y+25],[X+W-28,Y+25],[X+28,Y+H-25],[X+W-28,Y+H-25]
+    ]){
+      ctx.fillStyle='#98a4a7';
+      ctx.beginPath();ctx.arc(cx,cy,2.3,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='rgba(255,255,255,.55)';
+      ctx.fillRect(cx-1,cy-1,1,1);
+    }
 
-    // Long integrated technology spine.
-    rr(ctx,X+W*.39,Y+H*.09,W*.22,H*.82,18,'#111f28','#2e4b59',2);
+    // Central embedded technology spine.
+    const sx=X+W*.385,sy=Y+H*.075,sw=W*.23,sh=H*.85;
+    const sg=ctx.createLinearGradient(sx,sy,sx+sw,sy);
+    sg.addColorStop(0,'#0d1820');
+    sg.addColorStop(.5,'#172a34');
+    sg.addColorStop(1,'#0b151c');
+    rr(ctx,sx,sy,sw,sh,20,sg,'#35505d',2);
+    rr(ctx,sx+6,sy+6,sw-12,sh-12,15,'rgba(22,42,52,.76)','rgba(98,125,134,.28)',1);
 
+    // Animated NEXUS status blade.
+    const pulse=.42+.16*Math.sin(elapsed*1.7);
     ctx.save();
     ctx.shadowColor=P.cyan;
-    ctx.shadowBlur=8;
-    ctx.fillStyle='rgba(53,214,233,.46)';
-    ctx.fillRect(X+W*.50-1,Y+H*.15,2,H*.70);
+    ctx.shadowBlur=9;
+    ctx.fillStyle='rgba(53,214,233,'+pulse+')';
+    ctx.fillRect(X+W*.50-1,sy+18,2,sh-36);
     ctx.restore();
 
-    // Four premium microphone / charging pods.
+    // Flush cable hatch with USB-C, HDMI and power marks.
+    const hx=X+W*.43,hy=Y+H*.42,hw=W*.14,hh=H*.16;
+    rr(ctx,hx,hy,hw,hh,8,'#101b22','#617177',1.5);
+    ctx.fillStyle='#263840';
+    rr(ctx,hx+5,hy+5,hw-10,hh-10,5,'#263840');
+    // USB-C ports.
+    rr(ctx,hx+10,hy+10,14,5,2,'#0b1115','#6d7a7d',1);
+    rr(ctx,hx+29,hy+10,14,5,2,'#0b1115','#6d7a7d',1);
+    // HDMI.
+    ctx.fillStyle='#080d11';
+    ctx.fillRect(hx+49,hy+9,15,7);
+    ctx.fillStyle='#798588';
+    ctx.fillRect(hx+51,hy+10,11,1);
+    // Power button.
+    ctx.strokeStyle='rgba(53,214,233,.78)';
+    ctx.lineWidth=1.3;
+    ctx.beginPath();ctx.arc(hx+hw-13,hy+12,4,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='rgba(53,214,233,.72)';
+    ctx.fillRect(hx+hw-13.5,hy+7,1,5);
+
+    // Wireless charging pads with etched symbols.
     for(const [px,py] of [
-      [X+W*.31,Y+H*.28],[X+W*.69,Y+H*.28],
-      [X+W*.31,Y+H*.72],[X+W*.69,Y+H*.72]
+      [X+W*.28,Y+H*.28],[X+W*.72,Y+H*.28],
+      [X+W*.28,Y+H*.72],[X+W*.72,Y+H*.72]
     ]){
-      rr(ctx,px-16,py-9,32,18,8,'#1c2a31','#56656a',1);
-      ctx.fillStyle='rgba(255,255,255,.10)';
-      ctx.fillRect(px-9,py-5,18,1);
+      ctx.save();
+      ctx.shadowColor='rgba(0,0,0,.20)';
+      ctx.shadowBlur=5;
+      rr(ctx,px-18,py-11,36,22,10,'#16242b','#647278',1);
+      ctx.restore();
+
+      ctx.strokeStyle='rgba(153,172,177,.46)';
+      ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(px,py,6,0,Math.PI*2);ctx.stroke();
+      ctx.beginPath();ctx.arc(px,py,3,0,Math.PI*2);ctx.stroke();
+
       ctx.save();
       ctx.shadowColor=P.cyan;
       ctx.shadowBlur=4;
-      ctx.fillStyle='rgba(53,214,233,.52)';
-      ctx.fillRect(px-5,py+1,10,2);
+      ctx.fillStyle='rgba(53,214,233,.58)';
+      ctx.fillRect(px-5,py+7,10,2);
       ctx.restore();
     }
 
-    // One tablet, one leather notebook, water carafe + glasses.
-    rr(ctx,X+32,Y+33,49,31,5,'#101e29','#365566',1);
-    ctx.fillStyle='rgba(53,214,233,.46)';
-    ctx.fillRect(X+39,Y+40,35,2);
-    ctx.fillStyle='rgba(255,255,255,.07)';
-    ctx.fillRect(X+39,Y+47,25,2);
-
-    rr(ctx,X+W-88,Y+H-67,50,31,5,'#b9aa8c','#756752',1);
-    ctx.fillStyle='#e8dfca';
-    ctx.fillRect(X+W-80,Y+H-59,34,3);
-
-    rr(ctx,X+W-67,Y+34,15,31,6,'rgba(204,235,237,.44)','#76939b',1);
-    ctx.fillStyle='rgba(255,255,255,.30)';
-    ctx.fillRect(X+W-63,Y+39,5,20);
-    for(const gx of [X+W-97,X+W-110]){
-      rr(ctx,gx,Y+44,9,13,3,'rgba(220,242,243,.38)','#83999f',1);
-    }
-  }
-
-  function meetingCredenza(ctx,o,T){
-    const X=o.x*T,Y=o.y*T,W=o.w*T,H=o.h*T;
-
-    // One calm architectural storage wall: charcoal shell + walnut fronts.
-    ctx.save();
-    ctx.shadowColor='rgba(15,22,26,.22)';
-    ctx.shadowBlur=14;
-    ctx.shadowOffsetY=5;
-    rr(ctx,X,Y,W,H,7,'rgba(24,33,39,.16)');
-    ctx.restore();
-
-    rr(ctx,X,Y,W,H,7,'#202f38','#101a20',2);
-    rr(ctx,X+7,Y+9,W-14,H*.52,5,'#604838','#3b3028',1);
-
-    for(let x=X+12;x<X+W-14;x+=9){
-      ctx.fillStyle=((x/9)|0)%3===0?'#856249':((x/9)|0)%2?'#755641':'#7d5b45';
-      ctx.fillRect(x,Y+15,5,H*.52-13);
+    // Directional boundary microphones with LED rings.
+    const micPositions=[
+      [X+W*.36,Y+H*.20],[X+W*.64,Y+H*.20],
+      [X+W*.36,Y+H*.80],[X+W*.64,Y+H*.80]
+    ];
+    for(let i=0;i<micPositions.length;i++){
+      const [mx,my]=micPositions[i];
+      rr(ctx,mx-10,my-7,20,14,7,'#111b20','#657378',1);
+      ctx.strokeStyle='rgba(53,214,233,'+(.42+.12*Math.sin(elapsed*2+i))+')';
+      ctx.lineWidth=1.4;
+      ctx.beginPath();ctx.arc(mx,my,5,0,Math.PI*2);ctx.stroke();
+      ctx.fillStyle='#556267';
+      for(const ox of [-4,0,4]) ctx.fillRect(mx+ox-1,my-1,2,2);
     }
 
-    // Stone shelf.
-    rr(ctx,X+8,Y+H*.57,W-16,10,4,'#c7cbc7','#777f7e',1);
+    // Tablet with on-screen meeting agenda.
+    const tx=X+31,ty=Y+31,tw=55,th=36;
+    rr(ctx,tx,ty,tw,th,6,'#0a1117','#485d68',1.5);
+    rr(ctx,tx+4,ty+4,tw-8,th-8,4,'#112733');
+    ctx.fillStyle='rgba(53,214,233,.70)';
+    ctx.fillRect(tx+9,ty+9,tw-18,3);
+    ctx.fillStyle='rgba(197,221,226,.34)';
+    ctx.fillRect(tx+9,ty+17,tw-26,2);
+    ctx.fillRect(tx+9,ty+23,tw-19,2);
+    ctx.fillRect(tx+9,ty+29,tw-31,2);
+    ctx.fillStyle='#889aa0';
+    ctx.beginPath();ctx.arc(tx+tw-7,ty+th/2,1.5,0,Math.PI*2);ctx.fill();
 
-    // Minimal NEXUS sculpture niche.
-    rr(ctx,X+11,Y+H*.64,W-22,H*.27,6,'#121f27','#304852',1);
-    ctx.save();
-    ctx.shadowColor=P.cyan;
-    ctx.shadowBlur=7;
-    txt(ctx,'N',X+W/2,Y+H*.745,19,'#d5fbff','center',800);
-    ctx.restore();
-    ctx.fillStyle='rgba(53,214,233,.36)';
-    ctx.fillRect(X+19,Y+H*.82,W-38,2);
+    // Leather notebook, paper edge and pen.
+    const nx=X+W-95,ny=Y+H-70;
+    rr(ctx,nx,ny,56,34,5,'#6b523f','#352a23',1.5);
+    ctx.fillStyle='#d9ccb3';
+    ctx.fillRect(nx+5,ny+4,46,2);
+    ctx.fillStyle='rgba(255,255,255,.08)';
+    ctx.fillRect(nx+7,ny+8,37,1);
+    ctx.fillStyle='#233640';
+    rr(ctx,nx+11,ny+26,38,3,1.5,'#233640');
+    ctx.fillStyle=P.cyan;
+    ctx.fillRect(nx+43,ny+26,5,3);
+
+    // Water carafe with visible water line and glass highlights.
+    const cx=X+W-70,cy=Y+31;
+    rr(ctx,cx,cy,16,35,7,'rgba(202,231,234,.40)','#708d95',1);
+    ctx.fillStyle='rgba(122,187,199,.20)';
+    rr(ctx,cx+2,cy+16,12,16,5,'rgba(122,187,199,.20)');
+    ctx.fillStyle='rgba(255,255,255,.42)';
+    ctx.fillRect(cx+4,cy+5,4,21);
+    ctx.fillStyle='#82989e';
+    ctx.fillRect(cx+4,cy-3,8,6);
+
+    for(const [gx,gy] of [[cx-19,cy+14],[cx-32,cy+18],[cx+23,cy+17]]){
+      rr(ctx,gx,gy,10,15,4,'rgba(218,240,241,.36)','#80979d',1);
+      ctx.fillStyle='rgba(122,187,199,.18)';
+      ctx.fillRect(gx+2,gy+8,6,5);
+      ctx.fillStyle='rgba(255,255,255,.38)';
+      ctx.fillRect(gx+2,gy+3,2,8);
+    }
+
+    // Two subtle cable exit points at the pedestal edge.
+    for(const ex of [X+W*.43,X+W*.57]){
+      rr(ctx,ex-7,Y+H-13,14,7,3,'#151e23','#68767a',1);
+      ctx.fillStyle='#0a0f12';
+      ctx.fillRect(ex-3,Y+H-10,6,2);
+    }
   }
 
   function meetingWhiteboard(ctx,o,T){
     const X=o.x*T,Y=o.y*T,W=o.w*T,H=o.h*T;
 
-    // Frameless smoked-glass collaboration board.
+    // Wall stand-offs and shadow make the board feel physically mounted.
     ctx.save();
-    ctx.shadowColor='rgba(13,20,24,.17)';
-    ctx.shadowBlur=12;
-    rr(ctx,X,Y,W,H,8,'rgba(18,31,37,.10)');
+    ctx.shadowColor='rgba(9,15,19,.25)';
+    ctx.shadowBlur=18;
+    ctx.shadowOffsetX=-3;
+    ctx.shadowOffsetY=7;
+    rr(ctx,X,Y,W,H,9,'rgba(15,25,30,.18)');
     ctx.restore();
 
-    rr(ctx,X,Y,W,H,8,'rgba(224,235,232,.74)','rgba(93,113,118,.46)',2);
-    rr(ctx,X+7,Y+7,W-14,H-14,5,'rgba(246,249,245,.72)');
-
-    txt(ctx,'TODAY',X+W/2,Y+24,10,'#34494f','center',800);
-    line(ctx,X+17,Y+38,X+W-17,Y+38,'rgba(69,92,98,.38)',1);
-
-    // Just enough content to read as a real working board.
-    const notes=[
-      [X+15,Y+53,'#e9c36f'],[X+W-40,Y+54,'#83cbd0'],
-      [X+19,Y+91,'#d98e7b'],[X+W-43,Y+93,'#9dc18f']
-    ];
-    for(const [nx,ny,c] of notes){
-      rr(ctx,nx,ny,25,21,3,c,'rgba(74,84,84,.16)',1);
-      ctx.fillStyle='rgba(62,69,69,.32)';
-      ctx.fillRect(nx+6,ny+7,13,1);
-      ctx.fillRect(nx+6,ny+12,9,1);
+    // Four stainless mounting discs behind the glass.
+    for(const [mx,my] of [
+      [X+11,Y+11],[X+W-11,Y+11],[X+11,Y+H-11],[X+W-11,Y+H-11]
+    ]){
+      ctx.fillStyle='#8d9a9d';
+      ctx.beginPath();ctx.arc(mx,my,4.5,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#d7dddd';
+      ctx.beginPath();ctx.arc(mx-1,my-1,1.5,0,Math.PI*2);ctx.fill();
     }
 
-    line(ctx,X+45,Y+66,X+W-45,Y+67,'#5f818a',2);
-    line(ctx,X+W-48,Y+80,X+48,Y+106,'#5f818a',2);
+    // Laminated smart glass.
+    const glass=ctx.createLinearGradient(X,Y,X+W,Y+H);
+    glass.addColorStop(0,'rgba(241,248,246,.88)');
+    glass.addColorStop(.45,'rgba(222,235,233,.82)');
+    glass.addColorStop(1,'rgba(205,222,221,.78)');
+    rr(ctx,X,Y,W,H,9,glass,'rgba(87,109,115,.62)',2);
+    rr(ctx,X+6,Y+6,W-12,H-12,6,'rgba(248,251,248,.72)','rgba(255,255,255,.48)',1);
 
-    ctx.strokeStyle='rgba(65,98,106,.55)';
+    // Header strip with tiny smart-board controls.
+    rr(ctx,X+12,Y+12,W-24,31,6,'rgba(31,50,58,.88)','#62777d',1);
+    txt(ctx,'NEXUS  /  DECISIONS',X+20,Y+24,8,'#e7f7f7','left',800);
+    txt(ctx,'TODAY',X+W-18,Y+24,7,'#89b7bf','right',700);
+
+    // Status LEDs + proximity sensor.
+    for(let i=0;i<3;i++){
+      const c=i===0?'#35d6e9':i===1?'#78bf8b':'#d1a85c';
+      ctx.fillStyle=c;
+      ctx.beginPath();ctx.arc(X+19+i*10,Y+37,2,0,Math.PI*2);ctx.fill();
+    }
+    ctx.fillStyle='#151f24';
+    ctx.beginPath();ctx.arc(X+W-20,Y+37,3,0,Math.PI*2);ctx.fill();
+
+    // Fine planning grid.
+    ctx.save();
+    ctx.globalAlpha=.18;
+    for(let gx=X+15;gx<X+W-14;gx+=14) line(ctx,gx,Y+50,gx,Y+H-42,'#799096',.7);
+    for(let gy=Y+50;gy<Y+H-42;gy+=14) line(ctx,X+15,gy,X+W-14,gy,'#799096',.7);
+    ctx.restore();
+
+    // Three working columns.
+    const innerX=X+15,innerY=Y+51,innerW=W-30;
+    const colW=innerW/3;
+    const labels=[['OPEN','#527887'],['DECIDE','#7f6956'],['NEXT','#52735f']];
+    for(let i=0;i<3;i++){
+      const cx=innerX+i*colW;
+      ctx.fillStyle='rgba(46,63,69,.10)';
+      ctx.fillRect(cx,innerY,colW-2,22);
+      txt(ctx,labels[i][0],cx+colW/2,innerY+11,6,labels[i][1],'center',800);
+      if(i>0) line(ctx,cx-1,innerY,cx-1,Y+H-46,'rgba(79,100,105,.28)',1);
+    }
+
+    // Sticky notes with folds and handwritten micro-lines.
+    const stickies=[
+      [innerX+4,innerY+31,25,22,'#ecc875','API'],
+      [innerX+31,innerY+59,27,23,'#8fcbd0','UX'],
+      [innerX+colW+5,innerY+37,28,24,'#d99580','GO'],
+      [innerX+colW+34,innerY+73,26,22,'#e2bd71','QA'],
+      [innerX+colW*2+6,innerY+29,27,23,'#9fc28f','SHIP'],
+      [innerX+colW*2+36,innerY+63,25,22,'#a7b7d6','DOC']
+    ];
+    for(const [sx,sy,sw,sh,c,label] of stickies){
+      ctx.save();
+      ctx.shadowColor='rgba(21,29,31,.14)';
+      ctx.shadowBlur=4;
+      ctx.shadowOffsetY=2;
+      rr(ctx,sx,sy,sw,sh,2,c);
+      ctx.restore();
+
+      // Folded corner.
+      ctx.fillStyle='rgba(255,255,255,.28)';
+      ctx.beginPath();
+      ctx.moveTo(sx+sw-7,sy);
+      ctx.lineTo(sx+sw,sy);
+      ctx.lineTo(sx+sw,sy+7);
+      ctx.closePath();
+      ctx.fill();
+
+      txt(ctx,label,sx+5,sy+7,5,'rgba(48,57,57,.72)','left',800);
+      ctx.fillStyle='rgba(54,61,61,.38)';
+      ctx.fillRect(sx+5,sy+12,sw-11,1);
+      ctx.fillRect(sx+5,sy+16,sw-15,1);
+    }
+
+    // Hand-drawn decision arrows.
+    ctx.strokeStyle='#466f79';
     ctx.lineWidth=2;
     ctx.beginPath();
-    ctx.arc(X+W/2,Y+H*.62,20,0,Math.PI*1.7);
+    ctx.moveTo(innerX+28,innerY+111);
+    ctx.bezierCurveTo(innerX+51,innerY+95,innerX+colW+13,innerY+118,innerX+colW+37,innerY+101);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(innerX+colW+33,innerY+96);
+    ctx.lineTo(innerX+colW+39,innerY+101);
+    ctx.lineTo(innerX+colW+31,innerY+104);
     ctx.stroke();
 
-    // Floating marker rail.
-    rr(ctx,X+19,Y+H-18,W-38,6,3,'#87979b');
-    ctx.fillStyle=P.cyan;
-    ctx.fillRect(X+28,Y+H-17,17,3);
-    ctx.fillStyle='#d77b6b';
-    ctx.fillRect(X+52,Y+H-17,17,3);
-  }
+    // Small KPI bar chart.
+    const bx=innerX+5,by=innerY+139,bw=colW-14,bh=45;
+    txt(ctx,'WEEK',bx,by-7,5,'#53676c','left',700);
+    line(ctx,bx,by+bh,bx+bw,by+bh,'#7d8d91',1);
+    const vals=[.45,.68,.57,.84,.73];
+    for(let i=0;i<vals.length;i++){
+      const h=bh*vals[i];
+      const barX=bx+5+i*((bw-10)/vals.length);
+      ctx.fillStyle=i===3?'rgba(53,214,233,.72)':'rgba(84,119,128,.48)';
+      rr(ctx,barX,by+bh-h,6,h,2,ctx.fillStyle);
+    }
 
-  function meetingCoffee(ctx,o,T){
-    const X=o.x*T,Y=o.y*T,W=o.w*T,H=o.h*T;
+    // Simple relationship map in center column.
+    const mx=innerX+colW+colW/2,my=innerY+155;
+    for(const [dx,dy] of [[-20,-14],[18,-17],[-21,17],[20,18]]){
+      line(ctx,mx,my,mx+dx,my+dy,'rgba(76,108,115,.50)',1.5);
+      ctx.fillStyle='#70939b';
+      ctx.beginPath();ctx.arc(mx+dx,my+dy,4,0,Math.PI*2);ctx.fill();
+    }
+    ctx.fillStyle='#35d6e9';
+    ctx.beginPath();ctx.arc(mx,my,5,0,Math.PI*2);ctx.fill();
 
-    // Low hospitality console, intentionally secondary.
+    // Checklist in final column.
+    const qx=innerX+colW*2+7,qy=innerY+132;
+    for(let i=0;i<5;i++){
+      const yy=qy+i*13;
+      ctx.strokeStyle='#607b82';
+      ctx.lineWidth=1;
+      ctx.strokeRect(qx,yy,6,6);
+      if(i<3){
+        ctx.strokeStyle='#4f817b';
+        ctx.lineWidth=1.4;
+        ctx.beginPath();
+        ctx.moveTo(qx+1,yy+3);
+        ctx.lineTo(qx+3,yy+5);
+        ctx.lineTo(qx+7,yy-1);
+        ctx.stroke();
+      }
+      ctx.fillStyle='rgba(62,77,81,.42)';
+      ctx.fillRect(qx+11,yy+2,colW-26-(i%2)*8,2);
+    }
+
+    // Bottom annotation area with handwriting-style strokes.
+    const ay=Y+H-86;
+    line(ctx,X+18,ay,X+W-18,ay,'rgba(82,102,107,.30)',1);
+    txt(ctx,'NOTES',X+19,ay+10,5,'#5f7479','left',700);
+
+    ctx.strokeStyle='#576e74';
+    ctx.lineWidth=1.5;
+    ctx.beginPath();
+    ctx.moveTo(X+20,ay+22);
+    ctx.bezierCurveTo(X+38,ay+15,X+50,ay+27,X+68,ay+20);
+    ctx.bezierCurveTo(X+81,ay+16,X+89,ay+26,X+W-22,ay+19);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(X+24,ay+33);
+    ctx.bezierCurveTo(X+45,ay+29,X+57,ay+38,X+W-36,ay+31);
+    ctx.stroke();
+
+    // Magnetic marker rail, eraser and four markers.
+    const railY=Y+H-25;
+    rr(ctx,X+16,railY,W-32,8,4,'#77878b','#4c5f64',1);
+    rr(ctx,X+20,railY-7,24,9,3,'#303c40','#758388',1);
+    ctx.fillStyle='rgba(255,255,255,.12)';
+    ctx.fillRect(X+23,railY-5,17,1);
+
+    const markers=[
+      ['#35d6e9',X+50],['#d77b6b',X+68],['#e0b85f',X+86],['#4f6972',X+104]
+    ];
+    for(const [c,mx2] of markers){
+      rr(ctx,mx2,railY-4,15,4,2,c,'rgba(48,58,61,.55)',1);
+      ctx.fillStyle='#202b2f';
+      ctx.fillRect(mx2+12,railY-3,3,2);
+    }
+
+    // Touch controller / NFC puck.
+    rr(ctx,X+W-37,railY-8,17,12,5,'#19272d','#61757b',1);
     ctx.save();
-    ctx.shadowColor='rgba(13,20,24,.20)';
-    ctx.shadowBlur=12;
-    ctx.shadowOffsetY=5;
-    rr(ctx,X,Y,W,H,8,'rgba(25,34,39,.15)');
+    ctx.shadowColor=P.cyan;
+    ctx.shadowBlur=5;
+    ctx.fillStyle='rgba(53,214,233,.65)';
+    ctx.beginPath();ctx.arc(X+W-28.5,railY-2,2.5,0,Math.PI*2);ctx.fill();
     ctx.restore();
 
-    rr(ctx,X,Y,W,H,8,'#26353d','#162229',2);
-    rr(ctx,X+6,Y+6,W-12,16,5,'#8b674e','#5c4738',1);
-
-    // Small integrated machine.
-    rr(ctx,X+13,Y+29,48,H-42,5,'#111d23','#45555b',1);
-    rr(ctx,X+20,Y+35,34,19,4,'#1e2d33','#67757a',1);
-    ctx.fillStyle='#a6b1b3';
-    ctx.fillRect(X+27,Y+40,20,4);
-    ctx.fillStyle='#493c32';
-    ctx.fillRect(X+31,Y+51,12,4);
-
-    // Water + glass tray.
-    rr(ctx,X+W-48,Y+31,14,28,5,'rgba(191,225,229,.38)','#708e97',1);
-    ctx.fillStyle='rgba(255,255,255,.26)';
-    ctx.fillRect(X+W-44,Y+36,5,17);
-    rr(ctx,X+W-75,Y+44,20,8,4,'#b7bdba','#707a7a',1);
-
-    for(let i=0;i<3;i++){
-      rr(ctx,X+W-72+i*13,Y+31,8,12,3,'rgba(219,239,240,.34)','#7e959b',1);
-    }
+    // Strong glass reflection to sell the material.
+    ctx.save();
+    ctx.globalAlpha=.13;
+    ctx.fillStyle='#ffffff';
+    ctx.beginPath();
+    ctx.moveTo(X+9,Y+9);
+    ctx.lineTo(X+W*.44,Y+9);
+    ctx.lineTo(X+W*.24,Y+H-34);
+    ctx.lineTo(X+5,Y+H-34);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
   }
 
   function meetingDoor(ctx,o,T,elapsed=0,state=null){
@@ -2343,6 +2562,6 @@
     return detailedRoleCharacter(ctx,a,T,selected,elapsed);
   }
 
-  const drawers={frame,brandWall,topBackWall,embeddedOffice,wallCore,topTransition,meetingShell,meetingScreen,meetingCredenza,meetingWhiteboard,meetingTable,meetingCoffee,meetingDoor,glassOffice,doorBank,poster,counterDesk,stairs,techPod,reception,logo,sofa,entry,server,plant};
+  const drawers={frame,brandWall,topBackWall,embeddedOffice,wallCore,topTransition,meetingShell,meetingScreen,meetingWhiteboard,meetingTable,meetingDoor,glassOffice,doorBank,poster,counterDesk,stairs,techPod,reception,logo,sofa,entry,server,plant};
   window.NEXUS_SPRITES={drawFloor,drawObject(ctx,o,T,elapsed=0,state=null){const fn=drawers[o.type];if(fn)fn(ctx,o,T,elapsed,state);},drawCharacter:character};
 })();
