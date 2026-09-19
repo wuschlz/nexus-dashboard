@@ -58,19 +58,17 @@
 
   const meetingObjects=[
     {type:'meetingShell',x:0,y:0,w:24,h:32,layer:0},
-    {type:'meetingScreen',x:5.15,y:3.45,w:13.7,h:3.0,layer:1},
-    {type:'meetingWhiteboard',x:18.15,y:6.75,w:3.45,h:8.35,layer:1},
+    {type:'meetingScreen',x:4.05,y:3.45,w:10.75,h:3.0,layer:1},
+    {type:'meetingWhiteboard',x:15.15,y:3.45,w:5.25,h:3.0,layer:1},
     {type:'meetingTable',x:5.85,y:9.0,w:12.3,h:8.7,layer:1},
     {type:'meetingDoor',x:9.6,y:27.65,w:4.8,h:3.25,layer:1,doorId:'meetingExitDoor'},
     {type:'plant',x:3.35,y:4.35,w:1,h:1,layer:2},
-    {type:'plant',x:19.65,y:4.35,w:1,h:1,layer:2},
     {type:'plant',x:4.15,y:25.35,w:1,h:1,layer:2},
     {type:'plant',x:18.85,y:25.35,w:1,h:1,layer:2}
   ];
 
   const meetingCollisions=[
     [0,0,24,2],[0,30,24,2],[0,0,2,32],[22,0,2,32],
-    [18,6,4,10],
     [5,8,14,11]
   ];
 
@@ -115,7 +113,7 @@
   };
 
   window.NEXUS_MAP={
-    version:'2.15',tile:T,cols:24,rows:32,width:24*T,height:32*T,
+    version:'2.16',tile:T,cols:24,rows:32,width:24*T,height:32*T,
     floor:{stone:'#d7d9d6',stoneAlt:'#cfd3d1',stoneWarm:'#ddd9d1',grout:'#b7bfbd',highlight:'#f3f5f2',graphite:'#1f2b36',graphiteAlt:'#273642',oak:'#a97f5c',oakAlt:'#bc9169',oakDark:'#765944',metal:'#8f9ba2',cyan:'#35d6e9'},
     team,objects,collisions,scenes,meetingSpot:[12,27],doorSpot:[12,8]
   };

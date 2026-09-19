@@ -1,48 +1,36 @@
-# NEXUS Retro Office 2.15
+# NEXUS Retro Office 2.16
 
-Meeting Room Detail Pass: Tisch & Whiteboard.
+Meeting Room Geometry Fix: Whiteboard wirklich an der Wand.
 
 ## Änderungen
 
-- Hospitality-/Kaffeeelement vollständig entfernt
-- linke Stauraum-/NEXUS-Wand darüber ebenfalls vollständig entfernt
-- entsprechende Kollisionen entfernt; linke Raumseite ist jetzt offen und begehbar
-- Meetingraum-Zoom 1.20× und Tür-/Scene-System bleiben unverändert
-- Meetingtisch etwas größer und ruhiger proportioniert
-- Whiteboard vergrößert
+- Whiteboard aus der rechten Boden-/Laufzone vollständig entfernt
+- Whiteboard sitzt jetzt oben an der Präsentationswand direkt neben dem NEXUS-Screen
+- Screen dafür etwas schmaler proportioniert; beide bilden jetzt eine gemeinsame Medienwand
+- Whiteboard-Kollision vollständig entfernt, weil es ein Wandobjekt ist und keine Bodenfläche belegt
+- oberes rechtes Pflanzenobjekt entfernt, damit die Medienwand ruhig bleibt
+- Sitzordnung auf 4 + 4 Executive-Stühle an den beiden Längsseiten geändert
+- beide Tischenden bleiben offen; keine Kopfstühle mehr
+- dadurch kann kein Stuhl mehr optisch oder geometrisch mit dem Whiteboard kollidieren
+- Meetingraum-Zoom, Tischdetails, Türanimation und Scene-Wechsel bleiben unverändert
 
-## Ultra-detaillierter Meetingtisch
+## Whiteboard
 
-- geräuchertes Walnussfurnier mit feiner Maserung und Materialporen
-- doppelte gebürstete Aluminiumkante mit sichtbaren Eckbefestigungen
-- skulptierter dunkler Mittelfuß mit Lichtkante
-- zentraler eingelassener Technikkanal mit animierter NEXUS-Lichtlinie
-- echte Kabelklappe mit sichtbaren USB-C-, HDMI- und Power-Details
-- vier Wireless-Charging-Flächen mit eingeätztem Ladesymbol und Statuslicht
-- vier Boundary-Mikrofone mit subtil animierten LED-Ringen
-- detailliertes Tablet mit Agenda-UI
-- Leder-Notizbuch mit Papierkante und Stift
-- Wasserkaraffe mit sichtbarer Wasserlinie und Glasreflexen
-- drei einzelne Trinkgläser
-- Kabelauslässe am Tischfuß
-- acht Executive-Stühle mit Mesh-Rücken, Lordosenstütze, Armlehnen, Gaslift, Fünfsternfuß und einzelnen Rollen
-
-## Ultra-detailliertes Smart-Glass-Whiteboard
-
-- rahmenloses laminiertes Smart Glass mit starken Materialreflexen
-- vier sichtbare Edelstahl-Wandhalter
-- dunkle Kopfzeile mit NEXUS-Status, Sensor und LEDs
-- feines Planungsgitter
-- drei Arbeitsbereiche OPEN / DECIDE / NEXT
-- sechs Haftnotizen mit umgeknickten Ecken und Mikro-Beschriftung
-- handgezeichnete Pfeile und Entscheidungsverbindungen
-- kleines Wochen-Balkendiagramm
+- weiterhin ultra-detailliertes Smart-Glass-Board
+- jetzt kompakt und horizontal passend zur Wandarchitektur
+- klare Wand-Rückplatte und flacher Wand-Schatten
+- vier Edelstahl-Abstandshalter
+- NEXUS-Smart-Header mit LEDs und Sensor
+- OPEN / DECIDE / NEXT
+- sechs Mini-Stickies mit Faltkante
+- Entscheidungs-Pfeile
+- KPI-Chart
 - Relationship-Map
-- fünfteilige Checkliste mit Häkchen
-- handschriftähnlicher Notes-Bereich
-- magnetische Markerablage
-- Eraser, vier farbige Marker und Touch-/NFC-Controller
+- Checkliste
+- magnetische Markerleiste mit vier Markern
+- Touch-/NFC-Puck
+- deutliche Glasreflexion und Metall-Unterkante
 
 ## Version
 
-Office 2.15 · Cache 350
+Office 2.16 · Cache 360

@@ -685,14 +685,13 @@
       ctx.restore();
     }
 
-    // Eight large executive chairs.
-    const xs=[X+W*.24,X+W*.50,X+W*.76];
+    // Eight large executive chairs: four per long side.
+    // No head chairs: both ends stay visually open and clear of wall furniture.
+    const xs=[X+W*.17,X+W*.39,X+W*.61,X+W*.83];
     for(const cx of xs){
       chair(cx,Y-20,0);
       chair(cx,Y+H+20,Math.PI);
     }
-    chair(X-21,Y+H/2,Math.PI/2);
-    chair(X+W+21,Y+H/2,-Math.PI/2);
 
     // Broad realistic contact shadow.
     ctx.save();
@@ -885,207 +884,204 @@
   function meetingWhiteboard(ctx,o,T){
     const X=o.x*T,Y=o.y*T,W=o.w*T,H=o.h*T;
 
-    // Wall stand-offs and shadow make the board feel physically mounted.
+    // Wall-mounted smart glass board. Its shallow shadow falls down the wall,
+    // never across the floor, so it reads as architecture rather than furniture.
     ctx.save();
-    ctx.shadowColor='rgba(9,15,19,.25)';
-    ctx.shadowBlur=18;
-    ctx.shadowOffsetX=-3;
-    ctx.shadowOffsetY=7;
-    rr(ctx,X,Y,W,H,9,'rgba(15,25,30,.18)');
+    ctx.shadowColor='rgba(3,9,13,.42)';
+    ctx.shadowBlur=14;
+    ctx.shadowOffsetY=5;
+    rr(ctx,X,Y,W,H,7,'rgba(10,19,24,.28)');
     ctx.restore();
 
-    // Four stainless mounting discs behind the glass.
+    // Recess/backplate ties the board physically into the presentation wall.
+    rr(ctx,X-5,Y-5,W+10,H+10,9,'#17242c','#0a1218',2);
+    ctx.fillStyle='rgba(255,255,255,.055)';
+    ctx.fillRect(X+7,Y-2,W-14,2);
+
+    // Four short stainless stand-offs.
     for(const [mx,my] of [
-      [X+11,Y+11],[X+W-11,Y+11],[X+11,Y+H-11],[X+W-11,Y+H-11]
+      [X+9,Y+9],[X+W-9,Y+9],
+      [X+9,Y+H-9],[X+W-9,Y+H-9]
     ]){
-      ctx.fillStyle='#8d9a9d';
-      ctx.beginPath();ctx.arc(mx,my,4.5,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle='#d7dddd';
-      ctx.beginPath();ctx.arc(mx-1,my-1,1.5,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#77888d';
+      ctx.beginPath();ctx.arc(mx,my,3.3,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#d6dfdf';
+      ctx.beginPath();ctx.arc(mx-1,my-1,1.1,0,Math.PI*2);ctx.fill();
     }
 
-    // Laminated smart glass.
+    // Laminated writing glass with a subtle edge tint.
     const glass=ctx.createLinearGradient(X,Y,X+W,Y+H);
-    glass.addColorStop(0,'rgba(241,248,246,.88)');
-    glass.addColorStop(.45,'rgba(222,235,233,.82)');
-    glass.addColorStop(1,'rgba(205,222,221,.78)');
-    rr(ctx,X,Y,W,H,9,glass,'rgba(87,109,115,.62)',2);
-    rr(ctx,X+6,Y+6,W-12,H-12,6,'rgba(248,251,248,.72)','rgba(255,255,255,.48)',1);
+    glass.addColorStop(0,'rgba(245,249,247,.96)');
+    glass.addColorStop(.42,'rgba(229,238,235,.94)');
+    glass.addColorStop(1,'rgba(205,220,218,.92)');
+    rr(ctx,X,Y,W,H,7,glass,'rgba(100,123,128,.72)',2);
+    rr(ctx,X+5,Y+5,W-10,H-10,5,'rgba(249,251,248,.76)','rgba(255,255,255,.50)',1);
 
-    // Header strip with tiny smart-board controls.
-    rr(ctx,X+12,Y+12,W-24,31,6,'rgba(31,50,58,.88)','#62777d',1);
-    txt(ctx,'NEXUS  /  DECISIONS',X+20,Y+24,8,'#e7f7f7','left',800);
-    txt(ctx,'TODAY',X+W-18,Y+24,7,'#89b7bf','right',700);
+    // Compact smart-board header.
+    rr(ctx,X+9,Y+8,W-18,22,5,'rgba(28,47,55,.94)','#667a80',1);
+    txt(ctx,'NEXUS / DECISIONS',X+16,Y+19,7,'#e8f8f8','left',800);
+    txt(ctx,'TODAY',X+W-14,Y+19,6,'#8fc2ca','right',700);
 
-    // Status LEDs + proximity sensor.
+    // Tiny status LEDs and camera/sensor.
     for(let i=0;i<3;i++){
-      const c=i===0?'#35d6e9':i===1?'#78bf8b':'#d1a85c';
+      const c=i===0?'#35d6e9':i===1?'#79c48b':'#d8ad5e';
       ctx.fillStyle=c;
-      ctx.beginPath();ctx.arc(X+19+i*10,Y+37,2,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.arc(X+16+i*9,Y+28,1.7,0,Math.PI*2);ctx.fill();
     }
-    ctx.fillStyle='#151f24';
-    ctx.beginPath();ctx.arc(X+W-20,Y+37,3,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#111a1f';
+    ctx.beginPath();ctx.arc(X+W-17,Y+27,2.3,0,Math.PI*2);ctx.fill();
 
-    // Fine planning grid.
-    ctx.save();
-    ctx.globalAlpha=.18;
-    for(let gx=X+15;gx<X+W-14;gx+=14) line(ctx,gx,Y+50,gx,Y+H-42,'#799096',.7);
-    for(let gy=Y+50;gy<Y+H-42;gy+=14) line(ctx,X+15,gy,X+W-14,gy,'#799096',.7);
-    ctx.restore();
-
-    // Three working columns.
-    const innerX=X+15,innerY=Y+51,innerW=W-30;
+    // Three compact planning columns.
+    const innerX=X+10,innerY=Y+36,innerW=W-20,innerH=H-55;
     const colW=innerW/3;
-    const labels=[['OPEN','#527887'],['DECIDE','#7f6956'],['NEXT','#52735f']];
+    const labels=[
+      ['OPEN','#577b88'],
+      ['DECIDE','#836c58'],
+      ['NEXT','#587861']
+    ];
+
     for(let i=0;i<3;i++){
       const cx=innerX+i*colW;
-      ctx.fillStyle='rgba(46,63,69,.10)';
-      ctx.fillRect(cx,innerY,colW-2,22);
-      txt(ctx,labels[i][0],cx+colW/2,innerY+11,6,labels[i][1],'center',800);
-      if(i>0) line(ctx,cx-1,innerY,cx-1,Y+H-46,'rgba(79,100,105,.28)',1);
+      ctx.fillStyle='rgba(58,78,84,.09)';
+      ctx.fillRect(cx,innerY,colW-2,15);
+      txt(ctx,labels[i][0],cx+colW/2,innerY+7.5,5,labels[i][1],'center',800);
+      if(i>0) line(ctx,cx-1,innerY,cx-1,innerY+innerH,'rgba(78,99,104,.25)',1);
     }
 
-    // Sticky notes with folds and handwritten micro-lines.
-    const stickies=[
-      [innerX+4,innerY+31,25,22,'#ecc875','API'],
-      [innerX+31,innerY+59,27,23,'#8fcbd0','UX'],
-      [innerX+colW+5,innerY+37,28,24,'#d99580','GO'],
-      [innerX+colW+34,innerY+73,26,22,'#e2bd71','QA'],
-      [innerX+colW*2+6,innerY+29,27,23,'#9fc28f','SHIP'],
-      [innerX+colW*2+36,innerY+63,25,22,'#a7b7d6','DOC']
+    // Fine etched planning grid.
+    ctx.save();
+    ctx.globalAlpha=.15;
+    for(let gx=innerX;gx<innerX+innerW;gx+=11) line(ctx,gx,innerY+16,gx,innerY+innerH,'#7b9297',.7);
+    for(let gy=innerY+16;gy<innerY+innerH;gy+=10) line(ctx,innerX,gy,innerX+innerW,gy,'#7b9297',.7);
+    ctx.restore();
+
+    // Mini sticky notes remain readable at the new wall-mounted scale.
+    const notes=[
+      [innerX+3,innerY+20,18,15,'#ecc875','API'],
+      [innerX+25,innerY+38,18,15,'#8fcbd0','UX'],
+      [innerX+colW+5,innerY+24,19,16,'#d99580','GO'],
+      [innerX+colW+27,innerY+43,18,15,'#e2bd71','QA'],
+      [innerX+colW*2+5,innerY+20,19,16,'#9fc28f','SHIP'],
+      [innerX+colW*2+28,innerY+40,18,15,'#a7b7d6','DOC']
     ];
-    for(const [sx,sy,sw,sh,c,label] of stickies){
+
+    for(const [sx,sy,sw,sh,c,label] of notes){
       ctx.save();
-      ctx.shadowColor='rgba(21,29,31,.14)';
-      ctx.shadowBlur=4;
-      ctx.shadowOffsetY=2;
+      ctx.shadowColor='rgba(20,28,30,.16)';
+      ctx.shadowBlur=3;
+      ctx.shadowOffsetY=1.5;
       rr(ctx,sx,sy,sw,sh,2,c);
       ctx.restore();
+
+      txt(ctx,label,sx+4,sy+5,4,'rgba(45,54,54,.76)','left',800);
+
+      ctx.fillStyle='rgba(52,61,61,.35)';
+      ctx.fillRect(sx+4,sy+9,sw-8,1);
+      ctx.fillRect(sx+4,sy+12,sw-11,1);
 
       // Folded corner.
       ctx.fillStyle='rgba(255,255,255,.28)';
       ctx.beginPath();
-      ctx.moveTo(sx+sw-7,sy);
+      ctx.moveTo(sx+sw-5,sy);
       ctx.lineTo(sx+sw,sy);
-      ctx.lineTo(sx+sw,sy+7);
+      ctx.lineTo(sx+sw,sy+5);
       ctx.closePath();
       ctx.fill();
-
-      txt(ctx,label,sx+5,sy+7,5,'rgba(48,57,57,.72)','left',800);
-      ctx.fillStyle='rgba(54,61,61,.38)';
-      ctx.fillRect(sx+5,sy+12,sw-11,1);
-      ctx.fillRect(sx+5,sy+16,sw-15,1);
     }
 
     // Hand-drawn decision arrows.
-    ctx.strokeStyle='#466f79';
-    ctx.lineWidth=2;
+    ctx.strokeStyle='#4a7079';
+    ctx.lineWidth=1.4;
     ctx.beginPath();
-    ctx.moveTo(innerX+28,innerY+111);
-    ctx.bezierCurveTo(innerX+51,innerY+95,innerX+colW+13,innerY+118,innerX+colW+37,innerY+101);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(innerX+colW+33,innerY+96);
-    ctx.lineTo(innerX+colW+39,innerY+101);
-    ctx.lineTo(innerX+colW+31,innerY+104);
+    ctx.moveTo(innerX+21,innerY+62);
+    ctx.bezierCurveTo(
+      innerX+36,innerY+52,
+      innerX+colW+8,innerY+66,
+      innerX+colW+24,innerY+56
+    );
     ctx.stroke();
 
-    // Small KPI bar chart.
-    const bx=innerX+5,by=innerY+139,bw=colW-14,bh=45;
-    txt(ctx,'WEEK',bx,by-7,5,'#53676c','left',700);
-    line(ctx,bx,by+bh,bx+bw,by+bh,'#7d8d91',1);
-    const vals=[.45,.68,.57,.84,.73];
+    ctx.beginPath();
+    ctx.moveTo(innerX+colW+20,innerY+52);
+    ctx.lineTo(innerX+colW+25,innerY+56);
+    ctx.lineTo(innerX+colW+19,innerY+59);
+    ctx.stroke();
+
+    // Tiny KPI chart in OPEN.
+    const bx=innerX+4,by=Y+H-28,bw=colW-9,bh=13;
+    line(ctx,bx,by+bh,bx+bw,by+bh,'#829094',1);
+    const vals=[.4,.7,.55,.88,.68];
     for(let i=0;i<vals.length;i++){
       const h=bh*vals[i];
-      const barX=bx+5+i*((bw-10)/vals.length);
-      ctx.fillStyle=i===3?'rgba(53,214,233,.72)':'rgba(84,119,128,.48)';
-      rr(ctx,barX,by+bh-h,6,h,2,ctx.fillStyle);
+      ctx.fillStyle=i===3?'rgba(53,214,233,.76)':'rgba(85,119,128,.48)';
+      ctx.fillRect(bx+3+i*7,by+bh-h,4,h);
     }
 
-    // Simple relationship map in center column.
-    const mx=innerX+colW+colW/2,my=innerY+155;
-    for(const [dx,dy] of [[-20,-14],[18,-17],[-21,17],[20,18]]){
-      line(ctx,mx,my,mx+dx,my+dy,'rgba(76,108,115,.50)',1.5);
-      ctx.fillStyle='#70939b';
-      ctx.beginPath();ctx.arc(mx+dx,my+dy,4,0,Math.PI*2);ctx.fill();
+    // Center relationship map.
+    const cx=innerX+colW*1.5,cy=Y+H-21;
+    for(const [dx,dy] of [[-11,-5],[10,-6],[-10,6],[11,6]]){
+      line(ctx,cx,cy,cx+dx,cy+dy,'rgba(76,107,114,.48)',1);
+      ctx.fillStyle='#73959c';
+      ctx.beginPath();ctx.arc(cx+dx,cy+dy,2.4,0,Math.PI*2);ctx.fill();
     }
     ctx.fillStyle='#35d6e9';
-    ctx.beginPath();ctx.arc(mx,my,5,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(cx,cy,3,0,Math.PI*2);ctx.fill();
 
-    // Checklist in final column.
-    const qx=innerX+colW*2+7,qy=innerY+132;
-    for(let i=0;i<5;i++){
-      const yy=qy+i*13;
-      ctx.strokeStyle='#607b82';
-      ctx.lineWidth=1;
-      ctx.strokeRect(qx,yy,6,6);
-      if(i<3){
+    // NEXT checklist.
+    const qx=innerX+colW*2+5,qy=Y+H-32;
+    for(let i=0;i<3;i++){
+      const yy=qy+i*6;
+      ctx.strokeStyle='#617b82';
+      ctx.lineWidth=.8;
+      ctx.strokeRect(qx,yy,4,4);
+      if(i<2){
         ctx.strokeStyle='#4f817b';
-        ctx.lineWidth=1.4;
         ctx.beginPath();
-        ctx.moveTo(qx+1,yy+3);
-        ctx.lineTo(qx+3,yy+5);
-        ctx.lineTo(qx+7,yy-1);
+        ctx.moveTo(qx+1,yy+2);
+        ctx.lineTo(qx+2,yy+4);
+        ctx.lineTo(qx+5,yy-1);
         ctx.stroke();
       }
-      ctx.fillStyle='rgba(62,77,81,.42)';
-      ctx.fillRect(qx+11,yy+2,colW-26-(i%2)*8,2);
+      ctx.fillStyle='rgba(64,78,82,.42)';
+      ctx.fillRect(qx+7,yy+1,colW-15-(i*4),1.5);
     }
 
-    // Bottom annotation area with handwriting-style strokes.
-    const ay=Y+H-86;
-    line(ctx,X+18,ay,X+W-18,ay,'rgba(82,102,107,.30)',1);
-    txt(ctx,'NOTES',X+19,ay+10,5,'#5f7479','left',700);
-
-    ctx.strokeStyle='#576e74';
-    ctx.lineWidth=1.5;
-    ctx.beginPath();
-    ctx.moveTo(X+20,ay+22);
-    ctx.bezierCurveTo(X+38,ay+15,X+50,ay+27,X+68,ay+20);
-    ctx.bezierCurveTo(X+81,ay+16,X+89,ay+26,X+W-22,ay+19);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(X+24,ay+33);
-    ctx.bezierCurveTo(X+45,ay+29,X+57,ay+38,X+W-36,ay+31);
-    ctx.stroke();
-
-    // Magnetic marker rail, eraser and four markers.
-    const railY=Y+H-25;
-    rr(ctx,X+16,railY,W-32,8,4,'#77878b','#4c5f64',1);
-    rr(ctx,X+20,railY-7,24,9,3,'#303c40','#758388',1);
-    ctx.fillStyle='rgba(255,255,255,.12)';
-    ctx.fillRect(X+23,railY-5,17,1);
-
-    const markers=[
-      ['#35d6e9',X+50],['#d77b6b',X+68],['#e0b85f',X+86],['#4f6972',X+104]
-    ];
-    for(const [c,mx2] of markers){
-      rr(ctx,mx2,railY-4,15,4,2,c,'rgba(48,58,61,.55)',1);
-      ctx.fillStyle='#202b2f';
-      ctx.fillRect(mx2+12,railY-3,3,2);
+    // Thin magnetic marker rail attached to the wall board.
+    const railY=Y+H-8;
+    rr(ctx,X+18,railY,W-36,5,2.5,'#78888c','#4c5f64',1);
+    const markerXs=[X+27,X+43,X+59,X+75];
+    const markerCs=['#35d6e9','#d77b6b','#e0b85f','#4f6972'];
+    for(let i=0;i<markerXs.length;i++){
+      rr(ctx,markerXs[i],railY-3,12,3,1.5,markerCs[i],'rgba(48,58,61,.48)',.7);
     }
 
-    // Touch controller / NFC puck.
-    rr(ctx,X+W-37,railY-8,17,12,5,'#19272d','#61757b',1);
+    // Touch/NFC control puck.
+    rr(ctx,X+W-31,railY-5,15,10,4,'#18272d','#61757b',1);
     ctx.save();
     ctx.shadowColor=P.cyan;
-    ctx.shadowBlur=5;
-    ctx.fillStyle='rgba(53,214,233,.65)';
-    ctx.beginPath();ctx.arc(X+W-28.5,railY-2,2.5,0,Math.PI*2);ctx.fill();
+    ctx.shadowBlur=4;
+    ctx.fillStyle='rgba(53,214,233,.72)';
+    ctx.beginPath();ctx.arc(X+W-23.5,railY,2,0,Math.PI*2);ctx.fill();
     ctx.restore();
 
-    // Strong glass reflection to sell the material.
+    // Clear diagonal reflection across the vertical glass.
     ctx.save();
-    ctx.globalAlpha=.13;
+    ctx.globalAlpha=.12;
     ctx.fillStyle='#ffffff';
     ctx.beginPath();
-    ctx.moveTo(X+9,Y+9);
-    ctx.lineTo(X+W*.44,Y+9);
-    ctx.lineTo(X+W*.24,Y+H-34);
-    ctx.lineTo(X+5,Y+H-34);
+    ctx.moveTo(X+7,Y+6);
+    ctx.lineTo(X+W*.42,Y+6);
+    ctx.lineTo(X+W*.26,Y+H-10);
+    ctx.lineTo(X+4,Y+H-10);
     ctx.closePath();
     ctx.fill();
     ctx.restore();
+
+    // Bottom metal edge separates the mounted board from the wall behind it.
+    ctx.fillStyle='rgba(131,146,151,.72)';
+    ctx.fillRect(X+11,Y+H-2,W-22,2);
+    ctx.fillStyle='rgba(255,255,255,.40)';
+    ctx.fillRect(X+16,Y+H-2,W-32,1);
   }
 
   function meetingDoor(ctx,o,T,elapsed=0,state=null){
