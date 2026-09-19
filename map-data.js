@@ -17,7 +17,7 @@
     // One continuous back wall: the upper rooms are embedded in this same floor.
     {type:'topBackWall',x:1,y:1,w:22,h:2.25,layer:0},
     {type:'embeddedOffice',x:2,y:3.15,w:7.4,h:5.15,layer:1,variant:'left'},
-    {type:'wallCore',x:9.7,y:3.15,w:4.6,h:5.15,layer:1},
+    {type:'wallCore',x:9.7,y:3.15,w:4.6,h:5.15,layer:1,doorId:'mainMeetingDoor'},
     {type:'embeddedOffice',x:14.6,y:3.15,w:7.4,h:5.15,layer:1,variant:'right'},
     {type:'topTransition',x:1.6,y:8.3,w:20.8,h:1.05,layer:1},
 
@@ -33,7 +33,6 @@
 
     {type:'plant',x:2.3,y:9.2,w:1,h:1,layer:2},
     {type:'plant',x:6.1,y:9.0,w:1,h:1,layer:2},
-    {type:'plant',x:11.8,y:8.9,w:1,h:1,layer:2},
     {type:'plant',x:18.7,y:9.0,w:1,h:1,layer:2},
     {type:'plant',x:20.8,y:9.2,w:1,h:1,layer:2},
     {type:'plant',x:4.1,y:23.0,w:1,h:1,layer:2},
@@ -57,9 +56,69 @@
     [9,29,6,3],[18,14,3,4]
   ];
 
+  const meetingObjects=[
+    {type:'meetingShell',x:0,y:0,w:24,h:32,layer:0},
+    {type:'meetingScreen',x:4.8,y:1.6,w:14.4,h:3.2,layer:1},
+    {type:'meetingCredenza',x:1.25,y:5.0,w:3.35,h:8.0,layer:1},
+    {type:'meetingWhiteboard',x:19.45,y:5.0,w:3.25,h:8.2,layer:1},
+    {type:'meetingTable',x:5.0,y:8.2,w:14.0,h:11.6,layer:1},
+    {type:'meetingCoffee',x:1.25,y:18.0,w:3.35,h:6.0,layer:1},
+    {type:'meetingDoor',x:9.6,y:27.65,w:4.8,h:3.25,layer:1,doorId:'meetingExitDoor'},
+    {type:'plant',x:3.8,y:3.4,w:1,h:1,layer:2},
+    {type:'plant',x:19.2,y:3.4,w:1,h:1,layer:2},
+    {type:'plant',x:3.6,y:25.4,w:1,h:1,layer:2},
+    {type:'plant',x:19.4,y:25.4,w:1,h:1,layer:2}
+  ];
+
+  const meetingCollisions=[
+    [0,0,24,2],[0,30,24,2],[0,0,2,32],[22,0,2,32],
+    [1,5,4,8],[19,5,4,8],
+    [5,8,14,12],
+    [1,18,4,6]
+  ];
+
+  const scenes={
+    main:{
+      id:'main',
+      objects,
+      collisions,
+      portals:[
+        {
+          id:'main-to-meeting',
+          doorId:'mainMeetingDoor',
+          target:'meeting',
+          targetDoorId:'meetingExitDoor',
+          clickRect:[9.6,3.0,4.8,6.2],
+          approach:[12,8],
+          sourceFacing:'up',
+          targetFacing:'up',
+          exitVector:[0,-1]
+        }
+      ]
+    },
+    meeting:{
+      id:'meeting',
+      objects:meetingObjects,
+      collisions:meetingCollisions,
+      portals:[
+        {
+          id:'meeting-to-main',
+          doorId:'meetingExitDoor',
+          target:'main',
+          targetDoorId:'mainMeetingDoor',
+          clickRect:[9.2,27.0,5.6,5.0],
+          approach:[12,27],
+          sourceFacing:'down',
+          targetFacing:'down',
+          exitVector:[0,1]
+        }
+      ]
+    }
+  };
+
   window.NEXUS_MAP={
-    version:'2.12',tile:T,cols:24,rows:32,width:24*T,height:32*T,
+    version:'2.13',tile:T,cols:24,rows:32,width:24*T,height:32*T,
     floor:{stone:'#d7d9d6',stoneAlt:'#cfd3d1',stoneWarm:'#ddd9d1',grout:'#b7bfbd',highlight:'#f3f5f2',graphite:'#1f2b36',graphiteAlt:'#273642',oak:'#a97f5c',oakAlt:'#bc9169',oakDark:'#765944',metal:'#8f9ba2',cyan:'#35d6e9'},
-    team,objects,collisions,meetingSpot:[12,27],doorSpot:[12,8]
+    team,objects,collisions,scenes,meetingSpot:[12,27],doorSpot:[12,8]
   };
 })();
