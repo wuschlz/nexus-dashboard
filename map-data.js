@@ -1,7 +1,7 @@
 (() => {
   const T=32;
   const team=[
-    {id:'james',name:'James',role:'Leitung',skin:'#d8a47b',skinHi:'#efc097',hair:'#35241f',hairHi:'#5c4034',body:'#213955',bodyHi:'#3a5b82',accent:'#eef2f5',style:'short',x:5,y:7,desk:[5,7]},
+    {id:'james',name:'James',role:'Leitung',skin:'#d8a47b',skinHi:'#efc097',hair:'#35241f',hairHi:'#5c4034',body:'#213955',bodyHi:'#3a5b82',accent:'#eef2f5',style:'short',detail:'leader',beard:'#4b352e',trouser:'#1b293a',shoe:'#3a2b27',pin:'#35d6e9',folio:'#162432',x:5,y:7,desk:[5,7]},
     {id:'nora',name:'Nora',role:'Mail',skin:'#d9a481',skinHi:'#efbd9a',hair:'#503228',hairHi:'#7b5646',body:'#263f67',bodyHi:'#3b5e8e',accent:'#f3f5f7',style:'bob',x:18,y:7,desk:[18,7]},
     {id:'kevin',name:'Kevin',role:'Recherche',skin:'#dcae84',skinHi:'#f2c49a',hair:'#9b5f32',hairHi:'#c98548',body:'#426852',bodyHi:'#5d886d',accent:'#deeadf',style:'spiky',x:7,y:11,desk:[7,11]},
     {id:'gisela',name:'Gisela',role:'Wissen & Archiv',skin:'#d3a17b',skinHi:'#e8b690',hair:'#bab8ad',hairHi:'#e1ddd2',body:'#67465a',bodyHi:'#845e74',accent:'#eee5dc',style:'graybob',x:11,y:11,desk:[11,11]},
@@ -58,7 +58,7 @@
   ];
 
   window.NEXUS_MAP={
-    version:'2.8',tile:T,cols:24,rows:32,width:24*T,height:32*T,
+    version:'2.9',tile:T,cols:24,rows:32,width:24*T,height:32*T,
     floor:{base:'#ebcb8b',alt:'#f2d79c',line:'#d7b675',highlight:'#fae9c3'},
     team,objects,collisions,meetingSpot:[12,27],doorSpot:[12,8]
   };

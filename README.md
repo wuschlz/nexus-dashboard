@@ -1,19 +1,22 @@
-# NEXUS Retro Office 2.8
+# NEXUS Retro Office 2.9
 
-Architektur-Pass für den oberen Bereich der Scene-only-Version.
+Character Detail Pass 1: James.
 
 ## Änderungen
 
-- obere Zone räumlich neu aufgebaut
-- dominante Treppen vollständig entfernt
-- obere Büros sind jetzt in eine durchgehende Rückwand eingelassen
-- mittlere Zone ist ein Wandkern mit normaler Zugangstür statt Aufzug-/Etagenwirkung
-- flache durchgehende Übergangskante verbindet obere Zone mit derselben Bodenebene
-- neue Wandpaneele, integriertes NEXUS-Schild und Wandbeleuchtung
-- Glasbüros mit detaillierter Einrichtung, Regalen, Schreibtischen, Stühlen, Pflanzen und Reflexionen
-- Couch-Detailtiefe aus 2.7 und blinkender Server aus 2.6 bleiben unverändert
-- Pathfinding-Kollisionen wurden an die neue Same-Level-Architektur angepasst
+- James ist der erste Charakter auf dem neuen Detailniveau
+- eigene, deutlich detailliertere Silhouette und Proportionen
+- ruhige aufrechte Körpersprache passend zur Teamleitung
+- maßgeschneiderter Navy-Blazer mit Hemd, Krawatte, Revers und Einstecktuch
+- dezenter cyanfarbener NEXUS-Pin
+- detaillierter Kopf mit Seitenscheitel, Schläfen, Augenbrauen, Augen, Nase und Bartschatten
+- ruhiger Gesichtsausdruck mit kleiner Mimik
+- eigenes Folio/Tablet als sichtbares Leitungs-/Koordinationsdetail
+- subtilere Idle-Atmung, leichter Körpersway und eigenständiger Blink-Zyklus
+- detailliertere Schuhe, Hosenfalten, Gürtel, Manschetten und Material-Highlights
+- die übrigen sieben Charaktere bleiben in 2.9 bewusst unverändert und werden danach einzeln auf dieses Qualitätsniveau gebracht
+- Architektur aus 2.8, Sofas aus 2.7 und Server aus 2.6 bleiben unverändert
 
 ## Version
 
-Office 2.8 · Cache 280
+Office 2.9 · Cache 290
