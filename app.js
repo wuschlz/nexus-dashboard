@@ -445,7 +445,7 @@
     play('Neutral Idle',true);
     loading.style.display='none';
     document.getElementById('assetState').textContent='geladen'; document.getElementById('inspectorStatus').textContent='Ready';
-    log('Office 1.77 · scharf · James + Nora · character system 2/8');
+    log('Office 1.78 · scharf · James + Nora · character system 2/8');
   }).catch(err=>{ console.error(err); loading.textContent='James konnte nicht geladen werden.'; document.getElementById('assetState').textContent='GLB-Fehler'; log('GLB-Ladefehler'); });
 
   const noraDef=characterCatalog?.byName?.Nora;
@@ -454,7 +454,7 @@
       noraRoot=new BABYLON.TransformNode(noraDef.rootName||'NoraRoot',scene);
       result.meshes.forEach(m=>{if(!m.parent)m.parent=noraRoot;});
       noraRoot.position.copyFrom(locations.nora);
-      noraRoot.scaling.setAll(.73);
+      noraRoot.scaling.setAll(.82);
       noraRoot.rotation.y=0;
       registerActor('Nora',noraRoot,result.animationGroups||[]);
       playActor('Nora','Neutral Idle',true,{silent:true});
