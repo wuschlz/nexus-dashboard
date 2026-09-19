@@ -1,43 +1,39 @@
-# NEXUS Retro Office 2.13
+# NEXUS Retro Office 2.14
 
-Scene System Prototype: Hauptbüro ↔ Meetingraum.
+Executive Meeting Room Rebuild.
+
+## Leitidee
+
+Der Türdurchgang aus 2.13 bleibt erhalten. Der Meetingraum wurde dagegen vollständig neu aufgebaut und erhält als erste NEXUS-Scene eine eigene Kameradistanz.
 
 ## Änderungen
 
-- echtes Scene-System mit getrennten Räumen eingeführt
-- obere mittlere Tür im Hauptbüro führt jetzt in einen eigenen Meetingraum
-- ausgewählter Mitarbeiter läuft beim Antippen der Tür automatisch bis zum Eingang
-- Tür öffnet sich animiert als zweiflügelige moderne Glasschiebetür
-- Mitarbeiter läuft sichtbar durch die geöffnete Tür
-- kurzer weicher Scene-Fade beim Raumwechsel
-- Ansicht folgt dem Mitarbeiter automatisch in den Meetingraum
-- Ziel-Tür ist beim Ankommen bereits offen und schließt anschließend animiert
-- Rückweg funktioniert über die untere Tür im Meetingraum nach demselben Prinzip
-- jeder der acht Mitarbeiter kann den Raumwechsel benutzen
-- Mitarbeiter behalten ihren aktuellen Raumzustand; nur Personen der aktuellen Scene werden gerendert
-- getrenntes Pathfinding und getrennte Kollisionskarten pro Scene
-- Hauptbüro und vorhandene Steuerung bleiben erhalten
+- Meetingraum visuell komplett verworfen und neu gebaut
+- eigene Meetingraum-Kamera mit 1.20× Zoom
+- Figuren, Möbel und sämtliche Raumdetails wirken dadurch proportional größer
+- Touch-/Tap-Koordinaten werden korrekt durch die Scene-Kamera zurückgerechnet
+- Hauptbüro behält exakt seine bisherige Kameradistanz
+- Door-/Scene-Transition aus 2.13 bleibt unverändert
 
-## Meetingraum
+## Neuer Meetingraum
 
-- eigener moderner 3:4-Raum statt Overlay
-- großer NEXUS-Präsentationsscreen mit dezenter Animation
-- langer Premium-Konferenztisch mit zwölf Stühlen
-- integrierte Collaboration-Leiste, Lade-/Mikrofon-Pods und Tischdetails
-- Sideboard mit Akustikholz und NEXUS-Display
-- großes Agenda-Whiteboard mit Diagrammen und Sticky Notes
-- separate Kaffee-/Getränkestation
-- akustischer Teppich-Inlay, großformatiger Mineralboden, Wandlicht und Cyan-Lichtlinien
-- Pflanzen und moderne Glas-/Metall-Türdetails
-
-## Test
-
-1. Im Hauptbüro einen Mitarbeiter antippen.
-2. Oben die mittlere **MEETING ROOM**-Tür antippen.
-3. Mitarbeiter läuft hin, Tür öffnet sich und die Scene wechselt.
-4. Im Meetingraum frei herumlaufen.
-5. Unten die **EXIT**-Tür antippen, um zurückzukehren.
+- ruhiger Executive-Collaboration-Room statt vollgestopfter Spielkarte
+- hochwertiger großformatiger Mineralboden
+- eingelassener dunkler Präsentationsbereich mit Walnuss-Akustiklamellen
+- großer in die Architektur integrierter NEXUS-Screen
+- seitliche frostige Glasflächen für mehr räumliche Tiefe
+- bündige dunkle Akustikzone unter dem Tisch
+- zwei große lineare Pendelleuchten mit weichem Lichtfall
+- schlankerer massiver Konferenztisch aus dunkel geräuchertem Walnussholz
+- gebürstete Aluminiumkante und integrierter Technikkanal
+- vier Lade-/Mikrofon-Pods, Tablet, Notebook, Wasserkaraffe und Gläser
+- nur noch acht große detaillierte Executive-Stühle statt zwölf kleiner Stühle
+- linke Stauraumwand mit Walnussholz und NEXUS-Nische
+- rechts ein rahmenloses Glas-Whiteboard
+- kleine zurückhaltende Hospitality-/Getränkestation
+- deutlich mehr freie Fläche und ruhigere Symmetrie
+- Tür unten bleibt als Rückweg zum Hauptbüro erhalten
 
 ## Version
 
-Office 2.13 · Cache 330
+Office 2.14 · Cache 340

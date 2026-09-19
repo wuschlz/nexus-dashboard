@@ -32,6 +32,26 @@
 
   const doors={mainMeetingDoor:0,meetingExitDoor:0};
 
+  function cameraFor(scene){
+    return scene.camera||{scale:1,center:[map.cols/2,map.rows/2]};
+  }
+
+  function applySceneCamera(scene){
+    const camera=cameraFor(scene);
+    if(camera.scale===1&&camera.center[0]===map.cols/2&&camera.center[1]===map.rows/2) return;
+
+    ctx.translate(canvas.width/2,canvas.height/2);
+    ctx.scale(camera.scale,camera.scale);
+    ctx.translate(-camera.center[0]*map.tile,-camera.center[1]*map.tile);
+  }
+
+  function screenToWorld(scene,screenX,screenY){
+    const camera=cameraFor(scene);
+    const worldX=(screenX-canvas.width/2)/camera.scale+camera.center[0]*map.tile;
+    const worldY=(screenY-canvas.height/2)/camera.scale+camera.center[1]*map.tile;
+    return [worldX/map.tile,worldY/map.tile];
+  }
+
   function buildSolid(scene){
     const solid=Array.from({length:map.rows},()=>Array(map.cols).fill(0));
 
@@ -339,6 +359,9 @@
       }
     };
 
+    ctx.save();
+    applySceneCamera(scene);
+
     sprites.drawFloor(ctx,map,scene);
 
     const low=scene.objects.filter(o=>(o.layer||0)===0);
@@ -355,6 +378,8 @@
 
     high.forEach(o=>sprites.drawObject(ctx,o,map.tile,elapsed,renderState));
 
+    ctx.restore();
+
     if(fadeAlpha>0){
       ctx.fillStyle='rgba(6,10,14,'+Math.min(1,fadeAlpha)+')';
       ctx.fillRect(0,0,canvas.width,canvas.height);
@@ -369,9 +394,10 @@
     if(transition) return;
 
     const rect=canvas.getBoundingClientRect();
-    const tx=(event.clientX-rect.left)/rect.width*map.cols;
-    const ty=(event.clientY-rect.top)/rect.height*map.rows;
     const scene=scenes[currentScene];
+    const screenX=(event.clientX-rect.left)/rect.width*canvas.width;
+    const screenY=(event.clientY-rect.top)/rect.height*canvas.height;
+    const [tx,ty]=screenToWorld(scene,screenX,screenY);
 
     let hit=null;
     let hitDistance=.95;

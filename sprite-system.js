@@ -451,260 +451,421 @@
 
   function meetingShell(ctx,o,T){
     const X=o.x*T,Y=o.y*T,W=o.w*T,H=o.h*T;
-    ctx.fillStyle='#10171f';
+
+    // Executive-room shell: deliberately calm, architectural and spacious.
+    ctx.fillStyle='#0a1016';
     ctx.fillRect(X,Y,W,H);
 
     const ix=X+18,iy=Y+18,iw=W-36,ih=H-36;
-    rr(ctx,ix,iy,iw,ih,8,'#d2d7d5','#28343d',3);
 
-    const sw=128,sh=64;
-    for(let row=0,py=iy;py<iy+ih;row++,py+=sh){
-      const offset=(row%2)*64;
-      for(let px=ix-offset;px<ix+iw;px+=sw){
-        const tone=(row+Math.floor(px/sw))%4;
-        ctx.fillStyle=tone===0?'#d9ddda':tone===1?'#cbd1cf':'#d2d7d5';
-        ctx.fillRect(px+1,py+1,sw-2,sh-2);
-        ctx.fillStyle='rgba(255,255,255,.14)';
-        ctx.fillRect(px+5,py+5,sw-10,1);
+    // Warm pale mineral floor, visually related to the main office but cleaner.
+    rr(ctx,ix,iy,iw,ih,8,'#d8d9d5','#202c35',3);
+
+    const slabW=T*4.5,slabH=T*2.4;
+    for(let row=0,py=iy;py<iy+ih;row++,py+=slabH){
+      const offset=(row%2)*slabW*.5;
+      for(let px=ix-offset;px<ix+iw;px+=slabW){
+        const tone=(row+Math.floor(px/slabW))%4;
+        ctx.fillStyle=tone===0?'#dedfd9':tone===1?'#d1d4d0':'#d8d9d5';
+        ctx.fillRect(px+1,py+1,slabW-2,slabH-2);
+
+        ctx.fillStyle='rgba(255,255,255,.17)';
+        ctx.fillRect(px+7,py+6,slabW-14,1);
+
+        const seed=Math.abs(((row+17)*73856093)^((Math.floor(px/slabW)+23)*19349663));
+        for(let i=0;i<4;i++){
+          const sx=px+12+((seed>>(i*3))%Math.max(20,Math.floor(slabW-24)));
+          const sy=py+12+((seed>>(i*5+1))%Math.max(16,Math.floor(slabH-24)));
+          ctx.fillStyle=i===0?'rgba(83,92,92,.09)':'rgba(255,255,255,.18)';
+          ctx.fillRect(sx,sy,i%2?2:1,1);
+        }
       }
-      line(ctx,ix,py,ix+iw,py,'rgba(119,132,134,.26)',1);
+
+      line(ctx,ix,py,ix+iw,py,'rgba(112,123,123,.26)',1);
+      const seamOffset=(row%2)*slabW*.5;
+      for(let px=ix-seamOffset;px<ix+iw;px+=slabW){
+        line(ctx,px,py,px,Math.min(iy+ih,py+slabH),'rgba(112,123,123,.20)',1);
+      }
     }
 
-    const topH=118;
-    const g=ctx.createLinearGradient(ix,iy,ix,iy+topH);
-    g.addColorStop(0,'#1a2935');
-    g.addColorStop(1,'#243743');
-    rr(ctx,ix+7,iy+7,iw-14,topH,6,g,'#0f171e',2);
+    // Deep architectural presentation wall.
+    const wallY=iy+8,wallH=176;
+    const wg=ctx.createLinearGradient(ix,wallY,ix,wallY+wallH);
+    wg.addColorStop(0,'#15222c');
+    wg.addColorStop(.65,'#1c2b35');
+    wg.addColorStop(1,'#202f38');
+    rr(ctx,ix+7,wallY,iw-14,wallH,7,wg,'#0b1218',2);
 
-    for(const sx of [ix+14,ix+iw-126]){
-      rr(ctx,sx,iy+18,112,82,5,'#8c674b','#5f4939',1);
-      for(let k=0;k<12;k++){
-        ctx.fillStyle=k%2?'#a47b59':'#936d50';
-        ctx.fillRect(sx+5+k*8.5,iy+23,5,72);
+    // Walnut acoustic slats frame the screen but do not dominate it.
+    for(const sx of [ix+15,ix+iw-143]){
+      rr(ctx,sx,wallY+12,128,148,5,'#4f3d31','#29221d',1);
+      for(let k=0;k<15;k++){
+        ctx.fillStyle=k%3===0?'#8d674d':k%2?'#765841':'#826047';
+        ctx.fillRect(sx+7+k*7.8,wallY+18,4.6,136);
       }
+      ctx.fillStyle='rgba(255,255,255,.055)';
+      ctx.fillRect(sx+7,wallY+20,108,2);
     }
 
-    ctx.save();
-    ctx.shadowColor=P.cyan;
-    ctx.shadowBlur=10;
-    ctx.fillStyle='rgba(53,214,233,.66)';
-    ctx.fillRect(ix+128,iy+topH-7,iw-256,2);
-    ctx.restore();
+    // Frosted side-glass walls create depth without turning into another "game level".
+    function glassWall(x,w){
+      rr(ctx,x,wallY+182,w,ih-315,6,'rgba(112,161,172,.16)','rgba(82,121,132,.42)',1.5);
+      for(let py=wallY+205;py<iy+ih-135;py+=88){
+        line(ctx,x+6,py,x+w-6,py,'rgba(187,224,228,.18)',1);
+      }
+      ctx.save();
+      ctx.globalAlpha=.20;
+      ctx.fillStyle='#ffffff';
+      ctx.beginPath();
+      ctx.moveTo(x+9,wallY+195);
+      ctx.lineTo(x+w*.56,wallY+195);
+      ctx.lineTo(x+w*.28,iy+ih-154);
+      ctx.lineTo(x+5,iy+ih-154);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+    glassWall(ix+8,54);
+    glassWall(ix+iw-62,54);
 
-    const rx=4.5*T,ry=7.45*T,rw=15*T,rh=13.2*T;
-    rr(ctx,rx,ry,rw,rh,20,'#202d37','rgba(91,110,122,.60)',2);
-    for(let yy=ry+11;yy<ry+rh-8;yy+=8){
-      for(let xx=rx+11;xx<rx+rw-8;xx+=13){
-        ctx.fillStyle=((xx+yy)|0)%3?'rgba(255,255,255,.025)':'rgba(134,157,170,.07)';
+    // Large inset acoustic rug under table, flush with the mineral floor.
+    const rx=5.25*T,ry=8.3*T,rw=13.5*T,rh=10.3*T;
+    rr(ctx,rx,ry,rw,rh,22,'#26333c','rgba(92,108,117,.46)',2);
+    for(let yy=ry+12;yy<ry+rh-10;yy+=8){
+      for(let xx=rx+12;xx<rx+rw-10;xx+=12){
+        const n=((xx*7+yy*11)|0)%4;
+        ctx.fillStyle=n===0?'rgba(141,161,171,.07)':'rgba(255,255,255,.018)';
         ctx.fillRect(xx,yy,2,1);
       }
     }
 
-    for(const lx of [ix+6,ix+iw-9]){
+    // Twin suspended linear luminaires above the table.
+    for(const ly of [7.55*T,8.05*T]){
       ctx.save();
-      ctx.shadowColor='#9debf2';
-      ctx.shadowBlur=8;
-      ctx.fillStyle='rgba(157,235,242,.46)';
-      ctx.fillRect(lx,iy+148,2,ih-230);
+      ctx.shadowColor='#d9fbff';
+      ctx.shadowBlur=18;
+      rr(ctx,7.1*T,ly,9.8*T,7,4,'rgba(231,246,244,.82)');
       ctx.restore();
+
+      const lg=ctx.createLinearGradient(0,ly,0,ly+90);
+      lg.addColorStop(0,'rgba(255,255,255,.075)');
+      lg.addColorStop(1,'rgba(255,255,255,0)');
+      ctx.fillStyle=lg;
+      ctx.fillRect(6.7*T,ly+7,10.6*T,92);
     }
 
-    rr(ctx,ix+6,iy+ih-111,iw-12,96,5,'#1c2a34','#111920',2);
-    ctx.fillStyle='rgba(255,255,255,.035)';
-    ctx.fillRect(ix+14,iy+ih-104,iw-28,2);
+    // Bottom wall is quiet graphite with a central portal.
+    rr(ctx,ix+7,iy+ih-128,iw-14,111,7,'#18252e','#0d151b',2);
+    for(let x=ix+22;x<ix+iw-22;x+=86){
+      ctx.fillStyle='rgba(255,255,255,.035)';
+      ctx.fillRect(x,iy+ih-119,1,93);
+    }
 
-    const wash=ctx.createLinearGradient(ix,0,ix+iw,0);
-    wash.addColorStop(0,'rgba(255,255,255,0)');
-    wash.addColorStop(.25,'rgba(255,255,255,.07)');
-    wash.addColorStop(.38,'rgba(255,255,255,0)');
-    wash.addColorStop(.68,'rgba(255,255,255,0)');
-    wash.addColorStop(.82,'rgba(255,255,255,.06)');
-    wash.addColorStop(1,'rgba(255,255,255,0)');
-    ctx.fillStyle=wash;
-    ctx.fillRect(ix,iy+topH,iw,ih-topH-110);
+    // Flush cyan wayfinding line, restrained.
+    ctx.save();
+    ctx.shadowColor=P.cyan;
+    ctx.shadowBlur=6;
+    ctx.fillStyle='rgba(53,214,233,.52)';
+    ctx.fillRect(8.0*T,iy+ih-136,8.0*T,2);
+    ctx.restore();
+
+    // Soft global reflection for a premium polished finish.
+    const sheen=ctx.createLinearGradient(ix,iy,ix+iw,iy+ih);
+    sheen.addColorStop(0,'rgba(255,255,255,.035)');
+    sheen.addColorStop(.45,'rgba(255,255,255,0)');
+    sheen.addColorStop(1,'rgba(17,28,34,.045)');
+    ctx.fillStyle=sheen;
+    ctx.fillRect(ix,iy,iw,ih);
   }
 
   function meetingScreen(ctx,o,T,elapsed=0){
     const X=o.x*T,Y=o.y*T,W=o.w*T,H=o.h*T;
+
+    // Screen is recessed into the architecture instead of floating like a game prop.
     ctx.save();
-    ctx.shadowColor='rgba(0,0,0,.35)';
-    ctx.shadowBlur=16;
-    rr(ctx,X,Y,W,H,7,'rgba(9,18,25,.35)');
+    ctx.shadowColor='rgba(0,0,0,.44)';
+    ctx.shadowBlur=20;
+    ctx.shadowOffsetY=5;
+    rr(ctx,X,Y,W,H,8,'rgba(9,15,20,.26)');
     ctx.restore();
 
-    rr(ctx,X,Y,W,H,7,'#0d1720','#405361',3);
-    rr(ctx,X+8,Y+8,W-16,H-16,4,'#102b3b','#1b5b70',1);
+    rr(ctx,X,Y,W,H,8,'#071118','#344751',3);
+    rr(ctx,X+7,Y+7,W-14,H-14,5,'#0c202a','#1b4453',1);
 
-    const pulse=.55+.18*Math.sin(elapsed*1.6);
-    const sg=ctx.createLinearGradient(X+10,Y+10,X+W-10,Y+H-10);
-    sg.addColorStop(0,'#163c4c');
-    sg.addColorStop(.55,'#102635');
-    sg.addColorStop(1,'#1b3040');
-    rr(ctx,X+12,Y+12,W-24,H-24,3,sg);
+    const bg=ctx.createLinearGradient(X+8,Y+8,X+W-8,Y+H-8);
+    bg.addColorStop(0,'#123745');
+    bg.addColorStop(.48,'#0b222d');
+    bg.addColorStop(1,'#111b25');
+    rr(ctx,X+12,Y+12,W-24,H-24,4,bg);
 
+    // Calm animated dashboard.
+    const pulse=.62+.16*Math.sin(elapsed*1.4);
     ctx.save();
     ctx.shadowColor=P.cyan;
-    ctx.shadowBlur=8;
-    rr(ctx,X+26,Y+24,42,42,9,'#153e50','rgba(53,214,233,'+pulse+')',2);
-    txt(ctx,'N',X+47,Y+45,20,'#d9fbff','center',800);
+    ctx.shadowBlur=9;
+    rr(ctx,X+26,Y+22,48,48,10,'#123d4e','rgba(53,214,233,'+pulse+')',2);
+    txt(ctx,'N',X+50,Y+46,23,'#d9fbff','center',800);
     ctx.restore();
 
-    txt(ctx,'MEETING ROOM',X+W*.54,Y+31,15,'#edf8fa','center',800);
-    txt(ctx,'NEXUS COLLABORATION',X+W*.54,Y+50,7,'#86a7b4','center',700);
+    txt(ctx,'NEXUS',X+W*.54,Y+28,17,'#eef9fa','center',800);
+    txt(ctx,'COLLABORATION ROOM',X+W*.54,Y+47,8,'#8eabb5','center',700);
 
-    const bx=X+W*.34,by=Y+67,bw=W*.50;
+    // Minimal agenda surface instead of fake dense UI.
+    const ax=X+W*.36,ay=Y+65,aw=W*.50;
     for(let i=0;i<3;i++){
-      rr(ctx,bx,by+i*12,bw-(i*28),5,2,i===0?'rgba(53,214,233,.70)':'rgba(140,174,188,.38)');
+      rr(ctx,ax,ay+i*10,aw-(i*24),4,2,i===0?'rgba(53,214,233,.64)':'rgba(133,161,171,.30)');
     }
+
+    // Glass reflection.
+    ctx.save();
+    ctx.globalAlpha=.14;
+    ctx.fillStyle='#ffffff';
+    ctx.beginPath();
+    ctx.moveTo(X+16,Y+14);
+    ctx.lineTo(X+W*.43,Y+14);
+    ctx.lineTo(X+W*.30,Y+H-14);
+    ctx.lineTo(X+10,Y+H-14);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
   }
 
   function meetingTable(ctx,o,T){
     const X=o.x*T,Y=o.y*T,W=o.w*T,H=o.h*T;
 
+    // Eight proper executive chairs: 3 + 3 along the sides, one at each head.
     function chair(cx,cy,rot=0){
       ctx.save();
       ctx.translate(cx,cy);
       ctx.rotate(rot);
-      ctx.fillStyle='rgba(17,24,29,.18)';
+
+      ctx.fillStyle='rgba(13,19,23,.23)';
       ctx.beginPath();
-      ctx.ellipse(0,8,17,6,0,0,Math.PI*2);
+      ctx.ellipse(0,12,19,7,0,0,Math.PI*2);
       ctx.fill();
-      rr(ctx,-15,-11,30,18,8,'#344753','#1b2730',2);
-      rr(ctx,-12,-8,24,12,6,'#526a77');
-      rr(ctx,-13,7,26,12,6,'#2b3b45','#19242b',1);
-      line(ctx,0,18,0,27,'#475761',3);
-      line(ctx,0,26,-11,31,'#475761',2);
-      line(ctx,0,26,11,31,'#475761',2);
+
+      // Polished five-star base.
+      line(ctx,0,18,0,29,'#4b5b63',3);
+      for(const a of [-.8,-.36,.36,.8]){
+        line(ctx,0,28,Math.sin(a)*16,28+Math.cos(a)*8,'#4b5b63',2);
+      }
+
+      // Seat and tall ergonomic back.
+      rr(ctx,-17,3,34,17,8,'#263640','#17242b',2);
+      rr(ctx,-14,6,28,11,6,'#536a75');
+      rr(ctx,-18,-22,36,27,10,'#2f424d','#17242b',2);
+      rr(ctx,-14,-18,28,19,8,'#4b626e');
+
+      // Lumbar panel, stitching and tiny metal arm accents.
+      rr(ctx,-9,-11,18,7,4,'#40545f');
+      ctx.fillStyle='rgba(255,255,255,.09)';
+      ctx.fillRect(-10,-16,20,2);
+      ctx.fillStyle='#88989d';
+      ctx.fillRect(-21,-2,5,2);
+      ctx.fillRect(16,-2,5,2);
+
       ctx.restore();
     }
 
-    const sideCount=5;
-    for(let i=0;i<sideCount;i++){
-      const cx=X+68+i*(W-136)/(sideCount-1);
-      chair(cx,Y-9,0);
-      chair(cx,Y+H+9,Math.PI);
+    const xs=[X+W*.25,X+W*.50,X+W*.75];
+    for(const cx of xs){
+      chair(cx,Y-17,0);
+      chair(cx,Y+H+17,Math.PI);
     }
-    chair(X-7,Y+H/2,Math.PI/2);
-    chair(X+W+7,Y+H/2,-Math.PI/2);
+    chair(X-18,Y+H/2,Math.PI/2);
+    chair(X+W+18,Y+H/2,-Math.PI/2);
 
+    // Wide soft contact shadow.
     ctx.save();
-    ctx.shadowColor='rgba(14,20,24,.28)';
-    ctx.shadowBlur=22;
-    ctx.shadowOffsetY=8;
-    rr(ctx,X,Y,W,H,42,'rgba(30,39,45,.18)');
+    ctx.shadowColor='rgba(10,16,20,.34)';
+    ctx.shadowBlur=26;
+    ctx.shadowOffsetY=10;
+    rr(ctx,X,Y,W,H,48,'rgba(22,27,31,.22)');
     ctx.restore();
 
-    rr(ctx,X+W*.18,Y+H*.19,W*.64,H*.62,34,'#37444c','#222d33',3);
+    // Central pedestal is recessed under the top.
+    rr(ctx,X+W*.28,Y+H*.18,W*.44,H*.64,32,'#263138','#151c21',2);
 
+    // Dark smoked walnut tabletop.
     const tg=ctx.createLinearGradient(X,Y,X+W,Y+H);
-    tg.addColorStop(0,'#765641');
-    tg.addColorStop(.5,'#8c674b');
-    tg.addColorStop(1,'#684b3a');
-    rr(ctx,X,Y,W,H,42,tg,'#3d3028',3);
+    tg.addColorStop(0,'#584238');
+    tg.addColorStop(.32,'#725443');
+    tg.addColorStop(.68,'#654a3b');
+    tg.addColorStop(1,'#49382f');
+    rr(ctx,X,Y,W,H,48,tg,'#2d2521',3);
 
-    rr(ctx,X+8,Y+8,W-16,H-16,36,null,'rgba(176,188,191,.40)',2);
-    rr(ctx,X+18,Y+16,W-36,7,4,'rgba(255,255,255,.09)');
+    // Wood grain.
+    ctx.save();
+    rr(ctx,X+4,Y+4,W-8,H-8,44,'#000');
+    ctx.clip();
+    for(let gy=Y+18;gy<Y+H-12;gy+=15){
+      ctx.strokeStyle=gy%30?'rgba(255,255,255,.035)':'rgba(23,16,13,.15)';
+      ctx.lineWidth=1;
+      ctx.beginPath();
+      ctx.moveTo(X+20,gy);
+      ctx.bezierCurveTo(X+W*.30,gy-4,X+W*.63,gy+5,X+W-20,gy-1);
+      ctx.stroke();
+    }
+    ctx.restore();
 
-    rr(ctx,X+W*.36,Y+H*.10,W*.28,H*.80,15,'#182a35','#315465',2);
+    // Brushed aluminium edge.
+    rr(ctx,X+7,Y+7,W-14,H-14,41,null,'rgba(171,181,183,.42)',2);
+    ctx.fillStyle='rgba(255,255,255,.095)';
+    rr(ctx,X+22,Y+15,W-44,7,4,'rgba(255,255,255,.095)');
+
+    // Long integrated technology spine.
+    rr(ctx,X+W*.39,Y+H*.09,W*.22,H*.82,18,'#111f28','#2e4b59',2);
+
     ctx.save();
     ctx.shadowColor=P.cyan;
     ctx.shadowBlur=8;
-    ctx.fillStyle='rgba(53,214,233,.52)';
+    ctx.fillStyle='rgba(53,214,233,.46)';
     ctx.fillRect(X+W*.50-1,Y+H*.15,2,H*.70);
     ctx.restore();
 
-    const pods=[
-      [X+W*.31,Y+H*.27],[X+W*.69,Y+H*.27],
-      [X+W*.31,Y+H*.73],[X+W*.69,Y+H*.73]
-    ];
-    for(const [px,py] of pods){
-      rr(ctx,px-14,py-8,28,16,7,'#24343e','#4e6069',1);
-      ctx.fillStyle='rgba(53,214,233,.55)';
-      ctx.fillRect(px-5,py-1,10,2);
+    // Four premium microphone / charging pods.
+    for(const [px,py] of [
+      [X+W*.31,Y+H*.28],[X+W*.69,Y+H*.28],
+      [X+W*.31,Y+H*.72],[X+W*.69,Y+H*.72]
+    ]){
+      rr(ctx,px-16,py-9,32,18,8,'#1c2a31','#56656a',1);
+      ctx.fillStyle='rgba(255,255,255,.10)';
+      ctx.fillRect(px-9,py-5,18,1);
+      ctx.save();
+      ctx.shadowColor=P.cyan;
+      ctx.shadowBlur=4;
+      ctx.fillStyle='rgba(53,214,233,.52)';
+      ctx.fillRect(px-5,py+1,10,2);
+      ctx.restore();
     }
 
-    rr(ctx,X+42,Y+42,42,25,4,'#d9d5c9','#9d9587',1);
-    ctx.fillStyle='#768b93';
-    ctx.fillRect(X+49,Y+49,28,3);
-    ctx.fillRect(X+49,Y+56,20,2);
+    // One tablet, one leather notebook, water carafe + glasses.
+    rr(ctx,X+32,Y+33,49,31,5,'#101e29','#365566',1);
+    ctx.fillStyle='rgba(53,214,233,.46)';
+    ctx.fillRect(X+39,Y+40,35,2);
+    ctx.fillStyle='rgba(255,255,255,.07)';
+    ctx.fillRect(X+39,Y+47,25,2);
 
-    rr(ctx,X+W-84,Y+H-67,42,25,4,'#172a39','#3c6172',1);
-    ctx.fillStyle=P.cyan;
-    ctx.fillRect(X+W-77,Y+H-60,28,2);
+    rr(ctx,X+W-88,Y+H-67,50,31,5,'#b9aa8c','#756752',1);
+    ctx.fillStyle='#e8dfca';
+    ctx.fillRect(X+W-80,Y+H-59,34,3);
 
-    rr(ctx,X+W-62,Y+40,13,27,6,'rgba(204,239,242,.55)','#7799a2',1);
-    ctx.fillStyle='rgba(255,255,255,.34)';
-    ctx.fillRect(X+W-59,Y+44,5,17);
-    for(const gx of [X+W-90,X+W-102]){
-      rr(ctx,gx,Y+47,8,12,3,'rgba(220,245,246,.45)','#829aa1',1);
+    rr(ctx,X+W-67,Y+34,15,31,6,'rgba(204,235,237,.44)','#76939b',1);
+    ctx.fillStyle='rgba(255,255,255,.30)';
+    ctx.fillRect(X+W-63,Y+39,5,20);
+    for(const gx of [X+W-97,X+W-110]){
+      rr(ctx,gx,Y+44,9,13,3,'rgba(220,242,243,.38)','#83999f',1);
     }
   }
 
   function meetingCredenza(ctx,o,T){
     const X=o.x*T,Y=o.y*T,W=o.w*T,H=o.h*T;
-    shadow(ctx,X,Y+5,W,H-5,15,.16);
-    rr(ctx,X,Y,W,H,7,'#293943','#16222a',2);
-    rr(ctx,X+7,Y+10,W-14,H*.57,5,'#835f46','#5f4738',1);
-    for(let x=X+13;x<X+W-15;x+=10){
-      ctx.fillStyle=((x/10)|0)%2?'#a17858':'#926a4e';
-      ctx.fillRect(x,Y+16,5,H*.57-12);
+
+    // One calm architectural storage wall: charcoal shell + walnut fronts.
+    ctx.save();
+    ctx.shadowColor='rgba(15,22,26,.22)';
+    ctx.shadowBlur=14;
+    ctx.shadowOffsetY=5;
+    rr(ctx,X,Y,W,H,7,'rgba(24,33,39,.16)');
+    ctx.restore();
+
+    rr(ctx,X,Y,W,H,7,'#202f38','#101a20',2);
+    rr(ctx,X+7,Y+9,W-14,H*.52,5,'#604838','#3b3028',1);
+
+    for(let x=X+12;x<X+W-14;x+=9){
+      ctx.fillStyle=((x/9)|0)%3===0?'#856249':((x/9)|0)%2?'#755641':'#7d5b45';
+      ctx.fillRect(x,Y+15,5,H*.52-13);
     }
-    rr(ctx,X+10,Y+H*.64,W-20,10,4,'#c7c9c4','#737e80',1);
-    rr(ctx,X+14,Y+H*.70,W-28,42,5,'#172833','#314955',2);
-    txt(ctx,'NEXUS',X+W/2,Y+H*.70+16,9,'#d6f7fa','center',800);
-    ctx.fillStyle='rgba(53,214,233,.55)';
-    ctx.fillRect(X+24,Y+H*.70+27,W-48,2);
+
+    // Stone shelf.
+    rr(ctx,X+8,Y+H*.57,W-16,10,4,'#c7cbc7','#777f7e',1);
+
+    // Minimal NEXUS sculpture niche.
+    rr(ctx,X+11,Y+H*.64,W-22,H*.27,6,'#121f27','#304852',1);
+    ctx.save();
+    ctx.shadowColor=P.cyan;
+    ctx.shadowBlur=7;
+    txt(ctx,'N',X+W/2,Y+H*.745,19,'#d5fbff','center',800);
+    ctx.restore();
+    ctx.fillStyle='rgba(53,214,233,.36)';
+    ctx.fillRect(X+19,Y+H*.82,W-38,2);
   }
 
   function meetingWhiteboard(ctx,o,T){
     const X=o.x*T,Y=o.y*T,W=o.w*T,H=o.h*T;
-    shadow(ctx,X,Y,W,H,12,.12);
-    rr(ctx,X,Y,W,H,6,'#dfe5e2','#56666c',2);
-    rr(ctx,X+8,Y+8,W-16,H-16,3,'#f4f6f2','#b8c2bf',1);
 
-    txt(ctx,'AGENDA',X+W/2,Y+25,10,'#30434c','center',800);
-    line(ctx,X+16,Y+39,X+W-16,Y+39,'#8da0a5',1);
+    // Frameless smoked-glass collaboration board.
+    ctx.save();
+    ctx.shadowColor='rgba(13,20,24,.17)';
+    ctx.shadowBlur=12;
+    rr(ctx,X,Y,W,H,8,'rgba(18,31,37,.10)');
+    ctx.restore();
 
+    rr(ctx,X,Y,W,H,8,'rgba(224,235,232,.74)','rgba(93,113,118,.46)',2);
+    rr(ctx,X+7,Y+7,W-14,H-14,5,'rgba(246,249,245,.72)');
+
+    txt(ctx,'TODAY',X+W/2,Y+24,10,'#34494f','center',800);
+    line(ctx,X+17,Y+38,X+W-17,Y+38,'rgba(69,92,98,.38)',1);
+
+    // Just enough content to read as a real working board.
     const notes=[
-      [X+17,Y+53,'#e6bb69'],[X+W-42,Y+55,'#83c7cd'],
-      [X+22,Y+91,'#d98b77'],[X+W-47,Y+95,'#9abb83']
+      [X+15,Y+53,'#e9c36f'],[X+W-40,Y+54,'#83cbd0'],
+      [X+19,Y+91,'#d98e7b'],[X+W-43,Y+93,'#9dc18f']
     ];
-    for(const [nx,ny,c] of notes) rr(ctx,nx,ny,26,22,2,c,'rgba(71,78,79,.18)',1);
+    for(const [nx,ny,c] of notes){
+      rr(ctx,nx,ny,25,21,3,c,'rgba(74,84,84,.16)',1);
+      ctx.fillStyle='rgba(62,69,69,.32)';
+      ctx.fillRect(nx+6,ny+7,13,1);
+      ctx.fillRect(nx+6,ny+12,9,1);
+    }
 
-    line(ctx,X+45,Y+65,X+W-45,Y+66,'#557682',2);
-    line(ctx,X+W-51,Y+78,X+51,Y+102,'#557682',2);
-    line(ctx,X+50,Y+119,X+W-31,Y+119,'#6a7b80',2);
-    line(ctx,X+50,Y+128,X+W-50,Y+128,'#a06e60',2);
+    line(ctx,X+45,Y+66,X+W-45,Y+67,'#5f818a',2);
+    line(ctx,X+W-48,Y+80,X+48,Y+106,'#5f818a',2);
 
-    rr(ctx,X+18,Y+H-17,W-36,6,3,'#89999d');
-    ctx.fillStyle='#35d6e9';
-    ctx.fillRect(X+30,Y+H-16,18,3);
-    ctx.fillStyle='#d36b5e';
-    ctx.fillRect(X+55,Y+H-16,18,3);
+    ctx.strokeStyle='rgba(65,98,106,.55)';
+    ctx.lineWidth=2;
+    ctx.beginPath();
+    ctx.arc(X+W/2,Y+H*.62,20,0,Math.PI*1.7);
+    ctx.stroke();
+
+    // Floating marker rail.
+    rr(ctx,X+19,Y+H-18,W-38,6,3,'#87979b');
+    ctx.fillStyle=P.cyan;
+    ctx.fillRect(X+28,Y+H-17,17,3);
+    ctx.fillStyle='#d77b6b';
+    ctx.fillRect(X+52,Y+H-17,17,3);
   }
 
   function meetingCoffee(ctx,o,T){
     const X=o.x*T,Y=o.y*T,W=o.w*T,H=o.h*T;
-    shadow(ctx,X,Y+5,W,H-5,14,.15);
-    rr(ctx,X,Y,W,H,7,'#263640','#17222a',2);
-    rr(ctx,X+7,Y+8,W-14,26,5,'#a17858','#624a39',1);
 
-    rr(ctx,X+13,Y+42,W-26,50,5,'#111d25','#3a505c',2);
-    rr(ctx,X+24,Y+51,35,26,4,'#1c2e38','#5b6d74',1);
-    ctx.fillStyle='#9faeb2';
-    ctx.fillRect(X+31,Y+57,21,5);
-    ctx.fillStyle='#40372f';
-    ctx.fillRect(X+36,Y+69,11,5);
+    // Low hospitality console, intentionally secondary.
+    ctx.save();
+    ctx.shadowColor='rgba(13,20,24,.20)';
+    ctx.shadowBlur=12;
+    ctx.shadowOffsetY=5;
+    rr(ctx,X,Y,W,H,8,'rgba(25,34,39,.15)');
+    ctx.restore();
 
-    rr(ctx,X+W-49,Y+50,14,29,5,'rgba(185,225,230,.42)','#75959e',1);
-    ctx.fillStyle='rgba(255,255,255,.30)';
-    ctx.fillRect(X+W-46,Y+54,5,19);
-    for(let i=0;i<3;i++) rr(ctx,X+17+i*15,Y+101,9,13,3,'rgba(216,239,240,.38)','#81989f',1);
+    rr(ctx,X,Y,W,H,8,'#26353d','#162229',2);
+    rr(ctx,X+6,Y+6,W-12,16,5,'#8b674e','#5c4738',1);
+
+    // Small integrated machine.
+    rr(ctx,X+13,Y+29,48,H-42,5,'#111d23','#45555b',1);
+    rr(ctx,X+20,Y+35,34,19,4,'#1e2d33','#67757a',1);
+    ctx.fillStyle='#a6b1b3';
+    ctx.fillRect(X+27,Y+40,20,4);
+    ctx.fillStyle='#493c32';
+    ctx.fillRect(X+31,Y+51,12,4);
+
+    // Water + glass tray.
+    rr(ctx,X+W-48,Y+31,14,28,5,'rgba(191,225,229,.38)','#708e97',1);
+    ctx.fillStyle='rgba(255,255,255,.26)';
+    ctx.fillRect(X+W-44,Y+36,5,17);
+    rr(ctx,X+W-75,Y+44,20,8,4,'#b7bdba','#707a7a',1);
 
     for(let i=0;i<3;i++){
-      rr(ctx,X+10,Y+126+i*21,W-20,17,3,i%2?'#31434c':'#2b3d46','#18252c',1);
-      ctx.fillStyle='#7f9299';
-      ctx.fillRect(X+W/2-10,Y+133+i*21,20,2);
+      rr(ctx,X+W-72+i*13,Y+31,8,12,3,'rgba(219,239,240,.34)','#7e959b',1);
     }
   }
 

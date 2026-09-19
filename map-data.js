@@ -58,23 +58,23 @@
 
   const meetingObjects=[
     {type:'meetingShell',x:0,y:0,w:24,h:32,layer:0},
-    {type:'meetingScreen',x:4.8,y:1.6,w:14.4,h:3.2,layer:1},
-    {type:'meetingCredenza',x:1.25,y:5.0,w:3.35,h:8.0,layer:1},
-    {type:'meetingWhiteboard',x:19.45,y:5.0,w:3.25,h:8.2,layer:1},
-    {type:'meetingTable',x:5.0,y:8.2,w:14.0,h:11.6,layer:1},
-    {type:'meetingCoffee',x:1.25,y:18.0,w:3.35,h:6.0,layer:1},
+    {type:'meetingScreen',x:5.15,y:3.45,w:13.7,h:3.0,layer:1},
+    {type:'meetingCredenza',x:2.55,y:7.1,w:2.65,h:7.1,layer:1},
+    {type:'meetingWhiteboard',x:18.8,y:7.1,w:2.65,h:7.1,layer:1},
+    {type:'meetingTable',x:6.2,y:9.3,w:11.6,h:8.2,layer:1},
+    {type:'meetingCoffee',x:3.0,y:20.55,w:4.25,h:3.55,layer:1},
     {type:'meetingDoor',x:9.6,y:27.65,w:4.8,h:3.25,layer:1,doorId:'meetingExitDoor'},
-    {type:'plant',x:3.8,y:3.4,w:1,h:1,layer:2},
-    {type:'plant',x:19.2,y:3.4,w:1,h:1,layer:2},
-    {type:'plant',x:3.6,y:25.4,w:1,h:1,layer:2},
-    {type:'plant',x:19.4,y:25.4,w:1,h:1,layer:2}
+    {type:'plant',x:3.35,y:4.35,w:1,h:1,layer:2},
+    {type:'plant',x:19.65,y:4.35,w:1,h:1,layer:2},
+    {type:'plant',x:4.15,y:25.35,w:1,h:1,layer:2},
+    {type:'plant',x:18.85,y:25.35,w:1,h:1,layer:2}
   ];
 
   const meetingCollisions=[
     [0,0,24,2],[0,30,24,2],[0,0,2,32],[22,0,2,32],
-    [1,5,4,8],[19,5,4,8],
-    [5,8,14,12],
-    [1,18,4,6]
+    [2,7,3,8],[19,7,3,8],
+    [5,8,14,11],
+    [3,20,5,5]
   ];
 
   const scenes={
@@ -98,6 +98,7 @@
     },
     meeting:{
       id:'meeting',
+      camera:{scale:1.20,center:[12,16.8]},
       objects:meetingObjects,
       collisions:meetingCollisions,
       portals:[
@@ -117,7 +118,7 @@
   };
 
   window.NEXUS_MAP={
-    version:'2.13',tile:T,cols:24,rows:32,width:24*T,height:32*T,
+    version:'2.14',tile:T,cols:24,rows:32,width:24*T,height:32*T,
     floor:{stone:'#d7d9d6',stoneAlt:'#cfd3d1',stoneWarm:'#ddd9d1',grout:'#b7bfbd',highlight:'#f3f5f2',graphite:'#1f2b36',graphiteAlt:'#273642',oak:'#a97f5c',oakAlt:'#bc9169',oakDark:'#765944',metal:'#8f9ba2',cyan:'#35d6e9'},
     team,objects,collisions,scenes,meetingSpot:[12,27],doorSpot:[12,8]
   };
