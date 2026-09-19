@@ -1,32 +1,195 @@
 (() => {
   'use strict';
-  const map=window.NEXUS_MAP,sprites=window.NEXUS_SPRITES,canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
-  ctx.imageSmoothingEnabled=true;
-  const team=map.team.map((a,i)=>({...a,path:[],state:'Idle',facing:'down',step:0,wave:0,phase:i*.72}));
-  let selected=team[0],elapsed=0,last=performance.now();
-  const solid=Array.from({length:map.rows},()=>Array(map.cols).fill(0));
-  for(const [x,y,w,h] of map.collisions)for(let yy=y;yy<y+h;yy++)for(let xx=x;xx<x+w;xx++)if(xx>=0&&yy>=0&&xx<map.cols&&yy<map.rows)solid[yy][xx]=1;
-  for(const a of team)solid[a.desk[1]][a.desk[0]]=0;solid[map.meetingSpot[1]][map.meetingSpot[0]]=0;
-  const feed=document.getElementById('feed');
 
-  function log(text){const d=document.createElement('div');d.className='feed-item';d.innerHTML='<time>'+new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+'</time><div>'+text+'</div>';feed.prepend(d);while(feed.children.length>3)feed.removeChild(feed.lastChild);}
-  function initials(n){return n.slice(0,2).toUpperCase();}
-  function teamUI(){const list=document.getElementById('teamList');list.innerHTML='';team.forEach(a=>{const b=document.createElement('button');b.className='team-card'+(a===selected?' active':'');b.innerHTML='<span class="avatar">'+initials(a.name)+'</span><span><strong>'+a.name+'</strong><small>'+a.role+'</small></span><i class="online"></i>';b.onclick=()=>{selected=a;updateUI();log(a.name+' ausgewählt');};list.appendChild(b);});}
-  function updateUI(){teamUI();selectedName.textContent=selected.name;selectedRole.textContent=selected.role;selectedState.textContent=selected.state;selectedPos.textContent='['+Math.round(selected.x)+', '+Math.round(selected.y)+']';}
+  const map=window.NEXUS_MAP;
+  const sprites=window.NEXUS_SPRITES;
+  const canvas=document.getElementById('game');
+  const ctx=canvas.getContext('2d');
+  ctx.imageSmoothingEnabled=true;
+
+  const team=map.team.map((a,i)=>({
+    ...a,
+    path:[],
+    state:'Idle',
+    facing:'down',
+    step:0,
+    wave:0,
+    phase:i*.72
+  }));
+
+  let selected=team[0];
+  let elapsed=0;
+  let last=performance.now();
+
+  const solid=Array.from({length:map.rows},()=>Array(map.cols).fill(0));
+  for(const [x,y,w,h] of map.collisions){
+    for(let yy=y;yy<y+h;yy++){
+      for(let xx=x;xx<x+w;xx++){
+        if(xx>=0&&yy>=0&&xx<map.cols&&yy<map.rows) solid[yy][xx]=1;
+      }
+    }
+  }
+  for(const a of team) solid[a.desk[1]][a.desk[0]]=0;
+  solid[map.meetingSpot[1]][map.meetingSpot[0]]=0;
+
   function key(x,y){return x+','+y;}
-  function neighbors(x,y){const out=[];for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+dx,ny=y+dy;if(nx>=0&&ny>=0&&nx<map.cols&&ny<map.rows&&!solid[ny][nx])out.push([nx,ny]);}return out;}
-  function findPath(sx,sy,tx,ty){sx=Math.round(sx);sy=Math.round(sy);tx=Math.round(tx);ty=Math.round(ty);if(tx<0||ty<0||tx>=map.cols||ty>=map.rows||solid[ty][tx])return null;const q=[[sx,sy]],came=new Map(),seen=new Set([key(sx,sy)]);while(q.length){const [x,y]=q.shift();if(x===tx&&y===ty){const p=[[x,y]];let k=key(x,y);while(came.has(k)){const prev=came.get(k);p.push(prev);k=key(prev[0],prev[1]);}return p.reverse();}for(const n of neighbors(x,y)){const k=key(n[0],n[1]);if(!seen.has(k)){seen.add(k);came.set(k,[x,y]);q.push(n);}}}return null;}
-  function nearestFree(tx,ty,maxR=4){tx=Math.max(0,Math.min(map.cols-1,tx));ty=Math.max(0,Math.min(map.rows-1,ty));if(!solid[ty][tx])return[tx,ty];for(let r=1;r<=maxR;r++)for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){if(Math.abs(dx)!==r&&Math.abs(dy)!==r)continue;const x=tx+dx,y=ty+dy;if(x>=0&&y>=0&&x<map.cols&&y<map.rows&&!solid[y][x])return[x,y];}return null;}
-  function moveActor(a,tx,ty,label=''){const free=nearestFree(tx,ty);if(!free){log('Kein freier Zielpunkt für '+a.name);return;}const path=findPath(a.x,a.y,free[0],free[1]);if(!path||path.length<2){log('Kein freier Weg für '+a.name);return;}a.path=path.slice(1);a.state='Walk';a.step=0;if(label)log(a.name+' → '+label);updateUI();}
-  function update(dt){elapsed+=dt;for(const a of team){if(a.wave>0){a.wave-=dt;if(a.wave<=0)a.state='Idle';}if(!a.path.length)continue;const[tx,ty]=a.path[0],dx=tx-a.x,dy=ty-a.y,d=Math.hypot(dx,dy);if(Math.abs(dx)>.02)a.facing=dx>0?'right':'left';else if(Math.abs(dy)>.02)a.facing=dy>0?'down':'up';const speed=2.7;if(d<speed*dt){a.x=tx;a.y=ty;a.path.shift();if(!a.path.length){a.state='Idle';log(a.name+' angekommen');}}else{a.x+=dx/d*speed*dt;a.y+=dy/d*speed*dt;a.step+=dt;}}}
-  function render(){ctx.clearRect(0,0,canvas.width,canvas.height);sprites.drawFloor(ctx,map);const low=map.objects.filter(o=>(o.layer||0)===0),mid=map.objects.filter(o=>(o.layer||0)===1),high=map.objects.filter(o=>(o.layer||0)>=2);low.forEach(o=>sprites.drawObject(ctx,o,map.tile));mid.forEach(o=>sprites.drawObject(ctx,o,map.tile));[...team].sort((a,b)=>a.y-b.y).forEach(a=>sprites.drawCharacter(ctx,a,map.tile,a===selected,elapsed));high.forEach(o=>sprites.drawObject(ctx,o,map.tile));}
-  function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;update(dt);render();if((now|0)%350<18)updateUI();requestAnimationFrame(loop);}
-  canvas.addEventListener('pointerdown',e=>{const r=canvas.getBoundingClientRect(),x=Math.floor((e.clientX-r.left)/r.width*map.cols),y=Math.floor((e.clientY-r.top)/r.height*map.rows);moveActor(selected,x,y,'Ziel ['+x+', '+y+']');});
-  idleBtn.onclick=()=>{selected.path=[];selected.state='Idle';selected.wave=0;log(selected.name+' → Idle');updateUI();};
-  waveBtn.onclick=()=>{selected.path=[];selected.state='Wave';selected.wave=1.4;log(selected.name+' → Wave');updateUI();};
-  deskBtn.onclick=()=>moveActor(selected,selected.desk[0],selected.desk[1],'Arbeitsplatz');
-  meetingBtn.onclick=()=>moveActor(selected,map.meetingSpot[0],map.meetingSpot[1],'Meeting');
-  document.querySelectorAll('.tabs button').forEach((b,i)=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');if(i!==0)log(b.textContent+' · UI-Platzhalter für Backend-Projektion');});
-  teamUI();updateUI();log('NEXUS Retro Office 2.3 gestartet');log('Portrait-Layout + detaillierter Art-Pass aktiv');log('Namenslabels in der Szene entfernt');
-  requestAnimationFrame(t=>{last=t;requestAnimationFrame(loop);});
+
+  function neighbors(x,y){
+    const out=[];
+    for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
+      const nx=x+dx,ny=y+dy;
+      if(nx>=0&&ny>=0&&nx<map.cols&&ny<map.rows&&!solid[ny][nx]) out.push([nx,ny]);
+    }
+    return out;
+  }
+
+  function findPath(sx,sy,tx,ty){
+    sx=Math.round(sx);sy=Math.round(sy);tx=Math.round(tx);ty=Math.round(ty);
+    if(tx<0||ty<0||tx>=map.cols||ty>=map.rows||solid[ty][tx]) return null;
+
+    const queue=[[sx,sy]];
+    const came=new Map();
+    const seen=new Set([key(sx,sy)]);
+
+    while(queue.length){
+      const [x,y]=queue.shift();
+
+      if(x===tx&&y===ty){
+        const path=[[x,y]];
+        let k=key(x,y);
+        while(came.has(k)){
+          const prev=came.get(k);
+          path.push(prev);
+          k=key(prev[0],prev[1]);
+        }
+        return path.reverse();
+      }
+
+      for(const n of neighbors(x,y)){
+        const k=key(n[0],n[1]);
+        if(!seen.has(k)){
+          seen.add(k);
+          came.set(k,[x,y]);
+          queue.push(n);
+        }
+      }
+    }
+    return null;
+  }
+
+  function nearestFree(tx,ty,maxR=4){
+    tx=Math.max(0,Math.min(map.cols-1,tx));
+    ty=Math.max(0,Math.min(map.rows-1,ty));
+    if(!solid[ty][tx]) return [tx,ty];
+
+    for(let r=1;r<=maxR;r++){
+      for(let dy=-r;dy<=r;dy++){
+        for(let dx=-r;dx<=r;dx++){
+          if(Math.abs(dx)!==r&&Math.abs(dy)!==r) continue;
+          const x=tx+dx,y=ty+dy;
+          if(x>=0&&y>=0&&x<map.cols&&y<map.rows&&!solid[y][x]) return [x,y];
+        }
+      }
+    }
+    return null;
+  }
+
+  function moveActor(actor,tx,ty){
+    const free=nearestFree(tx,ty);
+    if(!free) return;
+
+    const path=findPath(actor.x,actor.y,free[0],free[1]);
+    if(!path||path.length<2) return;
+
+    actor.path=path.slice(1);
+    actor.state='Walk';
+    actor.step=0;
+  }
+
+  function update(dt){
+    elapsed+=dt;
+
+    for(const actor of team){
+      if(actor.wave>0){
+        actor.wave-=dt;
+        if(actor.wave<=0) actor.state='Idle';
+      }
+
+      if(!actor.path.length) continue;
+
+      const [tx,ty]=actor.path[0];
+      const dx=tx-actor.x;
+      const dy=ty-actor.y;
+      const distance=Math.hypot(dx,dy);
+
+      if(Math.abs(dx)>.02) actor.facing=dx>0?'right':'left';
+      else if(Math.abs(dy)>.02) actor.facing=dy>0?'down':'up';
+
+      const speed=2.7;
+      if(distance<speed*dt){
+        actor.x=tx;
+        actor.y=ty;
+        actor.path.shift();
+        if(!actor.path.length) actor.state='Idle';
+      }else{
+        actor.x+=dx/distance*speed*dt;
+        actor.y+=dy/distance*speed*dt;
+        actor.step+=dt;
+      }
+    }
+  }
+
+  function render(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    sprites.drawFloor(ctx,map);
+
+    const low=map.objects.filter(o=>(o.layer||0)===0);
+    const mid=map.objects.filter(o=>(o.layer||0)===1);
+    const high=map.objects.filter(o=>(o.layer||0)>=2);
+
+    low.forEach(o=>sprites.drawObject(ctx,o,map.tile));
+    mid.forEach(o=>sprites.drawObject(ctx,o,map.tile));
+
+    [...team]
+      .sort((a,b)=>a.y-b.y)
+      .forEach(actor=>sprites.drawCharacter(ctx,actor,map.tile,false,elapsed));
+
+    high.forEach(o=>sprites.drawObject(ctx,o,map.tile));
+  }
+
+  function loop(now){
+    const dt=Math.min(.05,(now-last)/1000);
+    last=now;
+    update(dt);
+    render();
+    requestAnimationFrame(loop);
+  }
+
+  canvas.addEventListener('pointerdown',event=>{
+    const rect=canvas.getBoundingClientRect();
+    const tx=(event.clientX-rect.left)/rect.width*map.cols;
+    const ty=(event.clientY-rect.top)/rect.height*map.rows;
+
+    let hit=null;
+    let hitDistance=.9;
+    for(const actor of team){
+      const d=Math.hypot(actor.x-tx,actor.y-ty);
+      if(d<hitDistance){
+        hit=actor;
+        hitDistance=d;
+      }
+    }
+
+    if(hit){
+      selected=hit;
+      return;
+    }
+
+    moveActor(selected,Math.floor(tx),Math.floor(ty));
+  });
+
+  requestAnimationFrame(now=>{
+    last=now;
+    requestAnimationFrame(loop);
+  });
 })();

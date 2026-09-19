@@ -1,21 +1,21 @@
-# NEXUS Retro Office 2.3
+# NEXUS Retro Office 2.4
 
-Art-Pass des modularen Retro-Offices mit deutlich stärkerer Orientierung an einer hochwertigen, detailreichen Handheld-RPG-Ästhetik.
+Scene-only-Ausbaustufe des modularen Retro-Offices.
 
 ## Änderungen
 
-- Hochformat-Spielwelt 768 × 1024 (3:4) statt breiter 3:2-Fläche
-- kleinere, feinere Charakter-Sprites
-- keine permanenten Namenslabels in der Szene
-- Glasbüros, Empfang, Arbeitsplätze, Technikbereich und Eingang neu proportioniert
-- schmalere Treppen
-- stärkere Licht-, Schatten-, Glas- und Materialwirkung
-- mehr freie Bodenfläche für glaubwürdige Laufwege
-- Map, Sprite-System und App-Logik bleiben getrennt
+- komplette Dashboard-Hülle entfernt
+- kein Header, keine Tabs, keine Sidebars
+- keine Steuerungsbuttons, Statusanzeigen oder Live-Activity
+- kein Versions-Badge im Büro
+- nur noch die Office-Szene im Browser
+- 3:4-Spielwelt bleibt unverändert
+- alle 8 Charaktere und Pathfinding bleiben aktiv
+- Tap auf eine Figur wählt sie unsichtbar aus; Tap auf freien Boden bewegt die ausgewählte Figur
+- sichtbarer Auswahlpfeil entfernt
+- Map, Sprite-System und Logik bleiben getrennt
 - kein Hintergrundbild, kein 3D
-
-Das bestehende NEXUS-Backend bleibt unverändert; die Oberfläche ist weiterhin eine Read-only-Preview.
 
 ## Version
 
-Office 2.3 · Cache 230
+Office 2.4 · Cache 240
