@@ -40,15 +40,30 @@
 
   const archiveObjects=[
     {type:'archiveShell',x:0,y:0,w:24,h:32,layer:0},
+
+    {type:'archiveCabinet',x:2.15,y:4.1,w:3.55,h:5.25,layer:1,label:'A–D',variant:'steel'},
+    {type:'archiveShelf',x:2.15,y:9.75,w:3.55,h:6.25,layer:1,label:'E–K',variant:'binders'},
+    {type:'archiveShelf',x:2.15,y:16.4,w:3.55,h:6.7,layer:1,label:'L–R',variant:'mixed'},
+
+    {type:'archiveCabinet',x:18.3,y:4.1,w:3.55,h:5.25,layer:1,label:'S–Z',variant:'steel'},
+    {type:'archiveShelf',x:18.3,y:9.75,w:3.55,h:6.25,layer:1,label:'UMLAUF',variant:'folders'},
+    {type:'archiveShelf',x:18.3,y:16.4,w:3.55,h:6.7,layer:1,label:'BOXEN',variant:'boxes'},
+
+    {type:'archiveCart',x:6.0,y:12.15,w:2.2,h:2.7,layer:1,label:'UMLAUF'},
+    {type:'archiveCart',x:15.8,y:12.15,w:2.2,h:2.7,layer:1,label:'EINGANG'},
+
     {type:'personalDesk',x:7.2,y:16.0,w:9.6,h:5.0,layer:1,variant:'archive',owner:'GISELA',subtitle:'WISSEN & ARCHIV'},
     {type:'meetingDoor',x:9.6,y:27.65,w:4.8,h:3.25,layer:1,doorId:'archiveExitDoor'},
+
     {type:'plant',x:5.45,y:23.4,w:1,h:1,layer:2},
     {type:'plant',x:17.5,y:23.4,w:1,h:1,layer:2}
   ];
 
   const archiveCollisions=[
     [0,0,24,2],[0,30,24,2],[0,0,2,32],[22,0,2,32],
-    [2,4,4,20],[18,4,4,20],[7,15,10,7]
+    [2,4,4,20],[18,4,4,20],
+    [6,12,2,3],[16,12,2,3],
+    [7,15,10,7]
   ];
 
   const serverObjects=[
@@ -106,7 +121,7 @@
   };
 
   window.NEXUS_MAP={
-    version:'2.17',tile:T,cols:24,rows:32,width:24*T,height:32*T,
+    version:'2.18',tile:T,cols:24,rows:32,width:24*T,height:32*T,
     floor:{stone:'#d7d9d6',stoneAlt:'#cfd3d1',stoneWarm:'#ddd9d1',grout:'#b7bfbd',highlight:'#f3f5f2',graphite:'#1f2b36',graphiteAlt:'#273642',oak:'#a97f5c',oakAlt:'#bc9169',oakDark:'#765944',metal:'#8f9ba2',cyan:'#35d6e9'},
     team,objects,collisions,scenes,meetingSpot:[12,27],doorSpot:[12,8]
   };
