@@ -1,28 +1,21 @@
-# NEXUS Retro Office 2.2
+# NEXUS Retro Office 2.3
 
-Struktureller Neustart innerhalb der Retro-Version: echtes modulares Tile-/Sprite-System statt einer monolithischen Canvas-Zeichnung.
+Art-Pass des modularen Retro-Offices mit deutlich stärkerer Orientierung an einer hochwertigen, detailreichen Handheld-RPG-Ästhetik.
 
-## Aufbau
+## Änderungen
 
-- `map-data.js`: Büro-Layout, Objekte, Kollisionen, Team-Startpunkte
-- `sprite-system.js`: wiederverwendbare Möbel-, Raum- und Charakter-Sprites
-- `app.js`: Bewegung, Pathfinding, Auswahl und UI
-- `styles.css`: responsive Safari-/Desktop-Oberfläche
-- `index.html`: schlanke App-Shell
+- Hochformat-Spielwelt 768 × 1024 (3:4) statt breiter 3:2-Fläche
+- kleinere, feinere Charakter-Sprites
+- keine permanenten Namenslabels in der Szene
+- Glasbüros, Empfang, Arbeitsplätze, Technikbereich und Eingang neu proportioniert
+- schmalere Treppen
+- stärkere Licht-, Schatten-, Glas- und Materialwirkung
+- mehr freie Bodenfläche für glaubwürdige Laufwege
+- Map, Sprite-System und App-Logik bleiben getrennt
+- kein Hintergrundbild, kein 3D
 
-## Darstellung
-
-- 960 × 640 interne Renderauflösung
-- weichere Kanten und Anti-Aliasing
-- detaillierte Glasbüros, Schreibtische, Monitore, Treppen, Pflanzen, Empfang und Sofas
-- alle 8 NEXUS-Charaktere separat konfiguriert
-- kein Hintergrundbild
-- kein Babylon.js / kein 3D
-
-Das bestehende NEXUS-Backend wird nicht verändert. Die Oberfläche bleibt eine Read-only-Preview.
+Das bestehende NEXUS-Backend bleibt unverändert; die Oberfläche ist weiterhin eine Read-only-Preview.
 
 ## Version
 
-Office 2.2 · Cache 220
-
-Die älteren Office-Stände bleiben über die Git-Historie erhalten.
+Office 2.3 · Cache 230
